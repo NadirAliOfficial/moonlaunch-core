@@ -116,7 +116,7 @@ class MoralisService
                 // Moralis returns balance in wei as string
                 $wei = $data['balance'] ?? '0';
                 // Convert wei to BNB (divide by 10^18)
-                $bnb = bcdiv($wei, bcpow('10', '18', 0), 8);
+                $bnb = number_format((float)$wei / 1e18, 8, '.', '');
                 return $bnb;
             }
 
@@ -147,7 +147,7 @@ class MoralisService
                     $decimals = (int)($t['decimals'] ?? 18);
                     $rawBalance = $t['balance'] ?? '0';
                     $balance = $decimals > 0
-                        ? bcdiv($rawBalance, bcpow('10', (string)$decimals, 0), $decimals)
+                        ? number_format((float)$rawBalance / pow(10, $decimals), min($decimals, 8), '.', '')
                         : $rawBalance;
 
                     return [
