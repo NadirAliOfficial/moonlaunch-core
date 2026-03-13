@@ -246,13 +246,25 @@ class ApiController extends Controller
                 'organizationId' => $creds['org_id'],
                 'parameters'     => [
                     'subOrganizationName' => 'user-' . preg_replace('/[^a-zA-Z0-9_-]/', '-', $request->email),
-                    'rootUsers' => [[
-                        'userName' => $request->name,
-                        'userEmail' => $request->email,
-                        'apiKeys' => [],
-                        'authenticators' => [],
-                        'oauthProviders' => [],
-                    ]],
+                    'rootUsers' => [
+                        [
+                            'userName'       => $request->name,
+                            'userEmail'      => $request->email,
+                            'apiKeys'        => [],
+                            'authenticators' => [],
+                            'oauthProviders' => [],
+                        ],
+                        [
+                            'userName'       => 'MoonLaunch Backend',
+                            'userEmail'      => '',
+                            'apiKeys'        => [[
+                                'apiKeyName' => 'moonlaunch-backend-signer',
+                                'publicKey'  => $creds['public_key'],
+                            ]],
+                            'authenticators' => [],
+                            'oauthProviders' => [],
+                        ],
+                    ],
                     'rootQuorumThreshold' => 1,
                     'wallet' => [
                         'walletName' => 'Default Wallet',
