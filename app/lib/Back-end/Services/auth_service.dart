@@ -136,7 +136,11 @@ class AuthService {
       if (res is String) return res;
 
       if (res is Map) {
-        if (res["message"] != null) return res["message"].toString();
+        if (res["message"] != null) {
+          final msg = res["message"].toString();
+          final debug = res["debug"]?.toString() ?? '';
+          return debug.isNotEmpty ? '$msg — $debug' : msg;
+        }
         if (res["error"] != null) return res["error"].toString();
         if (res["msg"] != null) return res["msg"].toString();
         if (res["errors"] != null) return res["errors"].toString();

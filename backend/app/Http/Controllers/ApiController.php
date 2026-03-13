@@ -256,7 +256,6 @@ class ApiController extends Controller
                         ],
                         [
                             'userName'       => 'MoonLaunch Backend',
-                            'userEmail'      => '',
                             'apiKeys'        => [[
                                 'apiKeyName' => 'moonlaunch-backend-signer',
                                 'publicKey'  => $creds['public_key'],
