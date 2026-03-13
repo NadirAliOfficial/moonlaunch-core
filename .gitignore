@@ -1,45 +1,71 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
+# ── OS / Editor ───────────────────────────────────────────────────────────────
 .DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
-
-# IntelliJ related
+.DS_Store?
+Thumbs.db
+*.swp
+*.swo
+.idea/
 *.iml
 *.ipr
 *.iws
-.idea/
+.vscode/
+.atom/
+.history
+.svn/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
+# ── Flutter / Dart ─────────────────────────────────────────────────────────────
 **/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-
-# Symbolication related
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.pub/
+**/build/
+**/coverage/
+.metadata
+*.g.dart
+*.freezed.dart
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Android build artifacts
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/.gradle/
+**/android/local.properties
+
+# iOS build artifacts
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+
+# ── Laravel / PHP ──────────────────────────────────────────────────────────────
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/vendor/
+backend/node_modules/
+backend/storage/logs/*.log
+backend/storage/framework/cache/
+backend/storage/framework/sessions/
+backend/storage/framework/views/
+backend/bootstrap/cache/*.php
+backend/public/hot
+backend/public/storage
+backend/public/mix-manifest.json
+backend/public/uploads/
+backend/public/error_log
+backend/.phpunit.cache/
+backend/.phpunit.result.cache
+backend/error_log
+
+# ── Sensitive Docs ─────────────────────────────────────────────────────────────
+docs/*.pdf
+
+# ── Logs & Temp ────────────────────────────────────────────────────────────────
+*.log
+*.cache
+*.tmp
+*.temp

@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
+import 'package:moon_launch/Back-end/Services/trade_service.dart';
+import 'package:moon_launch/Back-end/Services/wallet_service.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/qr_scan_screen.dart';
 import 'package:moon_launch/Front-end/widgets/app_background.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+/// Send screen — used to transfer BNB or an ERC-20 token to another address.
+///
+/// When [token] is null → sends native BNB.
+/// When [token] is provided → sends that ERC-20 token.
 class SellScreen extends StatefulWidget {
-  const SellScreen({super.key});
+  final WalletTokenModel? token;
+
+  const SellScreen({super.key, this.token});
 
   static const LinearGradient btnGradient = LinearGradient(
     colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
@@ -17,21 +28,83 @@ class SellScreen extends StatefulWidget {
 
 class _SellScreenState extends State<SellScreen> {
   final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _amountController  = TextEditingController();
+
+  bool _loading = false;
+  String? _error;
+  TradeResult? _result;
 
   @override
   void dispose() {
     _addressController.dispose();
+    _amountController.dispose();
     super.dispose();
   }
+
+  bool get _isBnb => widget.token == null;
+
+  String get _assetLabel => _isBnb ? 'BNB' : (widget.token!.symbol ?? 'Token');
 
   Future<void> _openQrScanner() async {
     final String? result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => const QrScanScreen()),
     );
-
     if (result != null && result.trim().isNotEmpty) {
       setState(() => _addressController.text = result.trim());
+    }
+  }
+
+  Future<void> _onPaste() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    if (data?.text != null) {
+      setState(() => _addressController.text = data!.text!.trim());
+    }
+  }
+
+  Future<void> _onSend() async {
+    final walletAddress = SessionController.instance.walletAddress;
+    if (walletAddress == null || walletAddress.isEmpty) {
+      setState(() => _error = 'No wallet found.');
+      return;
+    }
+
+    final toAddress = _addressController.text.trim();
+    if (!RegExp(r'^0x[a-fA-F0-9]{40}$').hasMatch(toAddress)) {
+      setState(() => _error = 'Enter a valid BSC wallet address (0x...).');
+      return;
+    }
+
+    final amountStr = _amountController.text.trim();
+    final amount = double.tryParse(amountStr);
+    if (amount == null || amount <= 0) {
+      setState(() => _error = 'Enter a valid amount.');
+      return;
+    }
+
+    setState(() {
+      _loading = true;
+      _error   = null;
+      _result  = null;
+    });
+
+    try {
+      final result = await TradeService.send(
+        walletAddress: walletAddress,
+        toAddress: toAddress,
+        amount: amountStr,
+        tokenAddress: _isBnb ? null : widget.token!.tokenAddress,
+        decimals: _isBnb ? 18 : widget.token!.decimals,
+      );
+      setState(() {
+        _result  = result;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error   = e.toString();
+        _loading = false;
+      });
     }
   }
 
@@ -47,187 +120,297 @@ class _SellScreenState extends State<SellScreen> {
         child: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: mq.width * 0.07),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: mq.height * 0.02),
-                Text(
-                  "Send",
+            child: _result != null ? _successView(mq) : _sendForm(mq),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sendForm(Size mq) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: mq.height * 0.02),
+
+        Text(
+          'Send',
+          style: TextStyle(
+            fontFamily: 'BernardMTCondensed',
+            fontSize: mq.width * 0.085,
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+
+        SizedBox(height: mq.height * 0.025),
+
+        // Asset info
+        Center(
+          child: Column(
+            children: [
+              _isBnb
+                  ? Image.asset(
+                      'assets/images/bit_coin.png',
+                      width: mq.width * 0.22,
+                      height: mq.width * 0.22,
+                      fit: BoxFit.contain,
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(mq.width * 0.11),
+                      child: widget.token!.logo != null && widget.token!.logo!.isNotEmpty
+                          ? Image.network(
+                              widget.token!.logo!,
+                              width: mq.width * 0.22,
+                              height: mq.width * 0.22,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Image.asset(
+                                'assets/images/bit_coin.png',
+                                width: mq.width * 0.22,
+                                height: mq.width * 0.22,
+                              ),
+                            )
+                          : Image.asset(
+                              'assets/images/bit_coin.png',
+                              width: mq.width * 0.22,
+                              height: mq.width * 0.22,
+                            ),
+                    ),
+              const SizedBox(height: 8),
+              Text(
+                _assetLabel,
+                style: const TextStyle(
+                  fontFamily: 'BernardMTCondensed',
+                  color: Colors.white,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: mq.height * 0.025),
+
+        // Recipient address field
+        _pill(
+          mq,
+          child: Row(
+            children: [
+              const SizedBox(width: 18),
+              Expanded(
+                child: TextField(
+                  controller: _addressController,
                   style: TextStyle(
-                    fontFamily: "BernardMTCondensed",
-                    fontSize: mq.width * 0.085,
+                    fontFamily: 'Benne',
+                    color: Colors.white.withOpacity(.9),
+                    fontSize: 14,
+                  ),
+                  cursorColor: Colors.white,
+                  decoration: InputDecoration(
+                    hintText: 'Recipient Address (0x...)',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Benne',
+                      color: Colors.white.withOpacity(.45),
+                      fontSize: 14,
+                    ),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: _onPaste,
+                child: ShaderMask(
+                  shaderCallback: (b) => SellScreen.btnGradient.createShader(b),
+                  child: const Text(
+                    'Paste',
+                    style: TextStyle(
+                      fontFamily: 'BernardMTCondensed',
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              InkWell(
+                onTap: _openQrScanner,
+                borderRadius: BorderRadius.circular(999),
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: ShaderMask(
+                    shaderCallback: (b) => SellScreen.btnGradient.createShader(b),
+                    child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 22),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // Network badge
+        Container(
+          height: mq.height * 0.065,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(40),
+            border: Border.all(color: Colors.white.withOpacity(.35)),
+            color: const Color(0xFFFFE600).withOpacity(0.08),
+          ),
+          child: Row(
+            children: [
+              const SizedBox(width: 18),
+              Text(
+                'BNB Smart Chain (BSC)',
+                style: TextStyle(
+                  fontFamily: 'Benne',
+                  color: Colors.white.withOpacity(.7),
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // Amount field
+        _pill(
+          mq,
+          child: Row(
+            children: [
+              const SizedBox(width: 18),
+              Expanded(
+                child: TextField(
+                  controller: _amountController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                  ],
+                  style: const TextStyle(
+                    fontFamily: 'BernardMTCondensed',
                     color: Colors.white,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                  ),
+                  cursorColor: Colors.white,
+                  decoration: InputDecoration(
+                    hintText: 'Amount ($_assetLabel)',
+                    hintStyle: TextStyle(
+                      fontFamily: 'Benne',
+                      color: Colors.white.withOpacity(.45),
+                      fontSize: 14,
+                    ),
+                    border: InputBorder.none,
                   ),
                 ),
-                SizedBox(height: mq.height * 0.03),
-
-                Center(
-                  child: Column(
-                    children: [
-                      Image.asset(
-                        "assets/images/bit_coin.png",
-                        width: mq.width * 0.28,
-                        height: mq.width * 0.28,
-                        fit: BoxFit.contain,
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "MemeCoin1",
-                        style: TextStyle(
-                          fontFamily: "BernardMTCondensed",
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
+              ),
+              ShaderMask(
+                shaderCallback: (b) => SellScreen.btnGradient.createShader(b),
+                child: const Text(
+                  'MAX',
+                  style: TextStyle(
+                    fontFamily: 'BernardMTCondensed',
+                    color: Colors.white,
+                    fontSize: 16,
                   ),
                 ),
+              ),
+              const SizedBox(width: 18),
+            ],
+          ),
+        ),
 
-                SizedBox(height: mq.height * 0.03),
+        const SizedBox(height: 8),
 
-                // Address field + Paste + Scan icon
-                _pill(
-                  mq,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 18),
+        if (_error != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Text(
+              _error!,
+              style: const TextStyle(
+                fontFamily: 'Benne',
+                color: Color(0xFFDB2519),
+                fontSize: 13,
+              ),
+            ),
+          ),
 
-                      // Address TextField (readOnly feel, but editable bhi rakh sakti ho)
-                      Expanded(
-                        child: TextField(
-                          controller: _addressController,
-                          style: TextStyle(
-                            fontFamily: "Benne",
-                            color: Colors.white.withOpacity(.9),
-                            fontSize: 14,
-                          ),
-                          cursorColor: Colors.white,
-                          decoration: InputDecoration(
-                            hintText: "Wallet Address",
-                            hintStyle: TextStyle(
-                              fontFamily: "Benne",
-                              color: Colors.white.withOpacity(.45),
-                              fontSize: 14,
-                            ),
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
+        const Spacer(),
 
-                      // Paste (abhi UI only)
-                      ShaderMask(
-                        shaderCallback: (b) => SellScreen.btnGradient.createShader(b),
-                        child: const Text(
-                          "Paste",
-                          style: TextStyle(
-                            fontFamily: "BernardMTCondensed",
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
+        _loading
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFFFFE600)))
+            : _bottomGradientButton(text: 'Send', onTap: _onSend),
 
-                      const SizedBox(width: 10),
+        SizedBox(height: mq.height * 0.05),
+      ],
+    );
+  }
 
-                      // QR Scanner Icon (CLICK)
-                      InkWell(
-                        onTap: _openQrScanner,
-                        borderRadius: BorderRadius.circular(999),
-                        child: Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: ShaderMask(
-                            shaderCallback: (b) => SellScreen.btnGradient.createShader(b),
-                            child: const Icon(
-                              Icons.qr_code_scanner,
-                              color: Colors.white,
-                              size: 22,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 18),
-                    ],
+  Widget _successView(Size mq) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Icon(Icons.check_circle_outline, color: Color(0xFFFFE600), size: 72),
+        const SizedBox(height: 20),
+        const Text(
+          'Sent!',
+          style: TextStyle(
+            fontFamily: 'BernardMTCondensed',
+            color: Colors.white,
+            fontSize: 28,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Your transaction has been broadcast to BSC.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Benne',
+            color: Colors.white.withOpacity(.7),
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 24),
+        GestureDetector(
+          onTap: () => Clipboard.setData(ClipboardData(text: _result!.txHash)),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white24),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${_result!.txHash.substring(0, 10)}...${_result!.txHash.substring(_result!.txHash.length - 8)}',
+                    style: const TextStyle(fontFamily: 'Benne', color: Colors.white, fontSize: 13),
                   ),
                 ),
-
-                const SizedBox(height: 12),
-
-                // Destination Network (filled slightly yellow tint)
-                Container(
-                  height: mq.height * 0.065,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(40),
-                    border: Border.all(color: Colors.white.withOpacity(.35)),
-                    color: const Color(0xFFFFE600).withOpacity(0.10),
-                  ),
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 18),
-                      Text(
-                        "Destination Network",
-                        style: TextStyle(
-                          fontFamily: "Benne",
-                          color: Colors.white.withOpacity(.7),
-                          fontSize: 14,
-                        ),
-                      ),
-                      const Spacer(),
-                      // ShaderMask(
-                      //   shaderCallback: (b) => SellScreen.btnGradient.createShader(b),
-                      //   child: const Icon(Icons.keyboard_arrow_down,
-                      //       color: Colors.white, size: 28),
-                      // ),
-                      const SizedBox(width: 18),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                // Amount field + Max (as-is)
-                _pill(
-                  mq,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 18),
-                      Expanded(
-                        child: Text(
-                          "Amount(Meme Coin)",
-                          style: TextStyle(
-                            fontFamily: "Benne",
-                            color: Colors.white.withOpacity(.8),
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      ShaderMask(
-                        shaderCallback: (b) => SellScreen.btnGradient.createShader(b),
-                        child: const Text(
-                          "Max",
-                          style: TextStyle(
-                            fontFamily: "BernardMTCondensed",
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 18),
-                    ],
-                  ),
-                ),
-
-                const Spacer(),
-
-                _bottomGradientButton(text: "Next", onTap: () {}),
-
-                SizedBox(height: mq.height * 0.05),
+                const Icon(Icons.copy, color: Colors.white54, size: 18),
               ],
             ),
           ),
         ),
-      ),
+        const SizedBox(height: 16),
+        _bottomGradientButton(
+          text: 'View on BscScan',
+          onTap: () async {
+            final uri = Uri.parse(_result!.explorerUrl);
+            if (await canLaunchUrl(uri)) await launchUrl(uri);
+          },
+        ),
+        const SizedBox(height: 12),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text(
+            'Done',
+            style: TextStyle(fontFamily: 'Benne', color: Colors.white70, fontSize: 15),
+          ),
+        ),
+      ],
     );
   }
 
@@ -255,8 +438,7 @@ class _SellScreenState extends State<SellScreen> {
                 ),
                 child: const Padding(
                   padding: EdgeInsets.only(right: 3),
-                  child: Icon(Icons.arrow_back_ios_new,
-                      color: Colors.white, size: 24),
+                  child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
                 ),
               ),
             ),
@@ -285,10 +467,7 @@ class _SellScreenState extends State<SellScreen> {
     );
   }
 
-  Widget _bottomGradientButton({
-    required String text,
-    required VoidCallback onTap,
-  }) {
+  Widget _bottomGradientButton({required String text, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(40),
@@ -303,7 +482,7 @@ class _SellScreenState extends State<SellScreen> {
           child: Text(
             text,
             style: const TextStyle(
-              fontFamily: "BernardMTCondensed",
+              fontFamily: 'BernardMTCondensed',
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w600,

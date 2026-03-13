@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:moon_launch/Front-end/widgets/app_background.dart';
 import 'package:flutter/services.dart';
+import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
+import 'package:moon_launch/Front-end/widgets/app_background.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -17,7 +18,7 @@ class ReceiveScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
 
-    const walletAddress = "0x21c086a2fd88a055f829989sdgjfgsakl35kgh546gvb3j5b345vvj";
+    final walletAddress = SessionController.instance.walletAddress ?? '';
 
     return Scaffold(
       extendBodyBehindAppBar: true,

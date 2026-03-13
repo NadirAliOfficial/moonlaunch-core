@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:moon_launch/Front-end/views/activity_screen.dart';
+import 'package:moon_launch/Back-end/Services/token_service.dart';
+import 'package:moon_launch/Front-end/views/coin_detail_screen.dart';
 import 'package:moon_launch/Front-end/widgets/profile_background.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,10 +17,36 @@ class _HomeScreenState extends State<HomeScreen> {
     end: Alignment.centerRight,
   );
 
-  /// ✅ Only coin image size changed here (no layout impact)
-  Widget _coinImage({
-    required double size,
-  }) {
+  List<TokenModel> _tokens = [];
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTokens();
+  }
+
+  Future<void> _loadTokens() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final tokens = await TokenService.getNewLaunches(limit: 20);
+      setState(() {
+        _tokens = tokens;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  Widget _coinImage({required double size}) {
     return SizedBox(
       width: size,
       height: size,
@@ -28,6 +55,24 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Image.asset('assets/images/bit_coin.png'),
       ),
     );
+  }
+
+  Widget _tokenLogo(TokenModel token, {required double size}) {
+    if (token.logo != null && token.logo!.isNotEmpty) {
+      return SizedBox(
+        width: size,
+        height: size,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(size),
+          child: Image.network(
+            token.logo!,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _coinImage(size: size),
+          ),
+        ),
+      );
+    }
+    return _coinImage(size: size);
   }
 
   @override
@@ -62,399 +107,428 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return SingleChildScrollView(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: mq.height * 0.01),
-                      child: Column(
-                        children: [
-                          // Search
-                          Padding(
-                            padding:
-                                EdgeInsets.symmetric(horizontal: mq.width * 0.06),
-                            child: Container(
-                              height: mq.height * 0.055,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(40),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.35),
-                                  width: 1,
+              return RefreshIndicator(
+                onRefresh: _loadTokens,
+                color: const Color(0xFFFFE600),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
+                    child: IntrinsicHeight(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: mq.height * 0.01),
+                        child: Column(
+                          children: [
+                            // Search bar
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: mq.width * 0.06),
+                              child: Container(
+                                height: mq.height * 0.055,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(40),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.35),
+                                    width: 1,
+                                  ),
+                                  color: Colors.transparent,
                                 ),
-                                color: Colors.transparent,
-                              ),
-                              child: Row(
-                                children: [
-                                  SizedBox(width: mq.width * 0.04),
-                                  Icon(Icons.search,
-                                      color: Colors.white.withOpacity(0.85),
-                                      size: 20),
-                                  SizedBox(width: mq.width * 0.03),
-                                  Expanded(
-                                    child: TextField(
-                                      style: const TextStyle(color: Colors.white),
-                                      textAlignVertical: TextAlignVertical.center,
-                                      decoration: InputDecoration(
-                                        hintText: "Search...",
-                                        hintStyle: TextStyle(
-                                          color: Colors.white.withOpacity(0.70),
-                                          fontFamily: 'Benne',
-                                          fontSize: 14,
+                                child: Row(
+                                  children: [
+                                    SizedBox(width: mq.width * 0.04),
+                                    Icon(Icons.search,
+                                        color: Colors.white.withOpacity(0.85),
+                                        size: 20),
+                                    SizedBox(width: mq.width * 0.03),
+                                    Expanded(
+                                      child: TextField(
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        textAlignVertical:
+                                            TextAlignVertical.center,
+                                        decoration: InputDecoration(
+                                          hintText: "Search...",
+                                          hintStyle: TextStyle(
+                                            color:
+                                                Colors.white.withOpacity(0.70),
+                                            fontFamily: 'Benne',
+                                            fontSize: 14,
+                                          ),
+                                          border: InputBorder.none,
+                                          isCollapsed: true,
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  vertical: 0),
                                         ),
-                                        border: InputBorder.none,
-                                        isCollapsed: true,
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(vertical: 0),
+                                      ),
+                                    ),
+                                    SizedBox(width: mq.width * 0.04),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            SizedBox(height: mq.height * 0.03),
+
+                            // Total wallet value label
+                            Text(
+                              'Total Wallet Value',
+                              style: TextStyle(
+                                fontFamily: 'Benne',
+                                fontWeight: FontWeight.w400,
+                                fontSize: mq.width * 0.040,
+                                color: const Color(0xFFC9C9C9),
+                              ),
+                            ),
+                            SizedBox(height: mq.height * 0.010),
+
+                            // Placeholder balance — wallet screen will show real value
+                            RichText(
+                              text: TextSpan(
+                                style: const TextStyle(
+                                  fontFamily: 'BernardMTCondensed',
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: '--',
+                                    style:
+                                        TextStyle(fontSize: mq.width * 0.105),
+                                  ),
+                                  WidgetSpan(
+                                    alignment: PlaceholderAlignment.baseline,
+                                    baseline: TextBaseline.alphabetic,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 3),
+                                      child: Text(
+                                        'usd',
+                                        style: TextStyle(
+                                          fontFamily: 'BernardMTCondensed',
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: mq.width * 0.045,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                  SizedBox(width: mq.width * 0.04),
                                 ],
                               ),
                             ),
-                          ),
 
-                          SizedBox(height: mq.height * 0.03),
+                            SizedBox(height: mq.height * 0.003),
 
-                          // Total wallet value
-                          Text(
-                            'Total Wallet Value',
-                            style: TextStyle(
-                              fontFamily: 'Benne',
-                              fontWeight: FontWeight.w400,
-                              fontSize: mq.width * 0.040,
-                              color: const Color(0xFFC9C9C9),
-                            ),
-                          ),
-                          SizedBox(height: mq.height * 0.010),
-
-                          RichText(
-                            text: TextSpan(
-                              style: const TextStyle(
-                                fontFamily: 'BernardMTCondensed',
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: '\$7,765,431',
-                                  style: TextStyle(fontSize: mq.width * 0.105),
+                            RichText(
+                              text: TextSpan(
+                                style: const TextStyle(
+                                  fontFamily: 'BernardMTCondensed',
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white,
                                 ),
-                                WidgetSpan(
-                                  alignment: PlaceholderAlignment.baseline,
-                                  baseline: TextBaseline.alphabetic,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 3),
-                                    child: Text(
-                                      'usd',
-                                      style: TextStyle(
-                                        fontFamily: 'BernardMTCondensed',
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: mq.width * 0.045,
-                                        color: Colors.white,
-                                      ),
+                                children: [
+                                  TextSpan(
+                                    text: '-- BNB',
+                                    style:
+                                        TextStyle(fontSize: mq.width * 0.070),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            _gradientPillButton(
+                              mq: mq,
+                              title: "ADD BNB",
+                              onTap: () {},
+                            ),
+
+                            SizedBox(height: mq.height * 0.035),
+
+                            // Highlights / Rewards titles
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: mq.width * 0.08),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Highlights',
+                                    style: TextStyle(
+                                      fontFamily: 'Benne',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: mq.width * 0.04,
+                                      color: const Color(0xFFC9C9C9),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: mq.height * 0.003),
-
-                          RichText(
-                            text: TextSpan(
-                              style: const TextStyle(
-                                fontFamily: 'BernardMTCondensed',
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text: '27.654',
-                                  style: TextStyle(fontSize: mq.width * 0.070),
-                                ),
-                                WidgetSpan(
-                                  alignment: PlaceholderAlignment.baseline,
-                                  baseline: TextBaseline.alphabetic,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 2),
-                                    child: Text(
-                                      'BNB',
-                                      style: TextStyle(
-                                        fontFamily: 'BernardMTCondensed',
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: mq.width * 0.040,
-                                        color: Colors.white,
-                                      ),
+                                  const SizedBox(width: 110),
+                                  Text(
+                                    'Rewards',
+                                    style: TextStyle(
+                                      fontFamily: 'Benne',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: mq.width * 0.04,
+                                      color: const Color(0xFFC9C9C9),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: mq.height * 0.01),
-                          RichText(
-                            text: TextSpan(
-                              style: const TextStyle(
-                                fontFamily: 'BernardMTCondensed',
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white70,
+                                ],
                               ),
-                              children: [
-                                TextSpan(
-                                  text: 'Available : 19.999',
-                                  style: TextStyle(fontSize: mq.width * 0.050),
-                                ),
-                                WidgetSpan(
-                                  alignment: PlaceholderAlignment.baseline,
-                                  baseline: TextBaseline.alphabetic,
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 2),
-                                    child: Text(
-                                      'BNB',
-                                      style: TextStyle(
-                                        fontFamily: 'BernardMTCondensed',
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: mq.width * 0.035,
-                                        color: Colors.white70,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
                             ),
-                          ),
-                          const SizedBox(height: 8),
 
-                          _gradientPillButton(
-                            mq: mq,
-                            title: "ADD BNB",
-                            onTap: () {},
-                          ),
+                            SizedBox(height: mq.height * 0.007),
 
-                          SizedBox(height: mq.height * 0.035),
-
-                          // Highlight / Rewards titles
-                          Padding(
-                            padding:
-                                EdgeInsets.symmetric(horizontal: mq.width * 0.08),
-                            child: Row(
-                              children: [
-                                Text(
-                                  'Highlights',
-                                  style: TextStyle(
-                                    fontFamily: 'Benne',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: mq.width * 0.04,
-                                    color: const Color(0xFFC9C9C9),
-                                  ),
-                                ),
-                                const SizedBox(width: 110),
-                                Text(
-                                  'Rewards',
-                                  style: TextStyle(
-                                    fontFamily: 'Benne',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: mq.width * 0.04,
-                                    color: const Color(0xFFC9C9C9),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: mq.height * 0.007),
-
-                          // Highlight cards row
-                          Padding(
-                            padding:
-                                EdgeInsets.symmetric(horizontal: mq.width * 0.06),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (_) => const ActivityScreen()),
-                                      );
-                                    },
+                            // Highlight cards
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: mq.width * 0.06),
+                              child: Row(
+                                children: [
+                                  Expanded(
                                     child: _highlightPill(
                                       mq: mq,
                                       gradient: _mainGradient,
-                                      leading: _coinImage(size: 58), // ✅ bigger
-                                      title: "MemeCoin1",
-                                      subtitle: "Value",
+                                      leading: _tokens.isNotEmpty
+                                          ? _tokenLogo(_tokens.first, size: 58)
+                                          : _coinImage(size: 58),
+                                      title: _tokens.isNotEmpty
+                                          ? _tokens.first.displayName
+                                          : '--',
+                                      subtitle: _tokens.isNotEmpty
+                                          ? (_tokens.first.symbol ?? 'New')
+                                          : 'Loading...',
                                     ),
                                   ),
-                                ),
-                                SizedBox(width: mq.width * 0.03),
-                                Expanded(
-                                  child: _highlightPill(
-                                    mq: mq,
-                                    gradient: _mainGradient,
-                                    leading: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Image.asset(
-                                          "assets/images/plate.png",
-                                          width: 42,
-                                          height: 39,
-                                          fit: BoxFit.contain,
-                                        ),
-                                        Image.asset(
-                                          "assets/images/bx_dollar.png",
-                                          width: 19,
-                                          height: 19,
-                                          fit: BoxFit.contain,
-                                        ),
-                                      ],
+                                  SizedBox(width: mq.width * 0.03),
+                                  Expanded(
+                                    child: _highlightPill(
+                                      mq: mq,
+                                      gradient: _mainGradient,
+                                      leading: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Image.asset(
+                                            "assets/images/plate.png",
+                                            width: 42,
+                                            height: 39,
+                                            fit: BoxFit.contain,
+                                          ),
+                                          Image.asset(
+                                            "assets/images/bx_dollar.png",
+                                            width: 19,
+                                            height: 19,
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ],
+                                      ),
+                                      title: "Referral Bonus",
+                                      subtitle: "BNB and Meme Coins",
+                                      subtitleSize: mq.width * 0.020,
                                     ),
-                                    title: "Referral Bonus",
-                                    subtitle: "BNB and Meme Coins",
-                                    subtitleSize: mq.width * 0.020,
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
 
-                          SizedBox(height: mq.height * 0.025),
+                            SizedBox(height: mq.height * 0.025),
 
-                          // Top coins header
-                          Padding(
-                            padding:
-                                EdgeInsets.symmetric(horizontal: mq.width * 0.07),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Top Coins',
-                                  style: TextStyle(
-                                    fontFamily: 'Benne',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: mq.width * 0.05,
-                                    color: Colors.white,
+                            // New Launches header
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: mq.width * 0.07),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'New Launches',
+                                    style: TextStyle(
+                                      fontFamily: 'Benne',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: mq.width * 0.05,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
-                                InkWell(
-                                  onTap: () {},
-                                  child: ShaderMask(
-                                    shaderCallback: (bounds) =>
-                                        _mainGradient.createShader(bounds),
-                                    child: Text(
-                                      'See All',
-                                      style: TextStyle(
-                                        fontFamily: 'Benne',
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: mq.width * 0.05,
-                                        color: Colors.white,
+                                  InkWell(
+                                    onTap: _loadTokens,
+                                    child: ShaderMask(
+                                      shaderCallback: (bounds) =>
+                                          _mainGradient.createShader(bounds),
+                                      child: Text(
+                                        'Refresh',
+                                        style: TextStyle(
+                                          fontFamily: 'Benne',
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: mq.width * 0.04,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: mq.height * 0.012),
-
-                          // List of coins
-                          SizedBox(
-                            height: mq.height * 0.36,
-                            child: ListView.builder(
-                              padding: EdgeInsets.only(
-                                left: mq.width * 0.04,
-                                right: mq.width * 0.04,
-                                bottom: mq.height * 0.02,
+                                ],
                               ),
-                              itemCount: 10,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 14),
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      top: BorderSide(
-                                          width: 1.0, color: Color(0xFFCDCDCD)),
+                            ),
+
+                            SizedBox(height: mq.height * 0.012),
+
+                            // Token list
+                            if (_loading)
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: mq.height * 0.05),
+                                child: const CircularProgressIndicator(
+                                  color: Color(0xFFFFE600),
+                                ),
+                              )
+                            else if (_error != null)
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: mq.height * 0.04,
+                                    horizontal: mq.width * 0.08),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Failed to load launches',
+                                      style: TextStyle(
+                                        fontFamily: 'Benne',
+                                        color: Colors.white70,
+                                        fontSize: mq.width * 0.04,
+                                      ),
                                     ),
+                                    const SizedBox(height: 8),
+                                    GestureDetector(
+                                      onTap: _loadTokens,
+                                      child: Text(
+                                        'Tap to retry',
+                                        style: TextStyle(
+                                          fontFamily: 'Benne',
+                                          color: const Color(0xFFFFE600),
+                                          fontSize: mq.width * 0.038,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            else if (_tokens.isEmpty)
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: mq.height * 0.04),
+                                child: Text(
+                                  'No launches yet',
+                                  style: TextStyle(
+                                    fontFamily: 'Benne',
+                                    color: Colors.white54,
+                                    fontSize: mq.width * 0.04,
                                   ),
-                                  child: Row(
-                                    children: [
-                                      _coinImage(size: 46), // ✅ bigger
-                                      SizedBox(width: mq.width * 0.02),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: const [
-                                            Text(
-                                              'MemeCoin1',
-                                              style: TextStyle(
-                                                fontFamily: 'BernardMTCondensed',
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 16,
-                                                color: Colors.white,
+                                ),
+                              )
+                            else
+                              SizedBox(
+                                height: mq.height * 0.36,
+                                child: ListView.builder(
+                                  padding: EdgeInsets.only(
+                                    left: mq.width * 0.04,
+                                    right: mq.width * 0.04,
+                                    bottom: mq.height * 0.02,
+                                  ),
+                                  itemCount: _tokens.length,
+                                  itemBuilder: (context, index) {
+                                    final token = _tokens[index];
+                                    return InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => CoinDetailScreen(
+                                              tokenAddress:
+                                                  token.tokenAddress,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 14),
+                                        decoration: const BoxDecoration(
+                                          border: Border(
+                                            top: BorderSide(
+                                                width: 1.0,
+                                                color: Color(0xFFCDCDCD)),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            _tokenLogo(token, size: 46),
+                                            SizedBox(width: mq.width * 0.02),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    token.displayName,
+                                                    style: const TextStyle(
+                                                      fontFamily:
+                                                          'BernardMTCondensed',
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 16,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 2),
+                                                  Text(
+                                                    token.symbol ?? '',
+                                                    style: const TextStyle(
+                                                      fontFamily: 'Benne',
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      fontSize: 12,
+                                                      color: Color(0xFFC9C9C9),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                            SizedBox(height: 2),
-                                            Text(
-                                              'Value',
-                                              style: TextStyle(
-                                                fontFamily: 'Benne',
-                                                fontWeight: FontWeight.w400,
-                                                fontSize: 12,
-                                                color: Color(0xFFC9C9C9),
-                                              ),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                Text(
+                                                  token.displayPrice,
+                                                  style: const TextStyle(
+                                                    fontFamily:
+                                                        'BernardMTCondensed',
+                                                    fontWeight: FontWeight.w400,
+                                                    fontSize: 16,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  token.priceCurrency ?? 'USD',
+                                                  style: const TextStyle(
+                                                    fontFamily: 'Benne',
+                                                    fontSize: 11,
+                                                    color: Color(0xFFC9C9C9),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ],
                                         ),
                                       ),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          const Text(
-                                            '\$15,981',
-                                            style: TextStyle(
-                                              fontFamily: 'BernardMTCondensed',
-                                              fontWeight: FontWeight.w400,
-                                              fontSize: 16,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          Row(
-                                            children: const [
-                                              Icon(Icons.arrow_drop_up_sharp,
-                                                  color: Colors.green),
-                                              Text(
-                                                '0.67%',
-                                                style: TextStyle(
-                                                  fontFamily: 'BernardMTCondensed',
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 12,
-                                                  color: Colors.green,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
+                                    );
+                                  },
+                                ),
+                              ),
 
-                          const Spacer(),
-                        ],
+                            const Spacer(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -529,8 +603,8 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         children: [
           SizedBox(
-            width: 42, // ✅ fixed width so layout doesn't change
-            height: 39, // ✅ fixed height so layout doesn't change
+            width: 42,
+            height: 39,
             child: Center(child: leading),
           ),
           SizedBox(width: mq.width * 0.02),

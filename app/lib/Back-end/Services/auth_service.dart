@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  static const String _base = "http://16.171.173.18/api";
+  static const String _base = "https://backend.moonlaunchapp.com/api";
 
   // ---------------- SIGNUP (OTP) ----------------
   static Future<Map<String, dynamic>> sendOtp(String email) async {

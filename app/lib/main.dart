@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
 import 'package:moon_launch/Front-end/views/splash_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SessionController.instance.init();
   runApp(const MyApp());
 }
 

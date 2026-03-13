@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moon_launch/Back-end/Services/token_service.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/buy_screen.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/sell_screen.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/swap_screen.dart';
@@ -6,7 +7,8 @@ import 'package:moon_launch/Front-end/widgets/app_background.dart';
 import 'package:moon_launch/Front-end/widgets/wallet_chart.dart';
 
 class CoinDetailScreen extends StatefulWidget {
-  const CoinDetailScreen({super.key});
+  final String? tokenAddress;
+  const CoinDetailScreen({super.key, this.tokenAddress});
 
   @override
   State<CoinDetailScreen> createState() => _CoinDetailScreenState();
@@ -31,9 +33,37 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
     ],
   );
 
-  /// 🔥 RANGE SELECTOR STATE
   int _selectedRangeIndex = 0;
   final List<String> _ranges = ['Live', '1D', '1M', '3M', '1Y', 'All'];
+
+  TokenModel? _token;
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.tokenAddress != null) {
+      _loadToken();
+    } else {
+      _loading = false;
+    }
+  }
+
+  Future<void> _loadToken() async {
+    try {
+      final token = await TokenService.getTokenDetail(widget.tokenAddress!);
+      setState(() {
+        _token = token;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -246,10 +276,19 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                       mq: mq,
                       icon: Icons.add,
                       label: 'Buy',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const BuyScreen()),
-                      ),
+                      onTap: _token == null
+                          ? null
+                          : () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => BuyScreen(
+                                    tokenAddress: _token!.tokenAddress,
+                                    tokenName: _token!.displayName,
+                                    tokenSymbol: _token!.symbol,
+                                    tokenLogo: _token!.logo,
+                                  ),
+                                ),
+                              ),
                     ),
                     SizedBox(width: mq.width * 0.05),
                     _filledGradientActionButton(
@@ -372,7 +411,7 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
     required Size mq,
     required IconData icon,
     required String label,
-    required VoidCallback onTap,
+    VoidCallback? onTap,
   }) {
     final double size = mq.width * 0.165;
 

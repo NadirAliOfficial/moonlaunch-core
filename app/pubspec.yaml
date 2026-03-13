@@ -22,6 +22,7 @@ dependencies:
   mobile_scanner: ^7.1.4
   http: ^1.6.0
   get_storage: ^2.1.1
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:

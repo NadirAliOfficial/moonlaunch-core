@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
 import 'package:moon_launch/Back-end/Services/auth_service.dart';
 import 'package:moon_launch/Front-end/auth_screens/login_screen.dart';
 import 'package:moon_launch/Front-end/widgets/app_background.dart';
+import 'package:moon_launch/Front-end/widgets/widget_tree.dart';
 
 class TwoFactor extends StatefulWidget {
   // SIGNUP
@@ -281,6 +283,12 @@ class _TwoFactorState extends State<TwoFactor> {
         );
         print("📥 verify-login-otp response: $res");
 
+        // Save user session
+        if (res['user'] != null) {
+          await SessionController.instance
+              .saveSession(Map<String, dynamic>.from(res['user'] as Map));
+        }
+
         setState(() => isLoading = false);
 
         final msg = AuthService.extractMessage(res);
@@ -295,7 +303,7 @@ class _TwoFactorState extends State<TwoFactor> {
         } else {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            MaterialPageRoute(builder: (_) => const WidgetTree()),
             (route) => false,
           );
         }
@@ -308,6 +316,12 @@ class _TwoFactorState extends State<TwoFactor> {
           otp: otp,
         );
         print("📥 verify-otp response: $res");
+
+        // Save user session (signup returns limited user object)
+        if (res['user'] != null) {
+          await SessionController.instance
+              .saveSession(Map<String, dynamic>.from(res['user'] as Map));
+        }
 
         setState(() => isLoading = false);
 

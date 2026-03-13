@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
+import 'package:moon_launch/Front-end/auth_screens/login_screen.dart';
 import 'package:moon_launch/Front-end/tutorial_screen/guid_screen.dart';
+import 'package:moon_launch/Front-end/widgets/widget_tree.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -34,9 +37,18 @@ class _SplashScreenState extends State<SplashScreen>
 
     Timer(const Duration(seconds: 5), () {
       if (!mounted) return;
+      final session = SessionController.instance;
+      Widget next;
+      if (session.isLoggedIn) {
+        next = const WidgetTree();
+      } else if (session.guideSeen) {
+        next = const LoginScreen();
+      } else {
+        next = const GuidScreen();
+      }
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const GuidScreen()),
+        MaterialPageRoute(builder: (_) => next),
       );
     });
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
 import 'package:moon_launch/Front-end/auth_screens/login_screen.dart';
 import 'package:moon_launch/Front-end/views/edit_profile_screen.dart';
 import 'package:moon_launch/Front-end/views/export_key.dart';
@@ -113,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'Robert Jhonson',
+                                SessionController.instance.userName ?? 'User',
                                 style: TextStyle(
                                   fontFamily: 'BernardMTCondensed',
                                   fontWeight: FontWeight.w400,
@@ -122,12 +124,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               const SizedBox(width: 5),
-                              Image.asset("assets/images/tick.png",height: 34,width: 34,),
+                              Image.asset("assets/images/tick.png", height: 34, width: 34),
                             ],
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Robertjhonson@gmail.com',
+                            SessionController.instance.userEmail ?? '',
                             style: TextStyle(
                               fontFamily: 'Benne',
                               fontWeight: FontWeight.w400,
@@ -174,11 +176,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 3),
-                                  const Align(
+                                  Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      "0x21c086a2fd88a055f829989sdgjfgsakl35kgh546gvb3j5b345vvj",
-                                      style: TextStyle(
+                                      SessionController.instance.walletAddress ?? 'No wallet',
+                                      style: const TextStyle(
                                         fontFamily: "Benne",
                                         fontSize: 12.5,
                                         fontWeight: FontWeight.w800,
@@ -189,29 +191,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   const SizedBox(height: 8),
                                   Align(
                                     alignment: Alignment.centerLeft,
-                                    child: Container(
-                                      height: 35,
-                                      width: mqSize.height * 0.12,
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xffFFE600),
-                                            Color(0xffDB2519),
-                                          ],
-                                          begin: Alignment.centerLeft,
-                                          end: Alignment.centerRight,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        final addr = SessionController.instance.walletAddress;
+                                        if (addr != null) {
+                                          Clipboard.setData(ClipboardData(text: addr));
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Address copied'),
+                                              duration: Duration(seconds: 2),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: Container(
+                                        height: 35,
+                                        width: mqSize.height * 0.12,
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color(0xffFFE600),
+                                              Color(0xffDB2519),
+                                            ],
+                                            begin: Alignment.centerLeft,
+                                            end: Alignment.centerRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(9),
                                         ),
-                                        borderRadius: BorderRadius.circular(9),
-                                      ),
-                                      child: const Align(
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          "Copy Address",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 11,
-                                            fontFamily: "BernardMTCondensed",
-                                            color: Colors.white,
+                                        child: const Align(
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            "Copy Address",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 11,
+                                              fontFamily: "BernardMTCondensed",
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -618,11 +634,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _logOut() {
+  void _logOut() async {
+    await SessionController.instance.logout();
     selectedPageNotifier.value = 0;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    }
   }
 }

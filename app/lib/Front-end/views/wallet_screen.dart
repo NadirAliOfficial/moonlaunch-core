@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:moon_launch/Front-end/Extra%20Widgets/buy_screen.dart';
+import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
+import 'package:moon_launch/Back-end/Services/wallet_service.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/receive_screen.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/sell_screen.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/swap_screen.dart';
@@ -17,15 +18,48 @@ class _WalletScreenState extends State<WalletScreen> {
   final LinearGradient _circleGradient = const LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [
-      Color(0xFFFFE600),
-      Color(0xFFDB2519),
-    ],
+    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
   );
 
   int _selectedRangeIndex = 0;
-
   final List<String> _ranges = ['Live', '1D', '1M', '3M', '1Y', 'All'];
+
+  WalletBalanceModel? _wallet;
+  bool _loading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBalance();
+  }
+
+  Future<void> _loadBalance() async {
+    final address = SessionController.instance.walletAddress;
+    if (address == null || address.isEmpty) {
+      setState(() {
+        _error = 'No wallet address found';
+        _loading = false;
+      });
+      return;
+    }
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final wallet = await WalletService.getBalance(address);
+      setState(() {
+        _wallet = wallet;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,267 +112,337 @@ class _WalletScreenState extends State<WalletScreen> {
       ),
       body: ProfileBackground(
         child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: mq.width * 0.05),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
-                          fontFamily: 'BernardMTCondensed',
-                          color: Colors.white,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: '\$7,765,431',
-                            style: TextStyle(fontSize: mq.width * 0.105),
-                          ),
-                          WidgetSpan(
-                            alignment: PlaceholderAlignment.baseline,
-                            baseline: TextBaseline.alphabetic,
-                            child: Padding(
-                              padding: const EdgeInsets.only(left: 3),
-                              child: Text(
-                                'usd',
-                                style:
-                                    TextStyle(fontSize: mq.width * 0.045),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Row(
-                      children: const [
-                        Icon(Icons.arrow_drop_up,
-                            color: Colors.green, size: 26),
-                        Text(
-                          '0.72%',
-                          style: TextStyle(
-                            fontFamily: 'BernardMTCondensed',
-                            fontSize: 16,
-                            color: Colors.green,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              /// 📈 CHART
-              SizedBox(
-                height: mq.height * 0.23,
-                width: mq.width * 0.92,
-                child: const WalletChart(),
-              ),
-
-              const SizedBox(height: 8),
-
-              /// 🔥 LIVE / RANGE SELECTOR (NOW BELOW GRAPH)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: mq.width * 0.05),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(_ranges.length, (index) {
-                    final bool isActive = _selectedRangeIndex == index;
-
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedRangeIndex = index;
-                        });
-                      },
-                      child: Row(
-                        children: [
-                          if (_ranges[index] == 'Live') ...[
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                          ],
-                          Text(
-                            _ranges[index],
-                            style: TextStyle(
-                              fontFamily: 'Benne',
-                              fontSize: 14,
-                              fontWeight: isActive
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
-                              color: isActive
-                                  ? Colors.white
-                                  : Colors.white.withOpacity(0.55),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              /// 🔘 ACTION BUTTONS
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _filledGradientActionButton(
-                    mq: mq,
-                    icon: Icons.add,
-                    label: 'Buy',
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const BuyScreen())),
-                  ),
-                  SizedBox(width: mq.width * 0.05),
-                  _filledGradientActionButton(
-                    mq: mq,
-                    icon: Icons.arrow_upward,
-                    label: 'Send',
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const SellScreen())),
-                  ),
-                  SizedBox(width: mq.width * 0.05),
-                  _filledGradientActionButton(
-                    mq: mq,
-                    icon: Icons.arrow_downward,
-                    label: 'Receive',
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const ReceiveScreen())),
-                  ),
-                  SizedBox(width: mq.width * 0.05),
-                  _filledGradientActionButton(
-                    mq: mq,
-                    icon: Icons.swap_vert,
-                    label: 'Swap',
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (_) => const SwapScreen())),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: mq.height * 0.02),
-
-              /// 🪙 YOUR COINS
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: mq.width * 0.05),
-                child: Row(
-                  children: const [
-                    Text(
-                      'Your Coins',
-                      style: TextStyle(
-                        fontFamily: 'Benne',
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: mq.height * 0.012),
-
-              Expanded(
-                child: ListView.separated(
+          child: RefreshIndicator(
+            onRefresh: _loadBalance,
+            color: const Color(0xFFFFE600),
+            child: Column(
+              children: [
+                // BNB balance
+                Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: mq.width * 0.05),
-                  itemCount: 6,
-                  separatorBuilder: (_, __) => Divider(
-                    color: Colors.white.withOpacity(0.18),
-                    height: 18,
-                  ),
-                  itemBuilder: (context, index) {
-                    return Row(
-                      children: [
-                        Image.asset(
-                          'assets/images/bit_coin.png',
-                          width: 40,
-                          height: 40,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                'MemeCoin1',
-                                style: TextStyle(
-                                  fontFamily: 'BernardMTCondensed',
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Value',
-                                style: TextStyle(
-                                  fontFamily: 'Benne',
-                                  fontSize: 12,
-                                  color: Color(0xFFC9C9C9),
-                                ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_loading)
+                        Padding(
+                          padding: EdgeInsets.only(top: mq.height * 0.01),
+                          child: const SizedBox(
+                            height: 28,
+                            width: 28,
+                            child: CircularProgressIndicator(
+                              color: Color(0xFFFFE600),
+                              strokeWidth: 2.5,
+                            ),
+                          ),
+                        )
+                      else if (_error != null)
+                        GestureDetector(
+                          onTap: _loadBalance,
+                          child: Text(
+                            'Tap to retry',
+                            style: TextStyle(
+                              fontFamily: 'Benne',
+                              fontSize: mq.width * 0.038,
+                              color: const Color(0xFFDB2519),
+                            ),
+                          ),
+                        )
+                      else
+                        RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontFamily: 'BernardMTCondensed',
+                              color: Colors.white,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: '${_wallet?.displayBnb ?? '--'} BNB',
+                                style: TextStyle(fontSize: mq.width * 0.090),
                               ),
                             ],
                           ),
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: const [
-                            Text(
-                              '\$15,981',
-                              style: TextStyle(
-                                fontFamily: 'BernardMTCondensed',
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.arrow_drop_up,
-                                    color: Colors.green, size: 22),
-                                Text(
-                                  '0.67%',
-                                  style: TextStyle(
-                                    fontFamily: 'BernardMTCondensed',
-                                    fontSize: 12,
-                                    color: Colors.green,
-                                  ),
+                      if (!_loading && _error == null)
+                        Text(
+                          SessionController.instance.walletAddress != null
+                              ? '${SessionController.instance.walletAddress!.substring(0, 6)}...${SessionController.instance.walletAddress!.substring(SessionController.instance.walletAddress!.length - 4)}'
+                              : '',
+                          style: TextStyle(
+                            fontFamily: 'Benne',
+                            fontSize: mq.width * 0.032,
+                            color: Colors.white54,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Chart
+                SizedBox(
+                  height: mq.height * 0.23,
+                  width: mq.width * 0.92,
+                  child: const WalletChart(),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Range selector
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: mq.width * 0.05),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: List.generate(_ranges.length, (index) {
+                      final bool isActive = _selectedRangeIndex == index;
+                      return GestureDetector(
+                        onTap: () =>
+                            setState(() => _selectedRangeIndex = index),
+                        child: Row(
+                          children: [
+                            if (_ranges[index] == 'Live') ...[
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
                                 ),
-                              ],
+                              ),
+                              const SizedBox(width: 4),
+                            ],
+                            Text(
+                              _ranges[index],
+                              style: TextStyle(
+                                fontFamily: 'Benne',
+                                fontSize: 14,
+                                fontWeight: isActive
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                color: isActive
+                                    ? Colors.white
+                                    : Colors.white.withOpacity(0.55),
+                              ),
                             ),
                           ],
                         ),
-                      ],
-                    );
-                  },
+                      );
+                    }),
+                  ),
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 16),
+
+                // Action buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _actionButton(
+                      mq: mq,
+                      icon: Icons.add,
+                      label: 'Buy',
+                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Tap a token from the feed to buy',
+                            style: TextStyle(fontFamily: 'Benne'),
+                          ),
+                          backgroundColor: Color(0xFF1A1A1A),
+                          duration: Duration(seconds: 2),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: mq.width * 0.05),
+                    _actionButton(
+                      mq: mq,
+                      icon: Icons.arrow_upward,
+                      label: 'Send',
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const SellScreen())),
+                    ),
+                    SizedBox(width: mq.width * 0.05),
+                    _actionButton(
+                      mq: mq,
+                      icon: Icons.arrow_downward,
+                      label: 'Receive',
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ReceiveScreen())),
+                    ),
+                    SizedBox(width: mq.width * 0.05),
+                    _actionButton(
+                      mq: mq,
+                      icon: Icons.swap_vert,
+                      label: 'Swap',
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const SwapScreen())),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: mq.height * 0.02),
+
+                // Your Coins header
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: mq.width * 0.05),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Your Coins',
+                        style: TextStyle(
+                          fontFamily: 'Benne',
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                      if (!_loading && _wallet != null)
+                        Text(
+                          '${_wallet!.tokens.length} token${_wallet!.tokens.length == 1 ? '' : 's'}',
+                          style: const TextStyle(
+                            fontFamily: 'Benne',
+                            fontSize: 13,
+                            color: Colors.white54,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: mq.height * 0.012),
+
+                // Token list
+                Expanded(
+                  child: _loading
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFFFFE600),
+                          ),
+                        )
+                      : _error != null
+                          ? Center(
+                              child: Text(
+                                'Could not load tokens',
+                                style: TextStyle(
+                                  fontFamily: 'Benne',
+                                  color: Colors.white54,
+                                  fontSize: mq.width * 0.038,
+                                ),
+                              ),
+                            )
+                          : _wallet == null || _wallet!.tokens.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    'No tokens yet',
+                                    style: TextStyle(
+                                      fontFamily: 'Benne',
+                                      color: Colors.white54,
+                                      fontSize: mq.width * 0.04,
+                                    ),
+                                  ),
+                                )
+                              : ListView.separated(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: mq.width * 0.05),
+                                  itemCount: _wallet!.tokens.length,
+                                  separatorBuilder: (_, __) => Divider(
+                                    color: Colors.white.withOpacity(0.18),
+                                    height: 18,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final token =
+                                        _wallet!.tokens[index];
+                                    return Row(
+                                      children: [
+                                        _tokenLogo(token, size: 40),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                token.displayName,
+                                                style: const TextStyle(
+                                                  fontFamily:
+                                                      'BernardMTCondensed',
+                                                  fontSize: 16,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                token.symbol ?? '',
+                                                style: const TextStyle(
+                                                  fontFamily: 'Benne',
+                                                  fontSize: 12,
+                                                  color: Color(0xFFC9C9C9),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Text(
+                                          token.balance,
+                                          style: const TextStyle(
+                                            fontFamily: 'BernardMTCondensed',
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _filledGradientActionButton({
+  Widget _tokenLogo(WalletTokenModel token, {required double size}) {
+    if (token.logo != null && token.logo!.isNotEmpty) {
+      return SizedBox(
+        width: size,
+        height: size,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(size),
+          child: Image.network(
+            token.logo!,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => _defaultIcon(size),
+          ),
+        ),
+      );
+    }
+    return _defaultIcon(size);
+  }
+
+  Widget _defaultIcon(double size) {
+    return Image.asset(
+      'assets/images/bit_coin.png',
+      width: size,
+      height: size,
+    );
+  }
+
+  Widget _actionButton({
     required Size mq,
     required IconData icon,
     required String label,
     required VoidCallback onTap,
   }) {
     final double size = mq.width * 0.165;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(100),
