@@ -117,8 +117,7 @@ class TradingService
         $gasPrice    = $this->getGasPrice();
         $gasEstimate = $this->estimateGas($from, $to, $valueWei, $data);
         // 20% buffer, min 21000
-        $gasLimit    = max('21000', bcmul($gasEstimate, '120', 0));
-        $gasLimit    = bcdiv($gasLimit, '100', 0);
+        $gasLimit    = (string) max(21000, (int)((int)$gasEstimate * 120 / 100));
 
         Log::info("[Trade] nonce={$nonce} gasPrice={$gasPrice} gasLimit={$gasLimit}");
 
@@ -360,7 +359,7 @@ class TradingService
 
     private function applySlippage(string $amount, int $bps): string
     {
-        return bcdiv(bcmul($amount, (string)(10000 - $bps), 0), '10000', 0);
+        return (string)(int)((int)$amount * (10000 - $bps) / 10000);
     }
 
     private function broadcastTx(string $signedHex): string

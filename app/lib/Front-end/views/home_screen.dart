@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
 import 'package:moon_launch/Back-end/Services/token_service.dart';
+import 'package:moon_launch/Back-end/Services/wallet_service.dart';
 import 'package:moon_launch/Front-end/views/coin_detail_screen.dart';
 import 'package:moon_launch/Front-end/widgets/profile_background.dart';
 
@@ -21,10 +23,22 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _loading = true;
   String? _error;
 
+  String _bnbBalance = '--';
+
   @override
   void initState() {
     super.initState();
     _loadTokens();
+    _loadBnb();
+  }
+
+  Future<void> _loadBnb() async {
+    final address = SessionController.instance.walletAddress;
+    if (address == null || address.isEmpty) return;
+    try {
+      final wallet = await WalletService.getBalance(address);
+      if (mounted) setState(() => _bnbBalance = wallet.displayBnb);
+    } catch (_) {}
   }
 
   Future<void> _loadTokens() async {
@@ -186,7 +200,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             SizedBox(height: mq.height * 0.010),
 
-                            // Placeholder balance — wallet screen will show real value
                             RichText(
                               text: TextSpan(
                                 style: const TextStyle(
@@ -196,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: '--',
+                                    text: _bnbBalance,
                                     style:
                                         TextStyle(fontSize: mq.width * 0.105),
                                   ),
@@ -206,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 3),
                                       child: Text(
-                                        'usd',
+                                        'BNB',
                                         style: TextStyle(
                                           fontFamily: 'BernardMTCondensed',
                                           fontWeight: FontWeight.w400,
@@ -215,25 +228,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            SizedBox(height: mq.height * 0.003),
-
-                            RichText(
-                              text: TextSpan(
-                                style: const TextStyle(
-                                  fontFamily: 'BernardMTCondensed',
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white,
-                                ),
-                                children: [
-                                  TextSpan(
-                                    text: '-- BNB',
-                                    style:
-                                        TextStyle(fontSize: mq.width * 0.070),
                                   ),
                                 ],
                               ),
