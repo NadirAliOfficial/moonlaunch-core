@@ -254,10 +254,14 @@ class ApiController extends Controller
             $subOrgPubDer     = base64_decode(
                 str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n", "\r"], '', $subOrgKeyDetails['key'])
             );
-            // Last 65 bytes of SubjectPublicKeyInfo DER = 04 || x (32) || y (32)
-            $uncompressedPubKey = bin2hex(substr($subOrgPubDer, -65));
+            // Last 65 bytes of SubjectPublicKeyInfo DER = 04 || x (32 bytes) || y (32 bytes)
+            $point  = bin2hex(substr($subOrgPubDer, -65));
+            $xHex   = substr($point, 2, 64);
+            $yHex   = substr($point, 66, 64);
+            $prefix = hexdec(substr($yHex, -2)) % 2 === 0 ? '02' : '03';
+            $compressedPubKey = $prefix . $xHex;  // 66 chars — what Turnkey's SDK sends
 
-            Log::info('[Turnkey] Fresh sub-org pubkey (' . strlen($uncompressedPubKey) . ' chars): ' . substr($uncompressedPubKey, 0, 10) . '...');
+            Log::info('[Turnkey] Fresh sub-org compressed pubkey (' . strlen($compressedPubKey) . ' chars): ' . substr($compressedPubKey, 0, 10) . '...');
 
             $payload = [
                 'type'           => 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7',
@@ -277,7 +281,7 @@ class ApiController extends Controller
                             'userName'       => 'MoonLaunch Backend',
                             'apiKeys'        => [[
                                 'apiKeyName' => 'moonlaunch-backend-signer',
-                                'publicKey'  => $uncompressedPubKey,
+                                'publicKey'  => $compressedPubKey,
                             ]],
                             'authenticators' => [],
                             'oauthProviders' => [],
