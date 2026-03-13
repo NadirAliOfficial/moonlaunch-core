@@ -382,7 +382,7 @@ class TradingService
             'timestampMs'    => (string)(int)(microtime(true) * 1000),
             'organizationId' => $subOrgId,
             'parameters'     => [
-                'signWith'            => strtolower($walletAddress),
+                'signWith'            => $walletAddress,
                 'unsignedTransaction' => $unsignedTxHex,
                 'type'                => 'TRANSACTION_TYPE_ETHEREUM',
             ],

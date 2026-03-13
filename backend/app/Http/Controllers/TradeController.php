@@ -28,8 +28,8 @@ class TradeController extends Controller
         }
 
         $user = DB::table('users')
-            ->where('wallet_address', strtolower($request->wallet_address))
-            ->first(['turnkey_suborg_id']);
+            ->whereRaw('LOWER(wallet_address) = ?', [strtolower($request->wallet_address)])
+            ->first(['turnkey_suborg_id', 'wallet_address']);
 
         if (!$user || !$user->turnkey_suborg_id) {
             return response()->json(['message' => 'Wallet not registered'], 404);
@@ -38,7 +38,7 @@ class TradeController extends Controller
         try {
             $service = new TradingService();
             $txHash  = $service->buy(
-                walletAddress: strtolower($request->wallet_address),
+                walletAddress: $user->wallet_address,
                 tokenAddress:  strtolower($request->token_address),
                 bnbAmountWei:  $request->bnb_amount_wei,
                 subOrgId:      $user->turnkey_suborg_id,
@@ -76,8 +76,8 @@ class TradeController extends Controller
         ]);
 
         $user = DB::table('users')
-            ->where('wallet_address', strtolower($request->wallet_address))
-            ->first(['turnkey_suborg_id']);
+            ->whereRaw('LOWER(wallet_address) = ?', [strtolower($request->wallet_address)])
+            ->first(['turnkey_suborg_id', 'wallet_address']);
 
         if (!$user || !$user->turnkey_suborg_id) {
             return response()->json(['message' => 'Wallet not registered'], 404);
@@ -88,7 +88,7 @@ class TradeController extends Controller
 
             if ($request->filled('token_address')) {
                 $txHash = $service->sendToken(
-                    from:         strtolower($request->wallet_address),
+                    from:         $user->wallet_address,
                     tokenAddress: strtolower($request->token_address),
                     toAddress:    strtolower($request->to_address),
                     amountWei:    $request->amount_wei,
@@ -96,7 +96,7 @@ class TradeController extends Controller
                 );
             } else {
                 $txHash = $service->sendNative(
-                    from:      strtolower($request->wallet_address),
+                    from:      $user->wallet_address,
                     to:        strtolower($request->to_address),
                     amountWei: $request->amount_wei,
                     subOrgId:  $user->turnkey_suborg_id,
