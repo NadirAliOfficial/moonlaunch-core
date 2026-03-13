@@ -29,10 +29,14 @@ class TradeController extends Controller
 
         $user = DB::table('users')
             ->whereRaw('LOWER(wallet_address) = ?', [strtolower($request->wallet_address)])
-            ->first(['turnkey_suborg_id', 'wallet_address']);
+            ->first(['turnkey_suborg_id', 'turnkey_suborg_key', 'wallet_address']);
 
         if (!$user || !$user->turnkey_suborg_id) {
             return response()->json(['message' => 'Wallet not registered'], 404);
+        }
+
+        if (!$user->turnkey_suborg_key) {
+            return response()->json(['message' => 'Wallet signing key not found — please re-create your account'], 422);
         }
 
         try {
@@ -42,6 +46,7 @@ class TradeController extends Controller
                 tokenAddress:  strtolower($request->token_address),
                 bnbAmountWei:  $request->bnb_amount_wei,
                 subOrgId:      $user->turnkey_suborg_id,
+                subOrgKey:     $user->turnkey_suborg_key,
                 slippageBps:   (int)($request->slippage_bps ?? 500),
             );
 
@@ -77,10 +82,14 @@ class TradeController extends Controller
 
         $user = DB::table('users')
             ->whereRaw('LOWER(wallet_address) = ?', [strtolower($request->wallet_address)])
-            ->first(['turnkey_suborg_id', 'wallet_address']);
+            ->first(['turnkey_suborg_id', 'turnkey_suborg_key', 'wallet_address']);
 
         if (!$user || !$user->turnkey_suborg_id) {
             return response()->json(['message' => 'Wallet not registered'], 404);
+        }
+
+        if (!$user->turnkey_suborg_key) {
+            return response()->json(['message' => 'Wallet signing key not found — please re-create your account'], 422);
         }
 
         try {
@@ -93,6 +102,7 @@ class TradeController extends Controller
                     toAddress:    strtolower($request->to_address),
                     amountWei:    $request->amount_wei,
                     subOrgId:     $user->turnkey_suborg_id,
+                    subOrgKey:    $user->turnkey_suborg_key,
                 );
             } else {
                 $txHash = $service->sendNative(
@@ -100,6 +110,7 @@ class TradeController extends Controller
                     to:        strtolower($request->to_address),
                     amountWei: $request->amount_wei,
                     subOrgId:  $user->turnkey_suborg_id,
+                    subOrgKey: $user->turnkey_suborg_key,
                 );
             }
 

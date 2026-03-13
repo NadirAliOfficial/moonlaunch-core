@@ -47,6 +47,7 @@ class TradingService
         string $tokenAddress,
         string $bnbAmountWei,
         string $subOrgId,
+        string $subOrgKey,
         int    $slippageBps = 500
     ): string {
         $amountOut    = $this->getAmountsOut($bnbAmountWei, $tokenAddress);
@@ -63,6 +64,7 @@ class TradingService
             valueWei: $bnbAmountWei,
             data:     $calldata,
             subOrgId: $subOrgId,
+            subOrgKey: $subOrgKey,
         );
     }
 
@@ -73,14 +75,16 @@ class TradingService
         string $from,
         string $to,
         string $amountWei,
-        string $subOrgId
+        string $subOrgId,
+        string $subOrgKey
     ): string {
         return $this->buildSignAndBroadcast(
-            from:     $from,
-            to:       ltrim($to, '0x'),
-            valueWei: $amountWei,
-            data:     '',
-            subOrgId: $subOrgId,
+            from:      $from,
+            to:        ltrim($to, '0x'),
+            valueWei:  $amountWei,
+            data:      '',
+            subOrgId:  $subOrgId,
+            subOrgKey: $subOrgKey,
         );
     }
 
@@ -92,15 +96,17 @@ class TradingService
         string $tokenAddress,
         string $toAddress,
         string $amountWei,
-        string $subOrgId
+        string $subOrgId,
+        string $subOrgKey
     ): string {
         $calldata = $this->erc20TransferData($toAddress, $amountWei);
         return $this->buildSignAndBroadcast(
-            from:     $from,
-            to:       ltrim($tokenAddress, '0x'),
-            valueWei: '0',
-            data:     $calldata,
-            subOrgId: $subOrgId,
+            from:      $from,
+            to:        ltrim($tokenAddress, '0x'),
+            valueWei:  '0',
+            data:      $calldata,
+            subOrgId:  $subOrgId,
+            subOrgKey: $subOrgKey,
         );
     }
 
@@ -111,7 +117,8 @@ class TradingService
         string $to,         // 40-char hex without 0x
         string $valueWei,   // decimal string
         string $data,       // hex without 0x, or ''
-        string $subOrgId
+        string $subOrgId,
+        string $subOrgKey
     ): string {
         $nonce       = $this->getNonce($from);
         $gasPrice    = $this->getGasPrice();
@@ -122,7 +129,7 @@ class TradingService
         Log::info("[Trade] nonce={$nonce} gasPrice={$gasPrice} gasLimit={$gasLimit}");
 
         $unsignedHex = $this->buildUnsignedTx($nonce, $gasPrice, $gasLimit, $to, $valueWei, $data);
-        $signedHex   = $this->signWithTurnkey($unsignedHex, $from, $subOrgId);
+        $signedHex   = $this->signWithTurnkey($unsignedHex, $from, $subOrgId, $subOrgKey);
 
         return $this->broadcastTx($signedHex);
     }
@@ -375,7 +382,7 @@ class TradingService
 
     // ── Turnkey Signing ────────────────────────────────────────────────────────
 
-    private function signWithTurnkey(string $unsignedTxHex, string $walletAddress, string $subOrgId): string
+    private function signWithTurnkey(string $unsignedTxHex, string $walletAddress, string $subOrgId, string $subOrgKey): string
     {
         $payload = [
             'type'           => 'ACTIVITY_TYPE_SIGN_TRANSACTION_V2',
@@ -388,7 +395,7 @@ class TradingService
             ],
         ];
 
-        $data   = $this->turnkeyPost('/public/v1/submit/sign_transaction', $payload);
+        $data   = $this->turnkeyPostWithKey('/public/v1/submit/sign_transaction', $payload, $subOrgKey);
         $result = $data['activity']['result']['signTransactionResult'] ?? null;
 
         if (!$result || empty($result['signedTransaction'])) {
@@ -396,6 +403,56 @@ class TradingService
         }
 
         return ltrim($result['signedTransaction'], '0x');
+    }
+
+    // Signs a Turnkey request using a specified hex private key (for sub-org operations).
+    private function turnkeyPostWithKey(string $path, array $payload, string $hexPrivKey): array
+    {
+        $bodyJson = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        $stamp    = $this->makeStampWithKey($bodyJson, $hexPrivKey);
+
+        $response = Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Accept'       => 'application/json',
+            'X-Stamp'      => $stamp,
+        ])->withBody($bodyJson, 'application/json')
+          ->timeout(30)
+          ->post('https://api.turnkey.com' . $path);
+
+        if (!$response->successful()) {
+            throw new \Exception('Turnkey HTTP error: ' . $response->body());
+        }
+
+        return $response->json();
+    }
+
+    private function makeStampWithKey(string $bodyJson, string $hexPrivKey): string
+    {
+        $pem     = $this->buildPem($hexPrivKey);
+        $key     = openssl_pkey_get_private($pem);
+        if (!$key) throw new \Exception('Failed to load sub-org PEM');
+
+        // Derive compressed public key for the stamp header
+        $details = openssl_pkey_get_details($key);
+        $pubDer  = base64_decode(
+            str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n", "\r"], '', $details['key'])
+        );
+        $point  = bin2hex(substr($pubDer, -65)); // 04 + x(64) + y(64)
+        $y      = substr($point, 66, 64);
+        $compPub = (hexdec(substr($y, -2)) % 2 === 0 ? '02' : '03') . substr($point, 2, 64);
+
+        $derSig = '';
+        if (!openssl_sign($bodyJson, $derSig, $key, OPENSSL_ALGO_SHA256)) {
+            throw new \Exception('ECDSA sign failed');
+        }
+
+        $stamp = json_encode([
+            'publicKey' => $compPub,
+            'scheme'    => 'SIGNATURE_SCHEME_TK_API_P256',
+            'signature' => strtolower(bin2hex($derSig)),
+        ], JSON_UNESCAPED_SLASHES);
+
+        return rtrim(strtr(base64_encode($stamp), '+/', '-_'), '=');
     }
 
     // ── Turnkey Infrastructure ─────────────────────────────────────────────────

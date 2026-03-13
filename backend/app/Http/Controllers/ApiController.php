@@ -241,20 +241,23 @@ class ApiController extends Controller
 
             $creds = $this->getTurnkeyCredentials();
 
-            // Derive uncompressed public key (04 + x + y, 130 hex chars)
-            // Turnkey requires uncompressed format when registering an API key in rootUsers.
-            // Extract from the public key DER: last 65 bytes of SubjectPublicKeyInfo = 04+x+y
-            $pem        = $this->getTurnkeyPem($creds['private_key']);
-            $privKey    = openssl_pkey_get_private($pem);
-            $details    = openssl_pkey_get_details($privKey);
-            $pubKeyPem  = $details['key']; // PEM-encoded public key (SubjectPublicKeyInfo)
-            $pubKeyDer  = base64_decode(
-                str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n", "\r"], '', $pubKeyPem)
-            );
-            // Last 65 bytes of SubjectPublicKeyInfo DER are: 04 || x (32 bytes) || y (32 bytes)
-            $uncompressedPubKey = bin2hex(substr($pubKeyDer, -65));
+            // Generate a fresh P-256 key pair dedicated to this sub-org.
+            // We CANNOT reuse the parent-org API key — Turnkey rejects registering
+            // the same key in a sub-org that already exists in the parent org.
+            do {
+                $subOrgPrivKeyHex = bin2hex(random_bytes(32));
+                $subOrgPem        = $this->getTurnkeyPem($subOrgPrivKeyHex);
+                $subOrgKeyRes     = openssl_pkey_get_private($subOrgPem);
+            } while (!$subOrgKeyRes); // retry on the astronomically rare invalid scalar
 
-            Log::info('[Turnkey] Uncompressed pubkey (' . strlen($uncompressedPubKey) . ' chars): ' . substr($uncompressedPubKey, 0, 10) . '...');
+            $subOrgKeyDetails = openssl_pkey_get_details($subOrgKeyRes);
+            $subOrgPubDer     = base64_decode(
+                str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n", "\r"], '', $subOrgKeyDetails['key'])
+            );
+            // Last 65 bytes of SubjectPublicKeyInfo DER = 04 || x (32) || y (32)
+            $uncompressedPubKey = bin2hex(substr($subOrgPubDer, -65));
+
+            Log::info('[Turnkey] Fresh sub-org pubkey (' . strlen($uncompressedPubKey) . ' chars): ' . substr($uncompressedPubKey, 0, 10) . '...');
 
             $payload = [
                 'type'           => 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7',
@@ -321,10 +324,11 @@ class ApiController extends Controller
             }
 
             DB::table('users')->where('id', $userId)->update([
-                'wallet_address'    => $walletAddress,
-                'turnkey_suborg_id' => $subOrgId,
-                'turnkey_wallet_id' => $walletId,
-                'updated_at'        => now(),
+                'wallet_address'     => $walletAddress,
+                'turnkey_suborg_id'  => $subOrgId,
+                'turnkey_wallet_id'  => $walletId,
+                'turnkey_suborg_key' => $subOrgPrivKeyHex,
+                'updated_at'         => now(),
             ]);
 
             Log::info('[Turnkey] SUCCESS: ' . $walletAddress);
