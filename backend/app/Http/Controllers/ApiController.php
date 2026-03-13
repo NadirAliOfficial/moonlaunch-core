@@ -242,13 +242,19 @@ class ApiController extends Controller
             $creds = $this->getTurnkeyCredentials();
 
             // Derive uncompressed public key (04 + x + y, 130 hex chars)
-            // Turnkey requires uncompressed format when registering an API key in rootUsers
-            $pem     = $this->getTurnkeyPem($creds['private_key']);
-            $privKey = openssl_pkey_get_private($pem);
-            $details = openssl_pkey_get_details($privKey);
-            $x = bin2hex(str_pad($details['ec']['x'], 32, "\x00", STR_PAD_LEFT));
-            $y = bin2hex(str_pad($details['ec']['y'], 32, "\x00", STR_PAD_LEFT));
-            $uncompressedPubKey = '04' . $x . $y;
+            // Turnkey requires uncompressed format when registering an API key in rootUsers.
+            // Extract from the public key DER: last 65 bytes of SubjectPublicKeyInfo = 04+x+y
+            $pem        = $this->getTurnkeyPem($creds['private_key']);
+            $privKey    = openssl_pkey_get_private($pem);
+            $details    = openssl_pkey_get_details($privKey);
+            $pubKeyPem  = $details['key']; // PEM-encoded public key (SubjectPublicKeyInfo)
+            $pubKeyDer  = base64_decode(
+                str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n", "\r"], '', $pubKeyPem)
+            );
+            // Last 65 bytes of SubjectPublicKeyInfo DER are: 04 || x (32 bytes) || y (32 bytes)
+            $uncompressedPubKey = bin2hex(substr($pubKeyDer, -65));
+
+            Log::info('[Turnkey] Uncompressed pubkey (' . strlen($uncompressedPubKey) . ' chars): ' . substr($uncompressedPubKey, 0, 10) . '...');
 
             $payload = [
                 'type'           => 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7',
