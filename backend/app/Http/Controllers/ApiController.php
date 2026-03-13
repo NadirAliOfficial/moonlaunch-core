@@ -239,37 +239,28 @@ class ApiController extends Controller
         try {                        
             Log::info('[Turnkey] Creating wallet for: ' . $request->email);                    
 
-            $creds = $this->getTurnkeyCredentials();                    
+            $creds = $this->getTurnkeyCredentials();
+
+            // Generate wallet directly in parent org — parent API key can sign for it
             $payload = [
-                'type'           => 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7',
+                'type'           => 'ACTIVITY_TYPE_CREATE_WALLET',
                 'timestampMs'    => (string)(int)(microtime(true) * 1000),
                 'organizationId' => $creds['org_id'],
                 'parameters'     => [
-                    'subOrganizationName' => 'user-' . preg_replace('/[^a-zA-Z0-9_-]/', '-', $request->email),
-                    'rootUsers' => [[
-                        'userName'       => $request->name,
-                        'userEmail'      => $request->email,
-                        'apiKeys'        => [],
-                        'authenticators' => [],
-                        'oauthProviders' => [],
+                    'walletName' => 'user-' . preg_replace('/[^a-zA-Z0-9_-]/', '-', $request->email),
+                    'accounts'   => [[
+                        'curve'         => 'CURVE_SECP256K1',
+                        'pathFormat'    => 'PATH_FORMAT_BIP32',
+                        'path'          => "m/44'/60'/0'/0/0",
+                        'addressFormat' => 'ADDRESS_FORMAT_ETHEREUM',
                     ]],
-                    'rootQuorumThreshold' => 1,
-                    'wallet' => [
-                        'walletName' => 'Default Wallet',
-                        'accounts' => [[
-                            'curve' => 'CURVE_SECP256K1',
-                            'pathFormat' => 'PATH_FORMAT_BIP32',
-                            'path' => "m/44'/60'/0'/0/0",
-                            'addressFormat' => 'ADDRESS_FORMAT_ETHEREUM',
-                        ]],
-                    ],
                 ],
             ];
 
-            $data = $this->turnkeyPost(                   
-                '/public/v1/submit/create_sub_organization',
+            $data = $this->turnkeyPost(
+                '/public/v1/submit/create_wallet',
                 $payload,
-                $creds['public_key'],  // 66-char compressed
+                $creds['public_key'],
                 $creds['private_key']
             );
 
@@ -278,24 +269,20 @@ class ApiController extends Controller
                 throw new \Exception('No activity result: ' . json_encode($data));
             }
 
-            $subOrgResult = $activityResult['createSubOrganizationResultV7'] ?? 
-                            $activityResult['createSubOrganizationResultV4'] ?? null;
-            if (!$subOrgResult) {
-                throw new \Exception('No sub-org result');               
+            $walletResult = $activityResult['createWalletResult'] ?? null;
+            if (!$walletResult) {
+                throw new \Exception('No wallet result: ' . json_encode($data));
             }
 
-            $subOrgId = $subOrgResult['subOrganizationId'] ?? null;
-            $walletId = $subOrgResult['wallet']['walletId'] ?? null;
-            $walletAddress = $subOrgResult['wallet']['addresses'][0] ?? 
-                            $subOrgResult['wallet']['accounts'][0]['address'] ?? null;
+            $walletId      = $walletResult['walletId'] ?? null;
+            $walletAddress = $walletResult['addresses'][0] ?? null;
 
-            if (!$subOrgId || !$walletId || !$walletAddress) {
-                throw new \Exception('Missing required fields in response');
+            if (!$walletId || !$walletAddress) {
+                throw new \Exception('Missing wallet fields: ' . json_encode($walletResult));
             }
 
             DB::table('users')->where('id', $userId)->update([
                 'wallet_address'    => $walletAddress,
-                'turnkey_suborg_id' => $subOrgId,
                 'turnkey_wallet_id' => $walletId,
                 'updated_at'        => now(),
             ]);
