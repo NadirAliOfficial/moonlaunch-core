@@ -101,28 +101,25 @@ class MoralisService
         }
     }
 
-    // Returns BNB native balance in ether (as string)
+    // Returns BNB native balance in ether (as string) — uses BSC RPC directly
     public function getNativeBalance(string $walletAddress): ?string
     {
         try {
-            $response = Http::withHeaders([
-                'X-API-Key' => $this->apiKey,
-            ])->get("{$this->baseUrl}/{$walletAddress}/balance", [
-                'chain' => '0x38',
-            ]);
+            $response = Http::withHeaders(['Content-Type' => 'application/json'])
+                ->post('https://bsc-dataseed.binance.org/', [
+                    'jsonrpc' => '2.0',
+                    'method'  => 'eth_getBalance',
+                    'params'  => [$walletAddress, 'latest'],
+                    'id'      => 1,
+                ]);
 
             if ($response->successful()) {
-                $data = $response->json();
-                // Moralis returns balance in wei as string
-                $wei = $data['balance'] ?? '0';
-                // Convert wei to BNB (divide by 10^18)
-                $bnb = number_format((float)$wei / 1e18, 8, '.', '');
-                return $bnb;
+                $hex = $response->json()['result'] ?? '0x0';
+                $wei = hexdec(ltrim($hex, '0x') ?: '0');
+                return number_format($wei / 1e18, 8, '.', '');
             }
 
-            Log::warning('Moralis native balance failed: ' . $response->body());
             return null;
-
         } catch (\Exception $e) {
             Log::error('getNativeBalance error: ' . $e->getMessage());
             return null;
