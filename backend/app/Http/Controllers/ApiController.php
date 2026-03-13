@@ -241,24 +241,54 @@ class ApiController extends Controller
 
             $creds = $this->getTurnkeyCredentials();
 
-            // Generate wallet directly in parent org — parent API key can sign for it
+            // Derive uncompressed public key (04 + x + y, 130 hex chars)
+            // Turnkey requires uncompressed format when registering an API key in rootUsers
+            $pem     = $this->getTurnkeyPem($creds['private_key']);
+            $privKey = openssl_pkey_get_private($pem);
+            $details = openssl_pkey_get_details($privKey);
+            $x = bin2hex(str_pad($details['ec']['x'], 32, "\x00", STR_PAD_LEFT));
+            $y = bin2hex(str_pad($details['ec']['y'], 32, "\x00", STR_PAD_LEFT));
+            $uncompressedPubKey = '04' . $x . $y;
+
             $payload = [
-                'type'           => 'ACTIVITY_TYPE_CREATE_WALLET',
+                'type'           => 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7',
                 'timestampMs'    => (string)(int)(microtime(true) * 1000),
                 'organizationId' => $creds['org_id'],
                 'parameters'     => [
-                    'walletName' => 'user-' . preg_replace('/[^a-zA-Z0-9_-]/', '-', $request->email),
-                    'accounts'   => [[
-                        'curve'         => 'CURVE_SECP256K1',
-                        'pathFormat'    => 'PATH_FORMAT_BIP32',
-                        'path'          => "m/44'/60'/0'/0/0",
-                        'addressFormat' => 'ADDRESS_FORMAT_ETHEREUM',
-                    ]],
+                    'subOrganizationName' => 'user-' . preg_replace('/[^a-zA-Z0-9_-]/', '-', $request->email),
+                    'rootUsers' => [
+                        [
+                            'userName'       => $request->name,
+                            'userEmail'      => $request->email,
+                            'apiKeys'        => [],
+                            'authenticators' => [],
+                            'oauthProviders' => [],
+                        ],
+                        [
+                            'userName'       => 'MoonLaunch Backend',
+                            'apiKeys'        => [[
+                                'apiKeyName' => 'moonlaunch-backend-signer',
+                                'publicKey'  => $uncompressedPubKey,
+                            ]],
+                            'authenticators' => [],
+                            'oauthProviders' => [],
+                        ],
+                    ],
+                    'rootQuorumThreshold' => 1,
+                    'wallet' => [
+                        'walletName' => 'Default Wallet',
+                        'accounts'   => [[
+                            'curve'         => 'CURVE_SECP256K1',
+                            'pathFormat'    => 'PATH_FORMAT_BIP32',
+                            'path'          => "m/44'/60'/0'/0/0",
+                            'addressFormat' => 'ADDRESS_FORMAT_ETHEREUM',
+                        ]],
+                    ],
                 ],
             ];
 
             $data = $this->turnkeyPost(
-                '/public/v1/submit/create_wallet',
+                '/public/v1/submit/create_sub_organization',
                 $payload,
                 $creds['public_key'],
                 $creds['private_key']
@@ -269,20 +299,24 @@ class ApiController extends Controller
                 throw new \Exception('No activity result: ' . json_encode($data));
             }
 
-            $walletResult = $activityResult['createWalletResult'] ?? null;
-            if (!$walletResult) {
-                throw new \Exception('No wallet result: ' . json_encode($data));
+            $subOrgResult = $activityResult['createSubOrganizationResultV7'] ??
+                            $activityResult['createSubOrganizationResultV4'] ?? null;
+            if (!$subOrgResult) {
+                throw new \Exception('No sub-org result: ' . json_encode($data));
             }
 
-            $walletId      = $walletResult['walletId'] ?? null;
-            $walletAddress = $walletResult['addresses'][0] ?? null;
+            $subOrgId      = $subOrgResult['subOrganizationId'] ?? null;
+            $walletId      = $subOrgResult['wallet']['walletId'] ?? null;
+            $walletAddress = $subOrgResult['wallet']['addresses'][0] ??
+                             $subOrgResult['wallet']['accounts'][0]['address'] ?? null;
 
-            if (!$walletId || !$walletAddress) {
-                throw new \Exception('Missing wallet fields: ' . json_encode($walletResult));
+            if (!$subOrgId || !$walletId || !$walletAddress) {
+                throw new \Exception('Missing fields: ' . json_encode($subOrgResult));
             }
 
             DB::table('users')->where('id', $userId)->update([
                 'wallet_address'    => $walletAddress,
+                'turnkey_suborg_id' => $subOrgId,
                 'turnkey_wallet_id' => $walletId,
                 'updated_at'        => now(),
             ]);

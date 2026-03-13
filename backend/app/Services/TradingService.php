@@ -380,7 +380,7 @@ class TradingService
         $payload = [
             'type'           => 'ACTIVITY_TYPE_SIGN_TRANSACTION_V2',
             'timestampMs'    => (string)(int)(microtime(true) * 1000),
-            'organizationId' => $this->orgId,
+            'organizationId' => $subOrgId,
             'parameters'     => [
                 'signWith'            => $walletAddress,
                 'unsignedTransaction' => $unsignedTxHex,
