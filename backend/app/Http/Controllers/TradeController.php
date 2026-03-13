@@ -23,7 +23,7 @@ class TradeController extends Controller
             'slippage_bps'   => 'nullable|integer|min:10|max:3000',
         ]);
 
-        if (bccomp($request->bnb_amount_wei, '10000000000000000', 0) < 0) {
+        if ((int)$request->bnb_amount_wei < 10000000000000000) {
             return response()->json(['message' => 'Minimum buy is 0.01 BNB'], 422);
         }
 
