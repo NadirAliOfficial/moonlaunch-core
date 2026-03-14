@@ -80,7 +80,7 @@ class TradingService
     ): string {
         return $this->buildSignAndBroadcast(
             from:      $from,
-            to:        ltrim($to, '0x'),
+            to:        preg_replace('/^0x/i', '', strtolower($to)),
             valueWei:  $amountWei,
             data:      '',
             subOrgId:  $subOrgId,
@@ -102,7 +102,47 @@ class TradingService
         $calldata = $this->erc20TransferData($toAddress, $amountWei);
         return $this->buildSignAndBroadcast(
             from:      $from,
-            to:        ltrim($tokenAddress, '0x'),
+            to:        preg_replace('/^0x/i', '', strtolower($tokenAddress)),
+            valueWei:  '0',
+            data:      $calldata,
+            subOrgId:  $subOrgId,
+            subOrgKey: $subOrgKey,
+        );
+    }
+
+    /**
+     * Sell a token for BNB via PancakeSwap V2 swapExactTokensForETH.
+     *
+     * @param string $walletAddress  User's BSC wallet (0x...)
+     * @param string $tokenAddress   Token contract to sell (0x...)
+     * @param string $tokenAmountWei Token amount to sell, as decimal wei string
+     * @param string $subOrgId       Turnkey sub-org ID for the user
+     * @param string $subOrgKey      Turnkey sub-org private key hex
+     * @param int    $slippageBps    Slippage in basis points (500 = 5%)
+     * @return string  Transaction hash
+     */
+    public function sell(
+        string $walletAddress,
+        string $tokenAddress,
+        string $tokenAmountWei,
+        string $subOrgId,
+        string $subOrgKey,
+        int    $slippageBps = 500
+    ): string {
+        // Approve PancakeSwap router to spend the token if needed
+        $this->ensureTokenApproval($walletAddress, $tokenAddress, $tokenAmountWei, $subOrgId, $subOrgKey);
+
+        $amountOut    = $this->getAmountsOutForSell($tokenAmountWei, $tokenAddress);
+        $amountOutMin = $this->applySlippage($amountOut, $slippageBps);
+
+        Log::info("[Trade/Sell] {$tokenAmountWei} wei {$tokenAddress} → BNB, min out: {$amountOutMin}");
+
+        $deadline = (string)(time() + 300);
+        $calldata  = $this->swapExactTokensForEthData($tokenAmountWei, $amountOutMin, $tokenAddress, $walletAddress, $deadline);
+
+        return $this->buildSignAndBroadcast(
+            from:      $walletAddress,
+            to:        self::ROUTER_ADDRESS,
             valueWei:  '0',
             data:      $calldata,
             subOrgId:  $subOrgId,
@@ -148,7 +188,7 @@ class TradingService
         string $valueWei, // decimal
         string $data      // hex, no 0x, or ''
     ): string {
-        $to   = strtolower(ltrim($to, '0x'));
+        $to   = strtolower(preg_replace('/^0x/i', '', $to));
         $data = strtolower(ltrim($data, '0x'));
 
         $items = [
@@ -331,6 +371,161 @@ class TradingService
             Log::warning('[Trade] estimateGas fallback: ' . $e->getMessage());
             return '300000';
         }
+    }
+
+    // ── Sell Helpers ──────────────────────────────────────────────────────────
+
+    /**
+     * Ensure PancakeSwap router has allowance to spend the token.
+     * Approves max uint256 if current allowance is insufficient.
+     */
+    private function ensureTokenApproval(
+        string $walletAddress,
+        string $tokenAddress,
+        string $requiredWei,
+        string $subOrgId,
+        string $subOrgKey
+    ): void {
+        $routerAddress = '0x' . strtolower(self::ROUTER_ADDRESS);
+        $allowance     = $this->getTokenAllowance($walletAddress, $tokenAddress, $routerAddress);
+
+        if (gmp_cmp(gmp_init($allowance, 10), gmp_init($requiredWei, 10)) >= 0) {
+            Log::info('[Trade/Sell] Allowance sufficient, skipping approve');
+            return;
+        }
+
+        Log::info('[Trade/Sell] Approving router for token ' . $tokenAddress);
+        // max uint256 — approve once, never need to approve again for this token
+        $maxUint = '115792089237316195423570985008687907853269984665640564039457584007913129639935';
+
+        $approveTxHash = $this->buildSignAndBroadcast(
+            from:      $walletAddress,
+            to:        preg_replace('/^0x/i', '', strtolower($tokenAddress)),
+            valueWei:  '0',
+            data:      $this->approveData(self::ROUTER_ADDRESS, $maxUint),
+            subOrgId:  $subOrgId,
+            subOrgKey: $subOrgKey,
+        );
+
+        Log::info('[Trade/Sell] Approve tx: ' . $approveTxHash);
+        $this->waitForTx($approveTxHash);
+    }
+
+    /** Poll eth_getTransactionReceipt until mined or timeout. */
+    private function waitForTx(string $txHash, int $maxWaitSecs = 60): void
+    {
+        $deadline = time() + $maxWaitSecs;
+        while (time() < $deadline) {
+            try {
+                $receipt = $this->bscRpc([
+                    'jsonrpc' => '2.0',
+                    'method'  => 'eth_getTransactionReceipt',
+                    'params'  => [$txHash],
+                    'id'      => 1,
+                ]);
+                if ($receipt !== null) {
+                    if (($receipt['status'] ?? '0x1') === '0x0') {
+                        throw new \Exception('Approve transaction reverted on-chain');
+                    }
+                    return;
+                }
+            } catch (\Exception $e) {
+                if (str_contains($e->getMessage(), 'reverted on-chain')) throw $e;
+            }
+            sleep(2);
+        }
+        throw new \Exception('Approve transaction timed out after ' . $maxWaitSecs . 's');
+    }
+
+    /** Read ERC-20 allowance(owner, spender). Returns decimal string. */
+    private function getTokenAllowance(string $owner, string $tokenAddress, string $spender): string
+    {
+        $ownerHex   = str_pad(strtolower(preg_replace('/^0x/i', '', $owner)),   64, '0', STR_PAD_LEFT);
+        $spenderHex = str_pad(strtolower(preg_replace('/^0x/i', '', $spender)), 64, '0', STR_PAD_LEFT);
+        $calldata   = 'dd62ed3e' . $ownerHex . $spenderHex;
+
+        $result = $this->bscRpc([
+            'jsonrpc' => '2.0',
+            'method'  => 'eth_call',
+            'params'  => [[
+                'to'   => '0x' . strtolower(preg_replace('/^0x/i', '', $tokenAddress)),
+                'data' => '0x' . $calldata,
+            ], 'latest'],
+            'id' => 1,
+        ]);
+
+        $hex = ltrim(strtolower($result), '0x');
+        if ($hex === '' || $hex === '0') return '0';
+        return gmp_strval(gmp_init($hex, 16), 10);
+    }
+
+    /**
+     * approve(address spender, uint256 amount)
+     * Selector: 095ea7b3
+     */
+    private function approveData(string $spenderAddress, string $amountWei): string
+    {
+        $spender = str_pad(strtolower(preg_replace('/^0x/i', '', $spenderAddress)), 64, '0', STR_PAD_LEFT);
+        return '095ea7b3'
+            . $spender
+            . $this->abiUint256($amountWei, true);
+    }
+
+    /** getAmountsOut with path [token → WBNB] to get expected BNB for a sell. */
+    private function getAmountsOutForSell(string $tokenAmountWei, string $tokenAddress): string
+    {
+        $token  = strtolower(preg_replace('/^0x/i', '', $tokenAddress));
+        $wbnb   = strtolower(ltrim(self::WBNB_ADDRESS, '0x'));
+        $amtHex = gmp_strval(gmp_init($tokenAmountWei, 10), 16);
+
+        $calldata = 'd06ca61f'
+            . $this->abiUint256($amtHex)
+            . str_pad('40', 64, '0', STR_PAD_LEFT)
+            . str_pad('2', 64, '0', STR_PAD_LEFT)
+            . str_pad($token, 64, '0', STR_PAD_LEFT)   // path[0] = token
+            . str_pad($wbnb, 64, '0', STR_PAD_LEFT);   // path[1] = WBNB
+
+        $result = $this->bscRpc([
+            'jsonrpc' => '2.0',
+            'method'  => 'eth_call',
+            'params'  => [[
+                'to'   => '0x' . strtolower(self::ROUTER_ADDRESS),
+                'data' => '0x' . $calldata,
+            ], 'latest'],
+            'id' => 1,
+        ]);
+
+        // amounts[1] = BNB output (word at offset 192)
+        $hex       = ltrim(strtolower($result), '0x');
+        $amountHex = ltrim(substr($hex, 192, 64), '0');
+        if ($amountHex === '') return '0';
+        return gmp_strval(gmp_init($amountHex, 16), 10);
+    }
+
+    /**
+     * swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] path, address to, uint deadline)
+     * Selector: 18cbafe5
+     */
+    private function swapExactTokensForEthData(
+        string $amountIn,
+        string $amountOutMin,
+        string $tokenAddress,
+        string $toAddress,
+        string $deadline
+    ): string {
+        $token = strtolower(preg_replace('/^0x/i', '', $tokenAddress));
+        $wbnb  = strtolower(ltrim(self::WBNB_ADDRESS, '0x'));
+        $to    = strtolower(preg_replace('/^0x/i', '', $toAddress));
+
+        return '18cbafe5'
+            . $this->abiUint256($amountIn, true)        // amountIn
+            . $this->abiUint256($amountOutMin, true)    // amountOutMin
+            . str_pad('a0', 64, '0', STR_PAD_LEFT)      // offset to path = 160 bytes
+            . str_pad($to, 64, '0', STR_PAD_LEFT)        // to
+            . $this->abiUint256($deadline, true)         // deadline
+            . str_pad('2', 64, '0', STR_PAD_LEFT)        // path.length = 2
+            . str_pad($token, 64, '0', STR_PAD_LEFT)     // path[0] = token
+            . str_pad($wbnb, 64, '0', STR_PAD_LEFT);     // path[1] = WBNB
     }
 
     private function getAmountsOut(string $bnbAmountWei, string $tokenAddress): string

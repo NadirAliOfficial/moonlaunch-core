@@ -492,7 +492,7 @@ class ApiController extends Controller
 
         // Convert user object to array and remove sensitive fields
         $userData = (array) $user;
-        unset($userData['password'], $userData['otp'], $userData['otp_expires_at']);
+        unset($userData['password'], $userData['otp'], $userData['otp_expires_at'], $userData['turnkey_suborg_key']);
 
         // Return user data
         return response()->json([

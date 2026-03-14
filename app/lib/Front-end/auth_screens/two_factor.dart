@@ -330,7 +330,7 @@ class _TwoFactorState extends State<TwoFactor> {
 
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          MaterialPageRoute(builder: (_) => const WidgetTree()),
           (route) => false,
         );
       }

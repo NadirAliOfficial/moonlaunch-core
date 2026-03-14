@@ -25,3 +25,4 @@ Route::get('/token/{address}', [TokenController::class, 'getTokenDetail']);
 Route::get('/wallet/balance', [WalletController::class, 'getBalance']);
 Route::post('/wallet/send', [TradeController::class, 'send']);
 Route::post('/trade/buy', [TradeController::class, 'buy']);
+Route::post('/trade/sell', [TradeController::class, 'sell']);

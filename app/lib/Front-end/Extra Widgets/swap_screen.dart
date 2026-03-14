@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
+import 'package:moon_launch/Back-end/Services/trade_service.dart';
+import 'package:moon_launch/Back-end/Services/wallet_service.dart';
 import 'package:moon_launch/Front-end/widgets/app_background.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class SwapScreen extends StatelessWidget {
-  const SwapScreen({super.key});
+/// Swap screen — sells [token] for BNB via PancakeSwap V2.
+class SwapScreen extends StatefulWidget {
+  final WalletTokenModel token;
+
+  const SwapScreen({super.key, required this.token});
 
   static const LinearGradient _btnGradient = LinearGradient(
     colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
@@ -10,11 +18,88 @@ class SwapScreen extends StatelessWidget {
     end: Alignment.centerRight,
   );
 
-  static const LinearGradient _swapCircleGradient = LinearGradient(
+  static const LinearGradient _circleGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
   );
+
+  @override
+  State<SwapScreen> createState() => _SwapScreenState();
+}
+
+class _SwapScreenState extends State<SwapScreen> {
+  final TextEditingController _amountController = TextEditingController();
+  bool _loading = false;
+  String? _error;
+  TradeResult? _result;
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    super.dispose();
+  }
+
+  String _friendlyError(String raw) {
+    final lower = raw.toLowerCase();
+    if (lower.contains('insufficient funds') || lower.contains('insufficient balance')) {
+      return 'Not enough BNB for gas fees. Please add more BNB to your wallet.';
+    }
+    if (lower.contains('execution reverted') || lower.contains('pancake: insufficient') || lower.contains('k')) {
+      return 'Swap failed — price moved too much. Try a smaller amount or try again.';
+    }
+    if (lower.contains('allowance') || lower.contains('approve')) {
+      return 'Token approval failed. Please try again.';
+    }
+    if (lower.contains('timed out') || lower.contains('timeout')) {
+      return 'Approval timed out. Please try again.';
+    }
+    return 'Swap failed. Please try again.';
+  }
+
+  Future<void> _onSwap() async {
+    final walletAddress = SessionController.instance.walletAddress;
+    if (walletAddress == null || walletAddress.isEmpty) {
+      setState(() => _error = 'No wallet found. Please log out and log in again.');
+      return;
+    }
+
+    final amountStr = _amountController.text.trim();
+    if (amountStr.isEmpty) {
+      setState(() => _error = 'Please enter an amount to swap.');
+      return;
+    }
+
+    final amount = double.tryParse(amountStr);
+    if (amount == null || amount <= 0) {
+      setState(() => _error = 'Invalid amount.');
+      return;
+    }
+
+    setState(() {
+      _loading = true;
+      _error   = null;
+      _result  = null;
+    });
+
+    try {
+      final result = await TradeService.sell(
+        walletAddress: walletAddress,
+        tokenAddress:  widget.token.tokenAddress,
+        tokenAmount:   amountStr,
+        decimals:      widget.token.decimals,
+      );
+      setState(() {
+        _result  = result;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error   = _friendlyError(e.toString());
+        _loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,75 +113,305 @@ class SwapScreen extends StatelessWidget {
         child: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: mq.width * 0.06),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: _result != null ? _successView(mq) : _swapForm(mq),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _swapForm(Size mq) {
+    final symbol = widget.token.symbol ?? '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: mq.height * 0.02),
+
+        Text(
+          'Swap',
+          style: TextStyle(
+            fontFamily: 'BernardMTCondensed',
+            fontSize: mq.width * 0.085,
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+
+        SizedBox(height: mq.height * 0.03),
+
+        // From / To cards with swap icon centred between them
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            Column(
               children: [
-                SizedBox(height: mq.height * 0.02),
-                Text(
-                  "Swap",
-                  style: TextStyle(
-                    fontFamily: "BernardMTCondensed",
-                    fontSize: mq.width * 0.085,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: mq.height * 0.03),
-
-                // ✅ PERFECT: swap icon EXACTLY between both cards (center)
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Column(
-                      children: [
-                        _swapCard(
-                          mq: mq,
-                          tag: "From",
-                          leftImage: "assets/images/bit_coin.png",
-                          title: "MemeCoin1",
-                          subtitle: "BNB Smart Chain",
-                          rightValue: "\0",
-                        ),
-                        SizedBox(height: mq.height * 0.020),
-                        _swapCard(
-                          mq: mq,
-                          tag: "To",
-                          leftImage: "assets/images/bnb.png",
-                          title: "BNB",
-                          subtitle: "BNB Smart Chain",
-                          rightValue: "\0",
-                        ),
+                // FROM — token with amount input
+                _card(
+                  mq: mq,
+                  tag: 'From',
+                  logo: widget.token.logo,
+                  title: widget.token.displayName,
+                  subtitle: symbol.isNotEmpty ? symbol : 'Token',
+                  trailing: SizedBox(
+                    width: mq.width * 0.30,
+                    child: TextField(
+                      controller: _amountController,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                       ],
-                    ),
-
-                    // ✅ center circle always in middle (no manual top)
-                    Transform.translate(
-                      offset: const Offset(0, 0),
-                      child: Container(
-                        width: 58,
-                        height: 58,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: _swapCircleGradient,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontFamily: 'BernardMTCondensed',
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                      cursorColor: Colors.white,
+                      decoration: InputDecoration(
+                        hintText: '0.00',
+                        hintStyle: TextStyle(
+                          fontFamily: 'BernardMTCondensed',
+                          color: Colors.white.withOpacity(.35),
+                          fontSize: 18,
                         ),
-                        child: const Icon(
-                          Icons.swap_vert,
-                          color: Colors.white,
-                          size: 30,
-                        ),
+                        border: InputBorder.none,
                       ),
                     ),
-                  ],
+                  ),
                 ),
 
-                const Spacer(),
-                _bottomGradientButton(text: "Continue", onTap: () {}),
-                SizedBox(height: mq.height * 0.05),
+                SizedBox(height: mq.height * 0.020),
+
+                // TO — BNB
+                _card(
+                  mq: mq,
+                  tag: 'To',
+                  logo: null,
+                  title: 'BNB',
+                  subtitle: 'BNB Smart Chain',
+                  trailing: Text(
+                    '≈ BNB',
+                    style: TextStyle(
+                      fontFamily: 'BernardMTCondensed',
+                      color: Colors.white.withOpacity(.55),
+                      fontSize: 16,
+                    ),
+                  ),
+                  isBnb: true,
+                ),
+              ],
+            ),
+
+            // Swap icon centred between cards
+            Container(
+              width: 52,
+              height: 52,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: SwapScreen._circleGradient,
+              ),
+              child: const Icon(Icons.swap_vert, color: Colors.white, size: 26),
+            ),
+          ],
+        ),
+
+        SizedBox(height: mq.height * 0.015),
+
+        // Available balance hint
+        Text(
+          'Available: ${widget.token.balance} $symbol',
+          style: TextStyle(
+            fontFamily: 'Benne',
+            fontSize: 12,
+            color: Colors.white.withOpacity(.45),
+          ),
+        ),
+
+        const SizedBox(height: 6),
+
+        Text(
+          '5% slippage • PancakeSwap V2 • BSC',
+          style: TextStyle(
+            fontFamily: 'Benne',
+            fontSize: 12,
+            color: Colors.white.withOpacity(.4),
+          ),
+        ),
+
+        if (_error != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              _error!,
+              style: const TextStyle(
+                fontFamily: 'Benne',
+                color: Color(0xFFDB2519),
+                fontSize: 13,
+              ),
+            ),
+          ),
+
+        const Spacer(),
+
+        _loading
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFFFFE600)))
+            : _gradientButton(text: 'Swap Now', onTap: _onSwap),
+
+        SizedBox(height: mq.height * 0.05),
+      ],
+    );
+  }
+
+  Widget _card({
+    required Size mq,
+    required String tag,
+    required String? logo,
+    required String title,
+    required String subtitle,
+    required Widget trailing,
+    bool isBnb = false,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: Colors.white.withOpacity(.40), width: 1),
+        color: Colors.black.withOpacity(.10),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                tag,
+                style: TextStyle(
+                  fontFamily: 'Benne',
+                  color: Colors.white.withOpacity(.55),
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: isBnb
+                        ? Image.asset('assets/images/bnb.png', width: 36, height: 36, fit: BoxFit.contain)
+                        : (logo != null && logo.isNotEmpty
+                            ? Image.network(
+                                logo,
+                                width: 36,
+                                height: 36,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Image.asset(
+                                  'assets/images/bit_coin.png',
+                                  width: 36,
+                                  height: 36,
+                                ),
+                              )
+                            : Image.asset('assets/images/bit_coin.png', width: 36, height: 36)),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: 'BernardMTCondensed',
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontFamily: 'Benne',
+                          color: Colors.white.withOpacity(.65),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const Spacer(),
+          trailing,
+        ],
+      ),
+    );
+  }
+
+  Widget _successView(Size mq) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Icon(Icons.check_circle_outline, color: Color(0xFFFFE600), size: 72),
+        const SizedBox(height: 20),
+        const Text(
+          'Swap Submitted!',
+          style: TextStyle(
+            fontFamily: 'BernardMTCondensed',
+            color: Colors.white,
+            fontSize: 26,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Your tokens are being swapped for BNB on BSC.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Benne',
+            color: Colors.white.withOpacity(.7),
+            fontSize: 14,
+          ),
+        ),
+        const SizedBox(height: 24),
+        GestureDetector(
+          onTap: () => Clipboard.setData(ClipboardData(text: _result!.txHash)),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white24),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${_result!.txHash.substring(0, 10)}...${_result!.txHash.substring(_result!.txHash.length - 8)}',
+                    style: const TextStyle(fontFamily: 'Benne', color: Colors.white, fontSize: 13),
+                  ),
+                ),
+                const Icon(Icons.copy, color: Colors.white54, size: 18),
               ],
             ),
           ),
         ),
-      ),
+        const SizedBox(height: 16),
+        _gradientButton(
+          text: 'View on BscScan',
+          onTap: () async {
+            final uri = Uri.parse(_result!.explorerUrl);
+            if (await canLaunchUrl(uri)) await launchUrl(uri);
+          },
+        ),
+        const SizedBox(height: 12),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text(
+            'Done',
+            style: TextStyle(fontFamily: 'Benne', color: Colors.white70, fontSize: 15),
+          ),
+        ),
+      ],
     );
   }
 
@@ -108,104 +423,40 @@ class SwapScreen extends StatelessWidget {
       elevation: 0,
       toolbarHeight: 70,
       titleSpacing: mq.width * 0.05,
-      title: const Padding(
-        padding: EdgeInsets.only(top: 30),
-        child: _TopRow(),
-      ),
-    );
-  }
-
-  Widget _swapCard({
-    required Size mq,
-    required String tag,
-    required String leftImage,
-    required String title,
-    required String subtitle,
-    required String rightValue,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: Colors.white.withOpacity(.40), width: 1),
-        color: Colors.black.withOpacity(.10),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ✅ From/To ABOVE the coin image (exact like SS)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                tag,
-                style: TextStyle(
-                  fontFamily: "Benne",
-                  color: Colors.white.withOpacity(.55),
-                  fontSize: 12,
+      title: Padding(
+        padding: const EdgeInsets.only(top: 30),
+        child: Row(
+          children: [
+            InkWell(
+              onTap: () => Navigator.pop(context),
+              borderRadius: BorderRadius.circular(999),
+              child: Container(
+                height: 38,
+                width: 38,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
+                  color: const Color(0xFFDB2519).withOpacity(0.20),
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.only(right: 3),
+                  child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
                 ),
               ),
-              const SizedBox(height: 8),
-
-              // ✅ coin row
-              Row(
-                children: [
-                  Image.asset(
-                    leftImage,
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontFamily: "BernardMTCondensed",
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontFamily: "Benne",
-                          color: Colors.white.withOpacity(.65),
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          const Spacer(),
-
-          Padding(
-            padding: const EdgeInsets.only(top: 18),
-            child: Text(
-              rightValue,
-              style: const TextStyle(
-                fontFamily: "BernardMTCondensed",
-                color: Colors.white,
-                fontSize: 16,
-              ),
             ),
-          ),
-        ],
+            const Spacer(),
+            Image.asset(
+              'assets/images/moon_launch_logo.png',
+              width: 104,
+              height: 31,
+              fit: BoxFit.contain,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _bottomGradientButton({
-    required String text,
-    required VoidCallback onTap,
-  }) {
+  Widget _gradientButton({required String text, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(40),
@@ -213,14 +464,14 @@ class SwapScreen extends StatelessWidget {
         height: 56,
         width: double.infinity,
         decoration: BoxDecoration(
-          gradient: _btnGradient,
+          gradient: SwapScreen._btnGradient,
           borderRadius: BorderRadius.circular(40),
         ),
         child: Center(
           child: Text(
             text,
             style: const TextStyle(
-              fontFamily: "BernardMTCondensed",
+              fontFamily: 'BernardMTCondensed',
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -228,45 +479,6 @@ class SwapScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _TopRow extends StatelessWidget {
-  const _TopRow();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        InkWell(
-          onTap: () => Navigator.pop(context),
-          borderRadius: BorderRadius.circular(999),
-          child: Container(
-            height: 38,
-            width: 38,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(999),
-              color: const Color(0xFFDB2519).withOpacity(0.20),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.only(right: 3),
-              child: Icon(
-                Icons.arrow_back_ios_new,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-          ),
-        ),
-        const Spacer(),
-        Image.asset(
-          'assets/images/moon_launch_logo.png',
-          width: 104,
-          height: 31,
-          fit: BoxFit.contain,
-        ),
-      ],
     );
   }
 }

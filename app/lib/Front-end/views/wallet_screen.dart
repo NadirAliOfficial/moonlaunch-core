@@ -278,10 +278,16 @@ class _WalletScreenState extends State<WalletScreen> {
                       mq: mq,
                       icon: Icons.swap_vert,
                       label: 'Swap',
-                      onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const SwapScreen())),
+                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Tap a token from Your Coins below to swap',
+                            style: TextStyle(fontFamily: 'Benne'),
+                          ),
+                          backgroundColor: Color(0xFF1A1A1A),
+                          duration: Duration(seconds: 2),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -373,7 +379,15 @@ class _WalletScreenState extends State<WalletScreen> {
                                   itemBuilder: (context, index) {
                                     final token =
                                         _wallet!.tokens[index];
-                                    return Row(
+                                    return InkWell(
+                                      onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => SwapScreen(token: token),
+                                        ),
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Row(
                                       children: [
                                         _tokenLogo(token, size: 40),
                                         const SizedBox(width: 12),
@@ -412,6 +426,7 @@ class _WalletScreenState extends State<WalletScreen> {
                                           ),
                                         ),
                                       ],
+                                    ),
                                     );
                                   },
                                 ),

@@ -66,6 +66,58 @@ class TradeController extends Controller
     }
 
     // -------------------------------------------------------
+    // POST /api/trade/sell
+    // Body: { wallet_address, token_address, token_amount_wei, slippage_bps? }
+    // token_amount_wei: decimal string (smallest unit of the token)
+    // -------------------------------------------------------
+    public function sell(Request $request)
+    {
+        $request->validate([
+            'wallet_address'   => 'required|string|regex:/^0x[a-fA-F0-9]{40}$/',
+            'token_address'    => 'required|string|regex:/^0x[a-fA-F0-9]{40}$/',
+            'token_amount_wei' => 'required|string|regex:/^[0-9]+$/',
+            'slippage_bps'     => 'nullable|integer|min:10|max:3000',
+        ]);
+
+        $user = DB::table('users')
+            ->whereRaw('LOWER(wallet_address) = ?', [strtolower($request->wallet_address)])
+            ->first(['turnkey_suborg_id', 'turnkey_suborg_key', 'wallet_address']);
+
+        if (!$user || !$user->turnkey_suborg_id) {
+            return response()->json(['message' => 'Wallet not registered'], 404);
+        }
+
+        if (!$user->turnkey_suborg_key) {
+            return response()->json(['message' => 'Wallet signing key not found — please re-create your account'], 422);
+        }
+
+        try {
+            $service = new TradingService();
+            $txHash  = $service->sell(
+                walletAddress:  $user->wallet_address,
+                tokenAddress:   strtolower($request->token_address),
+                tokenAmountWei: $request->token_amount_wei,
+                subOrgId:       $user->turnkey_suborg_id,
+                subOrgKey:      $user->turnkey_suborg_key,
+                slippageBps:    (int)($request->slippage_bps ?? 500),
+            );
+
+            return response()->json([
+                'status'   => 'success',
+                'tx_hash'  => $txHash,
+                'explorer' => 'https://bscscan.com/tx/' . $txHash,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('[TradeController/sell] ' . $e->getMessage());
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // -------------------------------------------------------
     // POST /api/wallet/send
     // Body: { wallet_address, to_address, amount_wei, token_address? }
     // If token_address is omitted → send native BNB

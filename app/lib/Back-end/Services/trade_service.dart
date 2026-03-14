@@ -70,6 +70,46 @@ class TradeService {
     throw body['message'] as String? ?? 'Buy failed (${res.statusCode})';
   }
 
+  /// Sell a token for BNB via PancakeSwap V2 swapExactTokensForETH.
+  ///
+  /// [walletAddress] — user's wallet (from SessionController)
+  /// [tokenAddress]  — token contract to sell
+  /// [tokenAmount]   — human-readable amount, e.g. "1000"
+  /// [decimals]      — token decimals (default 18)
+  /// [slippageBps]   — slippage in basis points (default 500 = 5%)
+  static Future<TradeResult> sell({
+    required String walletAddress,
+    required String tokenAddress,
+    required String tokenAmount,
+    int decimals = 18,
+    int slippageBps = 500,
+  }) async {
+    final tokenAmountWei = toWei(tokenAmount, decimals: decimals);
+
+    final uri = Uri.parse('$_base/trade/sell');
+    final res = await http.post(
+      uri,
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: jsonEncode({
+        'wallet_address': walletAddress,
+        'token_address': tokenAddress,
+        'token_amount_wei': tokenAmountWei,
+        'slippage_bps': slippageBps,
+      }),
+    );
+
+    final body = jsonDecode(res.body) as Map<String, dynamic>;
+
+    if (res.statusCode == 200) {
+      return TradeResult(
+        txHash: body['tx_hash'] as String,
+        explorerUrl: body['explorer'] as String,
+      );
+    }
+
+    throw body['message'] as String? ?? 'Sell failed (${res.statusCode})';
+  }
+
   /// Send native BNB or an ERC-20 token to [toAddress].
   ///
   /// [tokenAddress] — if null, sends native BNB
