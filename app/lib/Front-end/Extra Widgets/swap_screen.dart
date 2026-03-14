@@ -42,11 +42,17 @@ class _SwapScreenState extends State<SwapScreen> {
 
   String _friendlyError(String raw) {
     final lower = raw.toLowerCase();
+    if (lower.contains('transfer_from_failed') || lower.contains('transferfrom')) {
+      return 'This token cannot be sold — it may be a honeypot or have transfer restrictions built into its contract.';
+    }
     if (lower.contains('insufficient funds') || lower.contains('insufficient balance')) {
       return 'Not enough BNB for gas fees. Please add more BNB to your wallet.';
     }
-    if (lower.contains('execution reverted') || lower.contains('pancake: insufficient') || lower.contains('k')) {
-      return 'Swap failed — price moved too much. Try a smaller amount or try again.';
+    if (lower.contains('pancake: insufficient') || lower.contains('pancake: k')) {
+      return 'Swap failed — not enough liquidity. Try a smaller amount.';
+    }
+    if (lower.contains('execution reverted')) {
+      return 'Swap rejected by the token contract. This token may have sell restrictions.';
     }
     if (lower.contains('allowance') || lower.contains('approve')) {
       return 'Token approval failed. Please try again.';
