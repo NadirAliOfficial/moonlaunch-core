@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moon_launch/Back-end/Services/token_service.dart';
+import 'package:moon_launch/Back-end/Services/wallet_service.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/buy_screen.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/sell_screen.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/swap_screen.dart';
@@ -305,10 +306,24 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                       mq: mq,
                       icon: Icons.swap_vert,
                       label: 'Swap',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SwapScreen()),
-                      ),
+                      onTap: () {
+                        if (_token == null) return;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SwapScreen(
+                              token: WalletTokenModel(
+                                tokenAddress: _token!.tokenAddress,
+                                name: _token!.name,
+                                symbol: _token!.symbol,
+                                logo: _token!.logo,
+                                decimals: int.tryParse(_token!.decimals ?? '18') ?? 18,
+                                balance: '0',
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
