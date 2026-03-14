@@ -284,6 +284,7 @@ class ApiController extends Controller
                             'apiKeys'        => [[
                                 'apiKeyName' => 'moonlaunch-backend-signer',
                                 'publicKey'  => $compressedPubKey,
+                                'curveType'  => 'API_KEY_CURVE_P256',
                             ]],
                             'authenticators' => [],
                             'oauthProviders' => [],
