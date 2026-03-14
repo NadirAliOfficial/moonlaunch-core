@@ -432,14 +432,11 @@ class TradingService
         $key     = openssl_pkey_get_private($pem);
         if (!$key) throw new \Exception('Failed to load sub-org PEM');
 
-        // Derive compressed public key for the stamp header
-        $details = openssl_pkey_get_details($key);
-        $pubDer  = base64_decode(
-            str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n", "\r"], '', $details['key'])
-        );
-        $point  = bin2hex(substr($pubDer, -65)); // 04 + x(64) + y(64)
-        $y      = substr($point, 66, 64);
-        $compPub = (hexdec(substr($y, -2)) % 2 === 0 ? '02' : '03') . substr($point, 2, 64);
+        // Derive compressed public key — use ec.x/ec.y with zero-padding (reliable across all PHP/OpenSSL versions)
+        $ec      = openssl_pkey_get_details($key)['ec'];
+        $xHex    = str_pad(bin2hex($ec['x']), 64, '0', STR_PAD_LEFT);
+        $yHex    = str_pad(bin2hex($ec['y']), 64, '0', STR_PAD_LEFT);
+        $compPub = (hexdec(substr($yHex, -2)) % 2 === 0 ? '02' : '03') . $xHex;
 
         $derSig = '';
         if (!openssl_sign($bodyJson, $derSig, $key, OPENSSL_ALGO_SHA256)) {

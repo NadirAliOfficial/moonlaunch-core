@@ -241,27 +241,29 @@ class ApiController extends Controller
 
             $creds = $this->getTurnkeyCredentials();
 
-            // Generate a fresh P-256 key pair dedicated to this sub-org.
-            // We CANNOT reuse the parent-org API key — Turnkey rejects registering
-            // the same key in a sub-org that already exists in the parent org.
-            do {
-                $subOrgPrivKeyHex = bin2hex(random_bytes(32));
-                $subOrgPem        = $this->getTurnkeyPem($subOrgPrivKeyHex);
-                $subOrgKeyRes     = openssl_pkey_get_private($subOrgPem);
-            } while (!$subOrgKeyRes); // retry on the astronomically rare invalid scalar
+            // Generate a fresh P-256 key pair for this sub-org using OpenSSL native EC keygen.
+            // Using openssl_pkey_new() + ec.x/ec.y is the most reliable approach across
+            // all PHP/OpenSSL versions — avoids DER parsing issues.
+            $subOrgKeyRes = openssl_pkey_new([
+                'curve_name'       => 'prime256v1',
+                'private_key_type' => OPENSSL_KEYTYPE_EC,
+            ]);
+            if (!$subOrgKeyRes) {
+                throw new \Exception('EC key generation failed: ' . openssl_error_string());
+            }
 
-            $subOrgKeyDetails = openssl_pkey_get_details($subOrgKeyRes);
-            $subOrgPubDer     = base64_decode(
-                str_replace(['-----BEGIN PUBLIC KEY-----', '-----END PUBLIC KEY-----', "\n", "\r"], '', $subOrgKeyDetails['key'])
-            );
-            // Last 65 bytes of SubjectPublicKeyInfo DER = 04 || x (32 bytes) || y (32 bytes)
-            $point  = bin2hex(substr($subOrgPubDer, -65));
-            $xHex   = substr($point, 2, 64);
-            $yHex   = substr($point, 66, 64);
+            $ec = openssl_pkey_get_details($subOrgKeyRes)['ec'];
+
+            // Private key scalar — zero-pad to exactly 32 bytes (64 hex chars)
+            $subOrgPrivKeyHex = str_pad(bin2hex($ec['d']), 64, '0', STR_PAD_LEFT);
+
+            // Compressed public key — zero-pad x and y to 32 bytes each, then compress
+            $xHex = str_pad(bin2hex($ec['x']), 64, '0', STR_PAD_LEFT);
+            $yHex = str_pad(bin2hex($ec['y']), 64, '0', STR_PAD_LEFT);
             $prefix = hexdec(substr($yHex, -2)) % 2 === 0 ? '02' : '03';
-            $compressedPubKey = $prefix . $xHex;  // 66 chars — what Turnkey's SDK sends
+            $compressedPubKey = $prefix . $xHex;  // 66 chars
 
-            Log::info('[Turnkey] Fresh sub-org compressed pubkey (' . strlen($compressedPubKey) . ' chars): ' . substr($compressedPubKey, 0, 10) . '...');
+            Log::info('[Turnkey] Sub-org pubkey (' . strlen($compressedPubKey) . ' chars): ' . substr($compressedPubKey, 0, 10) . '...');
 
             $payload = [
                 'type'           => 'ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7',
