@@ -46,6 +46,9 @@ class _BuyScreenState extends State<BuyScreen> {
 
   String _friendlyError(String raw) {
     final lower = raw.toLowerCase();
+    if (lower.contains('transfer_from_failed') || lower.contains('transferfrom')) {
+      return 'This token cannot be purchased — its contract blocks buying. It may be a restricted or honeypot token.';
+    }
     if (lower.contains('insufficient funds') || lower.contains('insufficient balance')) {
       return 'Insufficient BNB balance. Please add more BNB to your wallet.';
     }
