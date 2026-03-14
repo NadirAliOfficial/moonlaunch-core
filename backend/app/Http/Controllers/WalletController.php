@@ -22,14 +22,18 @@ class WalletController extends Controller
         try {
             $moralis = new MoralisService();
 
-            $bnbBalance = $moralis->getNativeBalance($address) ?? '0';
-            $tokens     = $moralis->getWalletTokens($address);
+            $bnbBalance  = $moralis->getNativeBalance($address) ?? '0';
+            $tokens      = $moralis->getWalletTokens($address);
+            $bnbPriceUsd = $moralis->getBnbPriceUsd();
+            $totalUsd    = number_format((float)$bnbBalance * $bnbPriceUsd, 2, '.', '');
 
             return response()->json([
-                'status'  => 'success',
-                'address' => $address,
-                'bnb_balance' => $bnbBalance,
-                'tokens'  => $tokens,
+                'status'       => 'success',
+                'address'      => $address,
+                'bnb_balance'  => $bnbBalance,
+                'bnb_price_usd' => $bnbPriceUsd,
+                'total_usd'    => $totalUsd,
+                'tokens'       => $tokens,
             ], 200);
 
         } catch (\Exception $e) {

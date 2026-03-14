@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _error;
 
   String _bnbBalance = '--';
+  String _usdValue   = '--';
 
   @override
   void initState() {
@@ -37,7 +38,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (address == null || address.isEmpty) return;
     try {
       final wallet = await WalletService.getBalance(address);
-      if (mounted) setState(() => _bnbBalance = wallet.displayBnb);
+      if (mounted) setState(() {
+        _bnbBalance = wallet.displayBnb;
+        _usdValue   = wallet.displayUsd;
+      });
     } catch (_) {}
   }
 
@@ -200,6 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             SizedBox(height: mq.height * 0.010),
 
+                            // USD value — big
                             RichText(
                               text: TextSpan(
                                 style: const TextStyle(
@@ -209,9 +214,41 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: _bnbBalance,
-                                    style:
-                                        TextStyle(fontSize: mq.width * 0.105),
+                                    text: _usdValue,
+                                    style: TextStyle(fontSize: mq.width * 0.100),
+                                  ),
+                                  WidgetSpan(
+                                    alignment: PlaceholderAlignment.baseline,
+                                    baseline: TextBaseline.alphabetic,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 3),
+                                      child: Text(
+                                        'usd',
+                                        style: TextStyle(
+                                          fontFamily: 'BernardMTCondensed',
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: mq.width * 0.042,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // BNB balance — smaller below
+                            RichText(
+                              text: TextSpan(
+                                style: const TextStyle(
+                                  fontFamily: 'BernardMTCondensed',
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: '\$$_bnbBalance',
+                                    style: TextStyle(fontSize: mq.width * 0.058),
                                   ),
                                   WidgetSpan(
                                     alignment: PlaceholderAlignment.baseline,
@@ -223,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         style: TextStyle(
                                           fontFamily: 'BernardMTCondensed',
                                           fontWeight: FontWeight.w400,
-                                          fontSize: mq.width * 0.045,
+                                          fontSize: mq.width * 0.038,
                                           color: Colors.white,
                                         ),
                                       ),

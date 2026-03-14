@@ -38,11 +38,15 @@ class WalletTokenModel {
 class WalletBalanceModel {
   final String address;
   final String bnbBalance;
+  final double bnbPriceUsd;
+  final String totalUsd;
   final List<WalletTokenModel> tokens;
 
   WalletBalanceModel({
     required this.address,
     required this.bnbBalance,
+    this.bnbPriceUsd = 0,
+    this.totalUsd = '0.00',
     required this.tokens,
   });
 
@@ -53,6 +57,8 @@ class WalletBalanceModel {
     return WalletBalanceModel(
       address: json['address'] as String? ?? '',
       bnbBalance: json['bnb_balance']?.toString() ?? '0',
+      bnbPriceUsd: (json['bnb_price_usd'] as num?)?.toDouble() ?? 0,
+      totalUsd: json['total_usd']?.toString() ?? '0.00',
       tokens: tokenList,
     );
   }
@@ -63,6 +69,26 @@ class WalletBalanceModel {
       return val.toStringAsFixed(4);
     } catch (_) {
       return bnbBalance;
+    }
+  }
+
+  /// Formats total USD value with commas e.g. "$1,234.56"
+  String get displayUsd {
+    try {
+      final val = double.parse(totalUsd);
+      if (val == 0) return '\$0.00';
+      // Format with commas
+      final parts = val.toStringAsFixed(2).split('.');
+      final intPart = parts[0];
+      final decPart = parts[1];
+      final buffer = StringBuffer();
+      for (int i = 0; i < intPart.length; i++) {
+        if (i > 0 && (intPart.length - i) % 3 == 0) buffer.write(',');
+        buffer.write(intPart[i]);
+      }
+      return '\$${buffer.toString()}.$decPart';
+    } catch (_) {
+      return '\$$totalUsd';
     }
   }
 }

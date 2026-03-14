@@ -148,7 +148,8 @@ class _WalletScreenState extends State<WalletScreen> {
                             ),
                           ),
                         )
-                      else
+                      else ...[
+                        // USD value — big
                         RichText(
                           text: TextSpan(
                             style: const TextStyle(
@@ -157,12 +158,37 @@ class _WalletScreenState extends State<WalletScreen> {
                             ),
                             children: [
                               TextSpan(
-                                text: '${_wallet?.displayBnb ?? '--'} BNB',
+                                text: _wallet?.displayUsd ?? '--',
                                 style: TextStyle(fontSize: mq.width * 0.090),
+                              ),
+                              WidgetSpan(
+                                alignment: PlaceholderAlignment.baseline,
+                                baseline: TextBaseline.alphabetic,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 3),
+                                  child: Text(
+                                    'usd',
+                                    style: TextStyle(
+                                      fontFamily: 'BernardMTCondensed',
+                                      fontSize: mq.width * 0.038,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ],
                           ),
                         ),
+                        // BNB balance — smaller below
+                        Text(
+                          '\$${_wallet?.displayBnb ?? '--'}BNB',
+                          style: TextStyle(
+                            fontFamily: 'BernardMTCondensed',
+                            fontSize: mq.width * 0.052,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                       if (!_loading && _error == null)
                         Text(
                           SessionController.instance.walletAddress != null

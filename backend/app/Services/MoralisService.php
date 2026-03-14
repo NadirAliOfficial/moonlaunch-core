@@ -101,6 +101,25 @@ class MoralisService
         }
     }
 
+    // Returns current BNB price in USD using Binance public API (cached 60s)
+    public function getBnbPriceUsd(): float
+    {
+        return Cache::remember('bnb_price_usd', 60, function () {
+            try {
+                $response = Http::timeout(5)
+                    ->get('https://api.binance.com/api/v3/ticker/price', [
+                        'symbol' => 'BNBUSDT',
+                    ]);
+                if ($response->successful()) {
+                    return (float)($response->json()['price'] ?? 0);
+                }
+            } catch (\Exception $e) {
+                Log::warning('BNB price fetch failed: ' . $e->getMessage());
+            }
+            return 0.0;
+        });
+    }
+
     // Returns BNB native balance in ether (as string) — uses BSC RPC directly
     public function getNativeBalance(string $walletAddress): ?string
     {
