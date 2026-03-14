@@ -44,6 +44,23 @@ class _BuyScreenState extends State<BuyScreen> {
     super.dispose();
   }
 
+  String _friendlyError(String raw) {
+    final lower = raw.toLowerCase();
+    if (lower.contains('insufficient funds') || lower.contains('insufficient balance')) {
+      return 'Insufficient BNB balance. Please add more BNB to your wallet.';
+    }
+    if (lower.contains('gas')) {
+      return 'Not enough BNB to cover gas fees. Please add more BNB.';
+    }
+    if (lower.contains('nonce') || lower.contains('replacement transaction')) {
+      return 'Transaction conflict. Please try again in a moment.';
+    }
+    if (lower.contains('no wallet') || lower.contains('wallet not found')) {
+      return 'Wallet not found. Please log out and log in again.';
+    }
+    return 'Transaction failed. Please try again.';
+  }
+
   Future<void> _onBuy() async {
     final walletAddress = SessionController.instance.walletAddress;
     if (walletAddress == null || walletAddress.isEmpty) {
@@ -81,7 +98,7 @@ class _BuyScreenState extends State<BuyScreen> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = _friendlyError(e.toString());
         _loading = false;
       });
     }

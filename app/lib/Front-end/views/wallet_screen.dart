@@ -339,13 +339,27 @@ class _WalletScreenState extends State<WalletScreen> {
                             )
                           : _wallet == null || _wallet!.tokens.isEmpty
                               ? Center(
-                                  child: Text(
-                                    'No tokens yet',
-                                    style: TextStyle(
-                                      fontFamily: 'Benne',
-                                      color: Colors.white54,
-                                      fontSize: mq.width * 0.04,
-                                    ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'No tokens yet',
+                                        style: TextStyle(
+                                          fontFamily: 'Benne',
+                                          color: Colors.white54,
+                                          fontSize: mq.width * 0.04,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Pull down to refresh after buying',
+                                        style: TextStyle(
+                                          fontFamily: 'Benne',
+                                          color: Colors.white30,
+                                          fontSize: mq.width * 0.033,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 )
                               : ListView.separated(
