@@ -50,6 +50,17 @@ class TradeController extends Controller
                 slippageBps:   (int)($request->slippage_bps ?? 500),
             );
 
+            // Record the purchase so wallet screen shows token before Moralis indexes it
+            DB::table('user_purchases')->upsert([
+                [
+                    'wallet_address' => strtolower($user->wallet_address),
+                    'token_address'  => strtolower($request->token_address),
+                    'tx_hash'        => $txHash,
+                    'created_at'     => now(),
+                    'updated_at'     => now(),
+                ],
+            ], ['wallet_address', 'token_address'], ['tx_hash', 'updated_at']);
+
             return response()->json([
                 'status'   => 'success',
                 'tx_hash'  => $txHash,

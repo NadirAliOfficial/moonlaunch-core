@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\MoralisService;
 
 class TokenController extends Controller
 {
@@ -38,10 +39,24 @@ class TokenController extends Controller
                     'is_tradeable',
                 ]);
 
+            // Fetch live USD prices from Moralis for all tokens
+            $addresses  = $tokens->pluck('token_address')->toArray();
+            $livePrices = (new MoralisService())->getTokenPrices($addresses);
+
+            $enriched = $tokens->map(function ($token) use ($livePrices) {
+                $row  = (array) $token;
+                $addr = strtolower($token->token_address);
+                if (isset($livePrices[$addr])) {
+                    $row['initial_price']   = $livePrices[$addr];
+                    $row['price_currency']  = 'USD';
+                }
+                return $row;
+            });
+
             return response()->json([
                 'status' => 'success',
-                'count'  => count($tokens),
-                'data'   => $tokens,
+                'count'  => count($enriched),
+                'data'   => $enriched,
             ], 200);
 
         } catch (\Exception $e) {

@@ -101,6 +101,59 @@ class MoralisService
         }
     }
 
+    /**
+     * Batch price lookup for multiple token addresses.
+     * Returns associative array: lowercased_token_address => formatted_usd_price_string
+     * Results cached 2 minutes per unique set of addresses.
+     */
+    public function getTokenPrices(array $addresses): array
+    {
+        if (empty($addresses)) return [];
+
+        $cacheKey = 'token_prices_' . md5(implode(',', array_map('strtolower', $addresses)));
+
+        return Cache::remember($cacheKey, 120, function () use ($addresses) {
+            try {
+                $tokens = array_map(fn($addr) => ['token_address' => strtolower($addr)], $addresses);
+
+                $response = Http::withHeaders([
+                    'X-API-Key' => $this->apiKey,
+                ])->post("{$this->baseUrl}/erc20/prices?chain=0x38", [
+                    'tokens' => $tokens,
+                ]);
+
+                if ($response->successful()) {
+                    $prices = [];
+                    foreach ($response->json() as $item) {
+                        $addr     = strtolower($item['tokenAddress'] ?? '');
+                        $usdPrice = $item['usdPrice'] ?? null;
+                        if ($addr && $usdPrice !== null && $usdPrice > 0) {
+                            $prices[$addr] = $this->formatPrice((float)$usdPrice);
+                        }
+                    }
+                    return $prices;
+                }
+
+                Log::warning('Moralis batch prices failed: ' . $response->body());
+                return [];
+
+            } catch (\Exception $e) {
+                Log::error('getTokenPrices error: ' . $e->getMessage());
+                return [];
+            }
+        });
+    }
+
+    private function formatPrice(float $price): string
+    {
+        if ($price <= 0) return '0';
+        if ($price < 0.000001) return number_format($price, 10, '.', '');
+        if ($price < 0.0001)   return number_format($price, 8, '.', '');
+        if ($price < 0.01)     return number_format($price, 6, '.', '');
+        if ($price < 1)        return number_format($price, 4, '.', '');
+        return number_format($price, 2, '.', '');
+    }
+
     // Returns current BNB price in USD using Binance public API (cached 60s)
     public function getBnbPriceUsd(): float
     {
