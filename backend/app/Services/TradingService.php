@@ -189,7 +189,7 @@ class TradingService
         string $data      // hex, no 0x, or ''
     ): string {
         $to   = strtolower(preg_replace('/^0x/i', '', $to));
-        $data = strtolower(ltrim($data, '0x'));
+        $data = strtolower(preg_replace('/^0x/i', '', $data));
 
         $items = [
             $this->rlpHexInt($nonce),
