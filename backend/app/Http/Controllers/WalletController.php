@@ -136,11 +136,17 @@ class WalletController extends Controller
                 ]);
 
             if ($response->successful()) {
-                $hexResult = $response->json()['result'] ?? '0x0';
-                $wei = $this->hexToDec(ltrim($hexResult, '0x'));
-                if ($wei === '0') return '0';
-                if ($decimals <= 0) return $wei;
-                return number_format((float)bcdiv($wei, bcpow('10', (string)$decimals, 18), 18), min($decimals, 8), '.', '');
+                $hexResult = ltrim($response->json()['result'] ?? '0x0', '0x');
+                // Strip leading zeros; empty means zero balance
+                $hexResult = ltrim($hexResult, '0');
+                if (!$hexResult) return '0';
+                // hexdec() returns float for large numbers — precision is fine for display
+                $wei = hexdec($hexResult);
+                if ($wei <= 0) return '0';
+                if ($decimals <= 0) return (string)(int)$wei;
+                $balance = $wei / pow(10, min($decimals, 18));
+                if ($balance <= 0) return '0';
+                return number_format($balance, min(8, $decimals), '.', '');
             }
 
             return '0';
@@ -148,19 +154,5 @@ class WalletController extends Controller
             Log::warning("getTokenBalance({$token}) error: " . $e->getMessage());
             return '0';
         }
-    }
-
-    /**
-     * Converts a hex string (no 0x prefix) to a decimal string using bcmath.
-     */
-    private function hexToDec(string $hex): string
-    {
-        $hex = ltrim(strtolower($hex), '0');
-        if (!$hex) return '0';
-        $dec = '0';
-        for ($i = 0; $i < strlen($hex); $i++) {
-            $dec = bcadd(bcmul($dec, '16'), (string)hexdec($hex[$i]));
-        }
-        return $dec;
     }
 }
