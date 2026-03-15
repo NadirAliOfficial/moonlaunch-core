@@ -399,7 +399,7 @@ class _SellScreenState extends State<SellScreen> {
           text: 'View on BscScan',
           onTap: () async {
             final uri = Uri.parse(_result!.explorerUrl);
-            if (await canLaunchUrl(uri)) await launchUrl(uri);
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
           },
         ),
         const SizedBox(height: 12),

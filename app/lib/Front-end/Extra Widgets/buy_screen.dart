@@ -367,7 +367,7 @@ class _BuyScreenState extends State<BuyScreen> {
           text: 'View on BscScan',
           onTap: () async {
             final uri = Uri.parse(_result!.explorerUrl);
-            if (await canLaunchUrl(uri)) await launchUrl(uri);
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
           },
         ),
 

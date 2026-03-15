@@ -247,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: '\$$_bnbBalance',
+                                    text: '$_bnbBalance',
                                     style: TextStyle(fontSize: mq.width * 0.058),
                                   ),
                                   WidgetSpan(

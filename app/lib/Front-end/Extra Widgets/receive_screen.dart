@@ -103,7 +103,7 @@ class ReceiveScreen extends StatelessWidget {
                     _gradCircleIcon(
                       icon: Icons.copy,
                       onTap: () async {
-                        await Clipboard.setData(const ClipboardData(text: walletAddress));
+                        await Clipboard.setData(ClipboardData(text: walletAddress));
                       },
                     ),
                     const SizedBox(width: 14),

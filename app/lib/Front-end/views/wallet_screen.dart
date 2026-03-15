@@ -181,7 +181,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         ),
                         // BNB balance — smaller below
                         Text(
-                          '\$${_wallet?.displayBnb ?? '--'}BNB',
+                          '${_wallet?.displayBnb ?? '--'} BNB',
                           style: TextStyle(
                             fontFamily: 'BernardMTCondensed',
                             fontSize: mq.width * 0.052,
