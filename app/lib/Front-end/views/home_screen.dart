@@ -38,6 +38,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadTokens();
     _loadBnb();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      precacheImage(const AssetImage('assets/images/reward_coin.png'), context);
+    });
   }
 
   Future<void> _loadBnb() async {
@@ -430,12 +433,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         fontFamily: 'Benne',
                                         fontWeight: FontWeight.w400,
                                         fontSize: mq.width * 0.04,
-                                        color: const Color.fromARGB(
-                                          255,
-                                          230,
-                                          255,
-                                          7,
-                                        ),
+                                        color: const Color(0xFFFFE600),
                                       ),
                                     ),
                                     // ),
