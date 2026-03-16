@@ -131,19 +131,32 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                         borderRadius: BorderRadius.circular(18),
                         color: Colors.white,
                       ),
-                      child: Center(
-                        child: QrImageView(
-                          data: walletAddress,
-                          version: QrVersions.auto,
-                          size: mq.width * 0.68,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black,
-                          errorCorrectionLevel: QrErrorCorrectLevel.H,
-                          embeddedImage: const AssetImage('assets/images/bnb.png'),
-                          embeddedImageStyle: QrEmbeddedImageStyle(
-                            size: Size(mq.width * 0.12, mq.width * 0.12),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          QrImageView(
+                            data: walletAddress,
+                            version: QrVersions.auto,
+                            size: mq.width * 0.72,
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF1E2026),
+                            errorCorrectionLevel: QrErrorCorrectLevel.H,
                           ),
-                        ),
+                          // BNB icon on yellow rounded square
+                          Container(
+                            width: mq.width * 0.13,
+                            height: mq.width * 0.13,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF0B90B),
+                              borderRadius: BorderRadius.circular(mq.width * 0.025),
+                            ),
+                            padding: EdgeInsets.all(mq.width * 0.02),
+                            child: Image.asset(
+                              'assets/images/bnb.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
