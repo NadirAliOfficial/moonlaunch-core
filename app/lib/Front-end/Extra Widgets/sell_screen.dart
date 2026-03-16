@@ -234,16 +234,12 @@ class _SellScreenState extends State<SellScreen> {
               InkWell(
                 onTap: _openQrScanner,
                 borderRadius: BorderRadius.circular(999),
-                child: Padding(
-                  padding: const EdgeInsets.all(6),
-                  child: ShaderMask(
-                    shaderCallback: (b) =>
-                        SellScreen.btnGradient.createShader(b),
-                    child: const Icon(
-                      Icons.qr_code_scanner,
-                      color: Colors.white,
-                      size: 22,
-                    ),
+                child: const Padding(
+                  padding: EdgeInsets.all(6),
+                  child: Icon(
+                    Icons.qr_code_scanner,
+                    color: Colors.white, // pure white
+                    size: 22,
                   ),
                 ),
               ),

@@ -164,6 +164,10 @@ class RewardScreen extends StatelessWidget {
                           end: Alignment.centerRight,
                         ),
                         borderRadius: BorderRadius.circular(60),
+                        border: Border.all(
+                          color: Color(0xFFca4e5b),
+                          width: 1.5,
+                        ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
