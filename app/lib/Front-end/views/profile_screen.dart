@@ -92,59 +92,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Column(
                         children: [
-                          Container(
-                            width: mqSize.height * 0.13,
-                            height: mqSize.height * 0.13,
-                            decoration: BoxDecoration(
-                              // gradient: const LinearGradient(
-                              //   colors: [
-                              //     Color(0xFFFFE600),
-                              //     Color(0xFFDB2519),
-                              //   ],
-                              // ),
-                              borderRadius: BorderRadius.circular(100),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(2),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(98),
-                                child: const Image(
-                                  image: AssetImage('assets/images/s2.png'),
-                                  height: 109,
-                                  width: 109,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                          Text(
+                            SessionController.instance.userName ?? 'User',
+                            style: TextStyle(
+                              fontFamily: 'BernardMTCondensed',
+                              fontWeight: FontWeight.w400,
+                              fontSize: mqSize.width * 0.055,
+                              color: Colors.white,
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                SessionController.instance.userName ?? 'User',
-                                style: TextStyle(
-                                  fontFamily: 'BernardMTCondensed',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: mqSize.width * 0.045,
-                                  color: const Color(0xFFC9C9C9),
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              Image.asset(
-                                "assets/images/tick.png",
-                                height: 34,
-                                width: 34,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 4),
                           Text(
                             SessionController.instance.userEmail ?? '',
                             style: TextStyle(
                               fontFamily: 'Benne',
                               fontWeight: FontWeight.w400,
-                              fontSize: mqSize.width * 0.045,
+                              fontSize: mqSize.width * 0.038,
                               color: const Color(0xFFC9C9C9),
                             ),
                           ),
