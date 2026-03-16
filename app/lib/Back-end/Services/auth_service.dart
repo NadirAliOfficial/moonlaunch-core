@@ -120,27 +120,6 @@ class AuthService {
     throw extractMessage(decoded).isNotEmpty ? extractMessage(decoded) : "OTP verification failed";
   }
 
-  // ---------------- UPDATE PROFILE ----------------
-  static Future<void> updateProfile({
-    required int userId,
-    required String name,
-    String? imageBase64,
-  }) async {
-    final uri = Uri.parse("$_base/edit_profile");
-    final body = <String, dynamic>{"user_id": userId, "name": name};
-    if (imageBase64 != null) body["image"] = imageBase64;
-
-    final res = await http.post(
-      uri,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(body),
-    );
-
-    final decoded = _safeJson(res.body);
-    if (res.statusCode >= 200 && res.statusCode < 300) return;
-    throw extractMessage(decoded).isNotEmpty ? extractMessage(decoded) : "Update failed";
-  }
-
   // ---------------- HELPERS ----------------
   static Map<String, dynamic> _safeJson(String body) {
     try {

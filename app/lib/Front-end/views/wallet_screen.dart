@@ -482,30 +482,16 @@ class _WalletScreenState extends State<WalletScreen> {
           child: Image.network(
             token.logo!,
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => _letterAvatar(size: size, name: token.displayName),
+            errorBuilder: (_, _, _) => _defaultIcon(size),
           ),
         ),
       );
     }
-    return _letterAvatar(size: size, name: token.displayName);
+    return _defaultIcon(size);
   }
 
-  Widget _letterAvatar({required double size, required String name}) {
-    final letter = name.isNotEmpty ? name[0].toUpperCase() : '?';
-    return Container(
-      width: size,
-      height: size,
-      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-      alignment: Alignment.center,
-      child: Text(
-        letter,
-        style: TextStyle(
-          fontSize: size * 0.45,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
-      ),
-    );
+  Widget _defaultIcon(double size) {
+    return Image.asset('assets/images/bit_coin.png', width: size, height: size);
   }
 
   Widget _actionButton({

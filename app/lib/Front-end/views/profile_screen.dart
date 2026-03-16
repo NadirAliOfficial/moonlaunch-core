@@ -1,13 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
-import 'package:moon_launch/Back-end/Services/auth_service.dart';
 import 'package:moon_launch/Front-end/auth_screens/login_screen.dart';
 import 'package:moon_launch/Front-end/views/edit_profile_screen.dart';
 import 'package:moon_launch/Front-end/views/export_key.dart';
@@ -34,121 +29,15 @@ const bool _showExportKeys     = false;
 class _ProfileScreenState extends State<ProfileScreen> {
   bool startNotification = true;
   double _selectedRating = 0;
-  Uint8List? _imageBytes;
-
-  static const _prefKey = 'profile_image_path';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSavedImage();
-  }
-
-  Future<void> _loadSavedImage() async {
-    final prefs = await SharedPreferences.getInstance();
-    final path = prefs.getString(_prefKey);
-    if (path != null && File(path).existsSync()) {
-      final bytes = await File(path).readAsBytes();
-      if (mounted) setState(() => _imageBytes = bytes);
-    }
-  }
+  File? _profileImage;
 
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
-    if (picked == null) return;
-
-    final bytes = await File(picked.path).readAsBytes();
-
-    // Save to documents dir so it persists
-    final docsDir = await getApplicationDocumentsDirectory();
-    final savedPath = '${docsDir.path}/profile_image.jpg';
-    await File(savedPath).writeAsBytes(bytes);
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_prefKey, savedPath);
-
-    // Update state with raw bytes — always forces a repaint
-    if (mounted) setState(() => _imageBytes = bytes);
-
-    // Upload to backend
-    try {
-      final base64Image = base64Encode(bytes);
-      await AuthService.updateProfile(
-        userId: SessionController.instance.userId!,
-        name: SessionController.instance.userName ?? '',
-        imageBase64: base64Image,
-      );
-    } catch (_) {
-      // Image saved locally even if upload fails — silent fail
-    }
+    if (picked != null) setState(() => _profileImage = File(picked.path));
   }
 
-  Future<void> _editName() async {
-    final controller = TextEditingController(
-      text: SessionController.instance.userName ?? '',
-    );
-    final result = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0C0C0C),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFFDB2519), width: 1),
-        ),
-        title: const Text(
-          'Edit Name',
-          style: TextStyle(
-            fontFamily: 'BernardMTCondensed',
-            color: Colors.white,
-            fontSize: 20,
-          ),
-        ),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          style: const TextStyle(color: Colors.white, fontFamily: 'Benne'),
-          decoration: const InputDecoration(
-            hintText: 'Enter your name',
-            hintStyle: TextStyle(color: Colors.white38),
-            enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFca4e5b)),
-            ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: Color(0xFFA21117), width: 2),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel',
-                style: TextStyle(color: Color(0xFFDB2519), fontFamily: 'Benne')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: const Text('Save',
-                style: TextStyle(color: Colors.white, fontFamily: 'Benne')),
-          ),
-        ],
-      ),
-    );
-
-    if (result == null || result.isEmpty) return;
-
-    try {
-      await AuthService.updateProfile(
-        userId: SessionController.instance.userId!,
-        name: result,
-      );
-      await SessionController.instance.updateProfileLocal(name: result);
-      if (mounted) setState(() {});
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Update failed: $e')),
-        );
-      }
-    }
+  void _deleteImage() {
+    setState(() => _profileImage = null);
   }
 
   @override
@@ -199,23 +88,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return RefreshIndicator(
-                onRefresh: _loadSavedImage,
-                color: const Color(0xFFFFE600),
-                backgroundColor: const Color(0xFF1A1A1A),
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.only(
-                    left: 10,
-                    right: 10,
-                    top: 10,
-                    bottom: bottomSpace,
+              return SingleChildScrollView(
+                physics: const ClampingScrollPhysics(), // ✅ controlled scroll
+                padding: EdgeInsets.only(
+                  left: 10,
+                  right: 10,
+                  top: 10, // ✅ reduced top gap
+                  bottom: bottomSpace, // ✅ FIXED bottom gap
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - bottomSpace,
                   ),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: constraints.maxHeight - bottomSpace,
-                    ),
-                    child: Column(
+                  child: Column(
                     children: [
                       Column(
                         children: [
@@ -233,8 +118,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     color: const Color(0xFF2A1A1E),
                                   ),
                                   child: ClipOval(
-                                    child: _imageBytes != null
-                                        ? Image.memory(_imageBytes!, fit: BoxFit.cover)
+                                    child: _profileImage != null
+                                        ? Image.file(_profileImage!, fit: BoxFit.cover)
                                         : Icon(Icons.person, size: mqSize.height * 0.07, color: Colors.white54),
                                   ),
                                 ),
@@ -255,10 +140,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ),
                               ),
+                              // Delete icon (only shown when image exists)
+                              if (_profileImage != null)
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: _deleteImage,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black87,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.close, color: Colors.white, size: 14),
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                           const SizedBox(height: 10),
-                          // Name with verified tick + edit button
+                          // Name with verified tick
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -273,11 +175,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               const SizedBox(width: 5),
                               Image.asset('assets/images/tick.png', height: 22, width: 22),
-                              const SizedBox(width: 6),
-                              GestureDetector(
-                                onTap: _editName,
-                                child: const Icon(Icons.edit, color: Colors.white54, size: 16),
-                              ),
                             ],
                           ),
                           const SizedBox(height: 4),
@@ -602,7 +499,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                     ],
-                  ),
                   ),
                 ),
               );

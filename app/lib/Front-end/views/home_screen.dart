@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _error = null;
     });
     try {
-      final tokens = await TokenService.getNewLaunches(limit: 1000);
+      final tokens = await TokenService.getNewLaunches(limit: 20);
       setState(() {
         _tokens = tokens;
         _loading = false;
