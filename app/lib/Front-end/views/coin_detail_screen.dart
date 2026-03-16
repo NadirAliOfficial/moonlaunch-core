@@ -15,6 +15,11 @@ class CoinDetailScreen extends StatefulWidget {
   State<CoinDetailScreen> createState() => _CoinDetailScreenState();
 }
 
+// ── Feature flags — set to true to re-enable ──────────────────────────────
+const bool _showCoinChart    = false;
+const bool _showAboutCoin    = false;
+// ──────────────────────────────────────────────────────────────────────────
+
 class _CoinDetailScreenState extends State<CoinDetailScreen> {
   final LinearGradient _circleGradient = const LinearGradient(
     begin: Alignment.topCenter,
@@ -215,16 +220,16 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                 SizedBox(height: mq.height * 0.015),
 
                 /// 📈 CHART
-                SizedBox(
+                if (_showCoinChart) SizedBox(
                   height: mq.height * 0.23,
                   width: mq.width * 0.92,
                   child: const WalletChart(),
                 ),
 
-                SizedBox(height: mq.height * 0.008),
+                if (_showCoinChart) SizedBox(height: mq.height * 0.008),
 
                 /// 🔥 RANGE SELECTOR (BELOW GRAPH)
-                Row(
+                if (_showCoinChart) Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(_ranges.length, (index) {
                     final bool isActive = _selectedRangeIndex == index;
@@ -267,7 +272,7 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                   }),
                 ),
 
-                SizedBox(height: mq.height * 0.008),
+                if (_showCoinChart) SizedBox(height: mq.height * 0.008),
 
                 /// 🔘 ACTION BUTTONS
                 Row(
@@ -331,7 +336,7 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                 SizedBox(height: mq.height * 0.02),
 
                 /// 🔻 ABOUT COIN
-                Row(
+                if (_showAboutCoin) Row(
                   children: [
                     Text(
                       'About Coin',
@@ -353,9 +358,9 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                   ],
                 ),
 
-                SizedBox(height: mq.height * 0.012),
+                if (_showAboutCoin) SizedBox(height: mq.height * 0.012),
 
-                Text(
+                if (_showAboutCoin) Text(
                   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
                   'Donec a pharetra augue. Nunc eu mauris arcu. Phasellus diam nibh, '
                   'rutrum id eros in, viverra commodo elit.',
@@ -367,10 +372,10 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                   ),
                 ),
 
-                SizedBox(height: mq.height * 0.025),
+                if (_showAboutCoin) SizedBox(height: mq.height * 0.025),
 
                 /// 🌐 SOCIAL ICONS
-                Row(
+                if (_showAboutCoin) Row(
                   children: [
                     _gradientIconContainer(
                         mq: mq,

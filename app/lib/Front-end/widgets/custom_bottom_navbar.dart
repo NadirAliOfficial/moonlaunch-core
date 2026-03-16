@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:moon_launch/Front-end/views/luanch_your_meme_coin.dart';
 import 'notifiers.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
@@ -39,15 +38,11 @@ class CustomBottomNavBar extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(50),
                   ),
+                  // _showLaunchCoin = false — hidden until Phase 2
                   child: InkWell(
                     borderRadius: BorderRadius.circular(50),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LaunchYourMemeScreen(),
-                        ),
-                      );
+                      // disabled until Phase 2
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

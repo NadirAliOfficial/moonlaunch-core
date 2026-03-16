@@ -12,6 +12,12 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+// ── Feature flags — set to true to re-enable ──────────────────────────────
+const bool _showSearch       = false;
+const bool _showHighlights   = false;
+const bool _showRewards      = false;
+// ──────────────────────────────────────────────────────────────────────────
+
 class _HomeScreenState extends State<HomeScreen> {
   final LinearGradient _mainGradient = const LinearGradient(
     colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
@@ -142,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           children: [
                             // Search bar
-                            Padding(
+                            if (_showSearch) Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: mq.width * 0.06),
                               child: Container(
@@ -281,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             SizedBox(height: mq.height * 0.035),
 
                             // Highlights / Rewards titles
-                            Padding(
+                            if (_showHighlights || _showRewards) Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: mq.width * 0.08),
                               child: Row(
@@ -312,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             SizedBox(height: mq.height * 0.007),
 
                             // Highlight cards
-                            Padding(
+                            if (_showHighlights || _showRewards) Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: mq.width * 0.06),
                               child: Row(
@@ -363,7 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
 
-                            SizedBox(height: mq.height * 0.025),
+                            if (_showHighlights || _showRewards) SizedBox(height: mq.height * 0.025),
 
                             // New Launches header
                             Padding(
