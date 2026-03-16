@@ -1,12 +1,24 @@
+import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
 import 'package:moon_launch/Front-end/widgets/app_background.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-class ReceiveScreen extends StatelessWidget {
+class ReceiveScreen extends StatefulWidget {
   const ReceiveScreen({super.key});
+
+  @override
+  State<ReceiveScreen> createState() => _ReceiveScreenState();
+}
+
+class _ReceiveScreenState extends State<ReceiveScreen> {
+  final GlobalKey _qrKey = GlobalKey();
+  bool _downloading = false;
 
   static const LinearGradient _btnGradient = LinearGradient(
     begin: Alignment.topCenter,
@@ -14,10 +26,38 @@ class ReceiveScreen extends StatelessWidget {
     colors: [Color(0xFFA21117), Color(0xFF251216)],
   );
 
+  Future<void> _downloadQr() async {
+    if (_downloading) return;
+    setState(() => _downloading = true);
+    try {
+      final boundary =
+          _qrKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/moonlaunch_qr.png');
+      await file.writeAsBytes(pngBytes);
+
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: 'My MoonLaunch Wallet QR Code',
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to download QR code')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _downloading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
-
     final walletAddress = SessionController.instance.walletAddress ?? '';
 
     return Scaffold(
@@ -80,22 +120,30 @@ class ReceiveScreen extends StatelessWidget {
 
                 SizedBox(height: mq.height * 0.03),
 
-                // QR big box
+                // QR with BNB logo in center
                 Center(
-                  child: Container(
-                    width: mq.width * 0.78,
-                    height: mq.width * 0.78,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(18),
-                      color: Colors.white.withOpacity(0.35),
-                    ),
-                    child: Center(
-                      child: QrImageView(
-                        data: walletAddress,
-                        version: QrVersions.auto,
-                        size: mq.width * 0.62,
-                        backgroundColor: Colors.transparent,
-                        foregroundColor: Colors.white,
+                  child: RepaintBoundary(
+                    key: _qrKey,
+                    child: Container(
+                      width: mq.width * 0.78,
+                      height: mq.width * 0.78,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        color: Colors.white,
+                      ),
+                      child: Center(
+                        child: QrImageView(
+                          data: walletAddress,
+                          version: QrVersions.auto,
+                          size: mq.width * 0.68,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          errorCorrectionLevel: QrErrorCorrectLevel.H,
+                          embeddedImage: const AssetImage('assets/images/bnb.png'),
+                          embeddedImageStyle: QrEmbeddedImageStyle(
+                            size: Size(mq.width * 0.12, mq.width * 0.12),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -103,7 +151,7 @@ class ReceiveScreen extends StatelessWidget {
 
                 SizedBox(height: mq.height * 0.03),
 
-                // 3 circular gradient icons
+                // action icons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -113,14 +161,22 @@ class ReceiveScreen extends StatelessWidget {
                         await Clipboard.setData(
                           ClipboardData(text: walletAddress),
                         );
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Address copied'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
                       },
                     ),
                     const SizedBox(width: 14),
                     _gradCircleIcon(
-                      icon: Icons.arrow_downward,
-                      onTap: () {
-                        // download placeholder
-                      },
+                      icon: _downloading
+                          ? Icons.hourglass_top
+                          : Icons.arrow_downward,
+                      onTap: _downloadQr,
                     ),
                     const SizedBox(width: 14),
                     _gradCircleIcon(
