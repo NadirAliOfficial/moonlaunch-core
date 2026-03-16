@@ -3,7 +3,7 @@ import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
 import 'package:moon_launch/Back-end/Services/token_service.dart';
 import 'package:moon_launch/Back-end/Services/wallet_service.dart';
 import 'package:moon_launch/Front-end/views/coin_detail_screen.dart';
-import 'package:moon_launch/Front-end/widgets/profile_background.dart';
+import 'package:moon_launch/Front-end/widgets/app_background.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,9 +14,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final LinearGradient _mainGradient = const LinearGradient(
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFA21117), Color(0xFF251216)],
   );
 
   List<TokenModel> _tokens = [];
@@ -24,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _error;
 
   String _bnbBalance = '--';
-  String _usdValue   = '--';
+  String _usdValue = '--';
 
   @override
   void initState() {
@@ -38,10 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (address == null || address.isEmpty) return;
     try {
       final wallet = await WalletService.getBalance(address);
-      if (mounted) setState(() {
-        _bnbBalance = wallet.displayBnb;
-        _usdValue   = wallet.displayUsd;
-      });
+      if (mounted) {
+        setState(() {
+          _bnbBalance = wallet.displayBnb;
+          _usdValue = wallet.displayUsd;
+        });
+      }
     } catch (_) {}
   }
 
@@ -85,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Image.network(
             token.logo!,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _coinImage(size: size),
+            errorBuilder: (_, _, _) => _coinImage(size: size),
           ),
         ),
       );
@@ -121,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: ProfileBackground(
+      body: AppBackground(
         child: SafeArea(
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -134,8 +136,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     bottom: MediaQuery.of(context).viewInsets.bottom,
                   ),
                   child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(minHeight: constraints.maxHeight),
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
                     child: IntrinsicHeight(
                       child: Padding(
                         padding: EdgeInsets.only(top: mq.height * 0.01),
@@ -144,7 +147,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             // Search bar
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: mq.width * 0.06),
+                                horizontal: mq.width * 0.06,
+                              ),
                               child: Container(
                                 height: mq.height * 0.055,
                                 decoration: BoxDecoration(
@@ -158,21 +162,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Row(
                                   children: [
                                     SizedBox(width: mq.width * 0.04),
-                                    Icon(Icons.search,
-                                        color: Colors.white.withOpacity(0.85),
-                                        size: 20),
+                                    Icon(
+                                      Icons.search,
+                                      color: Colors.white.withOpacity(0.85),
+                                      size: 20,
+                                    ),
                                     SizedBox(width: mq.width * 0.03),
                                     Expanded(
                                       child: TextField(
                                         style: const TextStyle(
-                                            color: Colors.white),
+                                          color: Colors.white,
+                                        ),
                                         textAlignVertical:
                                             TextAlignVertical.center,
                                         decoration: InputDecoration(
                                           hintText: "Search...",
                                           hintStyle: TextStyle(
-                                            color:
-                                                Colors.white.withOpacity(0.70),
+                                            color: Colors.white.withOpacity(
+                                              0.70,
+                                            ),
                                             fontFamily: 'Benne',
                                             fontSize: 14,
                                           ),
@@ -180,7 +188,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           isCollapsed: true,
                                           contentPadding:
                                               const EdgeInsets.symmetric(
-                                                  vertical: 0),
+                                                vertical: 0,
+                                              ),
                                         ),
                                       ),
                                     ),
@@ -215,7 +224,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   TextSpan(
                                     text: _usdValue,
-                                    style: TextStyle(fontSize: mq.width * 0.100),
+                                    style: TextStyle(
+                                      fontSize: mq.width * 0.100,
+                                    ),
                                   ),
                                   WidgetSpan(
                                     alignment: PlaceholderAlignment.baseline,
@@ -247,8 +258,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: '$_bnbBalance',
-                                    style: TextStyle(fontSize: mq.width * 0.058),
+                                    text: _bnbBalance,
+                                    style: TextStyle(
+                                      fontSize: mq.width * 0.058,
+                                    ),
                                   ),
                                   WidgetSpan(
                                     alignment: PlaceholderAlignment.baseline,
@@ -283,7 +296,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             // Highlights / Rewards titles
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: mq.width * 0.08),
+                                horizontal: mq.width * 0.08,
+                              ),
                               child: Row(
                                 children: [
                                   Text(
@@ -314,7 +328,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             // Highlight cards
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: mq.width * 0.06),
+                                horizontal: mq.width * 0.06,
+                              ),
                               child: Row(
                                 children: [
                                   Expanded(
@@ -368,7 +383,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             // New Launches header
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                  horizontal: mq.width * 0.07),
+                                horizontal: mq.width * 0.07,
+                              ),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -384,19 +400,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   InkWell(
                                     onTap: _loadTokens,
-                                    child: ShaderMask(
-                                      shaderCallback: (bounds) =>
-                                          _mainGradient.createShader(bounds),
-                                      child: Text(
-                                        'Refresh',
-                                        style: TextStyle(
-                                          fontFamily: 'Benne',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: mq.width * 0.04,
-                                          color: Colors.white,
+                                    // child: ShaderMask(
+                                    //   shaderCallback: (bounds) =>
+                                    //       _mainGradient.createShader(bounds),
+                                    child: Text(
+                                      'Refresh',
+                                      style: TextStyle(
+                                        fontFamily: 'Benne',
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: mq.width * 0.04,
+                                        color: const Color.fromARGB(
+                                          255,
+                                          230,
+                                          255,
+                                          7,
                                         ),
                                       ),
                                     ),
+                                    // ),
                                   ),
                                 ],
                               ),
@@ -408,7 +429,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (_loading)
                               Padding(
                                 padding: EdgeInsets.symmetric(
-                                    vertical: mq.height * 0.05),
+                                  vertical: mq.height * 0.05,
+                                ),
                                 child: const CircularProgressIndicator(
                                   color: Color(0xFFFFE600),
                                 ),
@@ -416,8 +438,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             else if (_error != null)
                               Padding(
                                 padding: EdgeInsets.symmetric(
-                                    vertical: mq.height * 0.04,
-                                    horizontal: mq.width * 0.08),
+                                  vertical: mq.height * 0.04,
+                                  horizontal: mq.width * 0.08,
+                                ),
                                 child: Column(
                                   children: [
                                     Text(
@@ -446,7 +469,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             else if (_tokens.isEmpty)
                               Padding(
                                 padding: EdgeInsets.symmetric(
-                                    vertical: mq.height * 0.04),
+                                  vertical: mq.height * 0.04,
+                                ),
                                 child: Text(
                                   'No launches yet',
                                   style: TextStyle(
@@ -474,20 +498,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (_) => CoinDetailScreen(
-                                              tokenAddress:
-                                                  token.tokenAddress,
+                                              tokenAddress: token.tokenAddress,
                                             ),
                                           ),
                                         );
                                       },
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 14),
+                                          horizontal: 10,
+                                          vertical: 14,
+                                        ),
                                         decoration: const BoxDecoration(
                                           border: Border(
                                             top: BorderSide(
-                                                width: 1.0,
-                                                color: Color(0xFFCDCDCD)),
+                                              width: 1.0,
+                                              color: Color(0xFFCDCDCD),
+                                            ),
                                           ),
                                         ),
                                         child: Row(
@@ -581,6 +607,7 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         gradient: _mainGradient,
         borderRadius: BorderRadius.circular(50),
+        border: Border.all(color: Color(0xFFca4e5b), width: 1.5),
       ),
       child: Material(
         color: Colors.transparent,
@@ -630,14 +657,11 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         gradient: gradient,
         borderRadius: BorderRadius.circular(60),
+        border: Border.all(color: Color(0xFFca4e5b), width: 1.5),
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 42,
-            height: 39,
-            child: Center(child: leading),
-          ),
+          SizedBox(width: 42, height: 39, child: Center(child: leading)),
           SizedBox(width: mq.width * 0.02),
           Expanded(
             child: Column(

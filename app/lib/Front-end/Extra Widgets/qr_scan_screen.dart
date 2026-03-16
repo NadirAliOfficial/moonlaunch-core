@@ -40,19 +40,22 @@ class _QrScanScreenState extends State<QrScanScreen> {
         title: const Text("Scan QR"),
         actions: [
           IconButton(
+            style: IconButton.styleFrom(
+              side: BorderSide(color: Color(0xFFca4e5b), width: 1.5),
+            ),
             icon: const Icon(Icons.cameraswitch),
             onPressed: () => _controller.switchCamera(),
           ),
           IconButton(
+            style: IconButton.styleFrom(
+              side: BorderSide(color: Color(0xFFca4e5b), width: 1.5),
+            ),
             icon: const Icon(Icons.flash_on),
             onPressed: () => _controller.toggleTorch(),
           ),
         ],
       ),
-      body: MobileScanner(
-        controller: _controller,
-        onDetect: _onDetect,
-      ),
+      body: MobileScanner(controller: _controller, onDetect: _onDetect),
     );
   }
 }

@@ -34,6 +34,12 @@ class AppDialogs {
           ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                side: BorderSide(color: Color(0xFFca4e5b), width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               onPressed: () => Navigator.pop(context),
               child: Text(
                 cancelText,
@@ -42,6 +48,7 @@ class AppDialogs {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
+                side: BorderSide(color: Color(0xFFca4e5b), width: 1.5),
                 backgroundColor: const Color(0xFFDB2519),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

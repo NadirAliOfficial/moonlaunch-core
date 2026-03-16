@@ -275,11 +275,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFFFFE600),
-                                    Color(0xFFDB2519),
+                                    Color(0xFFA21117),
+                                    // Color(0xFF3A1319),
+                                    Color(0xFF251216),
                                   ],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
                                 ),
                                 borderRadius: BorderRadius.circular(50),
                               ),

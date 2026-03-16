@@ -15,9 +15,7 @@ class ImageSelector {
           padding: const EdgeInsets.symmetric(vertical: 25),
           decoration: const BoxDecoration(
             color: Color(0xFF0E0E0E),
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(25),
-            ),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -88,19 +86,12 @@ class ImageSelector {
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
-                colors: [
-                  Color(0xFFFFE600),
-                  Color(0xFFDB2519),
-                ],
+                colors: [Color(0xFFA21117), Color(0xFF251216)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
             ),
-            child: Icon(
-              icon,
-              size: 32,
-              color: Colors.white,
-            ),
+            child: Icon(icon, size: 32, color: Colors.white),
           ),
           const SizedBox(height: 10),
           Text(

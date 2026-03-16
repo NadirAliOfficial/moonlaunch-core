@@ -17,26 +17,24 @@ class _GuidScreenState extends State<GuidScreen> {
     {
       "image": "assets/images/moon_launch_roc.png",
       "title": "Launch Your Own Meme ",
-      "description":
-          "Create and trade your meme in minutes."
+      "description": "Create and trade your meme in minutes.",
     },
     {
       "image": "assets/images/hand_coin.png",
       "title": "No Code. No Permissions. Just Launch.",
       "description":
-          "Name your meme, give it a story, then add liquidity and it’s instantly deployed on the BNB blockchain."
+          "Name your meme, give it a story, then add liquidity and it’s instantly deployed on the BNB blockchain.",
     },
     {
       "image": "assets/images/coin_image.png",
       "title": "Trade Your Meme Freely",
-      "description":
-          "Trade and swap your meme with real time charts."
+      "description": "Trade and swap your meme with real time charts.",
     },
     {
       "image": "assets/images/coins_image.png",
       "title": "Turn Hype Into Earnings",
       "description":
-          "Earn MOONLX coins everytime someone buys or sells your meme."
+          "Earn MOONLX coins everytime someone buys or sells your meme.",
     },
   ];
 
@@ -75,11 +73,16 @@ class _GuidScreenState extends State<GuidScreen> {
                     final double availableH = constraints.maxHeight;
 
                     // Dynamic sizes based on AVAILABLE height (not full screen)
-                    final double imageH = availableH * 0.52; // was causing overflow
-                    final double titleSize =
-                        (mqSize.width * 0.07).clamp(20.0, 34.0);
-                    final double descSize =
-                        (mqSize.width * 0.04).clamp(14.0, 20.0);
+                    final double imageH =
+                        availableH * 0.52; // was causing overflow
+                    final double titleSize = (mqSize.width * 0.07).clamp(
+                      20.0,
+                      34.0,
+                    );
+                    final double descSize = (mqSize.width * 0.04).clamp(
+                      14.0,
+                      20.0,
+                    );
 
                     return PageView.builder(
                       controller: _pageController,
@@ -106,7 +109,8 @@ class _GuidScreenState extends State<GuidScreen> {
                                       child: Image.asset(
                                         _pages[pageIndex]['image']!,
                                         width: double.infinity,
-                                        fit: BoxFit.contain, // ✅ safer than cover
+                                        fit: BoxFit
+                                            .contain, // ✅ safer than cover
                                       ),
                                     ),
                                   ),
@@ -197,15 +201,21 @@ class _GuidScreenState extends State<GuidScreen> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
+                        colors: [
+                          Color(0xFFA21117),
+                          // Color(0xFF3A1319),
+                          Color(0xFF251216),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
                       ),
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: Center(
                       child: Text(
-                        _currentIndex == _pages.length - 1 ? 'Continue' : 'Next',
+                        _currentIndex == _pages.length - 1
+                            ? 'Continue'
+                            : 'Next',
                         style: TextStyle(
                           fontFamily: 'BernardMTCondensed',
                           fontWeight: FontWeight.w400,
@@ -237,7 +247,11 @@ class _GuidScreenState extends State<GuidScreen> {
       decoration: BoxDecoration(
         gradient: isActive
             ? const LinearGradient(
-                colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                colors: [
+                  Color(0xFFA21117),
+                  // // Color(0xFF3A1319),
+                  Color(0xFF251216),
+                ],
               )
             : null,
         color: isActive ? null : Colors.grey.shade600,

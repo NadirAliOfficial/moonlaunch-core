@@ -38,10 +38,7 @@ class _EnterCodeScreenState extends State<EnterCodeScreen> {
           padding: EdgeInsets.only(top: mq.height * 0.018),
           child: Row(
             children: [
-              _topBackCircleButton(
-                mq: mq,
-                onTap: () => Navigator.pop(context),
-              ),
+              _topBackCircleButton(mq: mq, onTap: () => Navigator.pop(context)),
               const Spacer(),
               Image.asset(
                 'assets/images/moon_launch_logo.png',
@@ -133,10 +130,7 @@ class _EnterCodeScreenState extends State<EnterCodeScreen> {
   }
 
   /// Back circle button
-  Widget _topBackCircleButton({
-    required Size mq,
-    required VoidCallback onTap,
-  }) {
+  Widget _topBackCircleButton({required Size mq, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
@@ -173,10 +167,7 @@ class _EnterCodeScreenState extends State<EnterCodeScreen> {
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [
-              Color(0xFFFFE600),
-              Color(0xFFDB2519),
-            ],
+            colors: [Color(0xFFA21117), Color(0xFF251216)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),

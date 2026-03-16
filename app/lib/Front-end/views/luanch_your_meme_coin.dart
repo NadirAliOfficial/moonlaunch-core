@@ -25,10 +25,7 @@ class LaunchYourMemeScreen extends StatelessWidget {
           padding: const EdgeInsets.only(top: 30),
           child: Row(
             children: [
-              _topBackCircleButton(
-                mq: mq,
-                onTap: () => Navigator.pop(context),
-              ),
+              _topBackCircleButton(mq: mq, onTap: () => Navigator.pop(context)),
               const Spacer(),
               Image.asset(
                 'assets/images/moon_launch_logo.png',
@@ -81,12 +78,11 @@ class LaunchYourMemeScreen extends StatelessWidget {
                   ),
                 ),
 
-               
                 Expanded(
                   child: Center(
                     child: SizedBox(
-                      width: mq.width * 0.85,  
-                      height: mq.height * 0.42, 
+                      width: mq.width * 0.85,
+                      height: mq.height * 0.42,
                       child: Image.asset(
                         'assets/images/bit_coin.png',
                         fit: BoxFit.contain,
@@ -115,10 +111,7 @@ class LaunchYourMemeScreen extends StatelessWidget {
   }
 
   /// Back circle button (top-left)
-  Widget _topBackCircleButton({
-    required Size mq,
-    required VoidCallback onTap,
-  }) {
+  Widget _topBackCircleButton({required Size mq, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
@@ -131,11 +124,7 @@ class LaunchYourMemeScreen extends StatelessWidget {
         ),
         child: const Padding(
           padding: EdgeInsets.only(right: 3),
-          child: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
-            size: 24,
-          ),
+          child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
         ),
       ),
     );
@@ -156,8 +145,10 @@ class LaunchYourMemeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [
-              Color(0xFFFFE600),
-              Color(0xFFDB2519),
+              // Color(0xFFFFE600),
+              // Color(0xFFDB2519),
+              Color(0xFFA21117),
+              Color(0xFF251216),
             ],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,

@@ -39,7 +39,8 @@ class _LoginScreenState extends State<LoginScreen> {
           child: LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: constraints.maxHeight),
                   child: IntrinsicHeight(
@@ -53,7 +54,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: mqSize.height * 0.12),
 
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.08),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: mqSize.width * 0.08,
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -73,7 +76,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: mqSize.height * 0.01),
 
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.08),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: mqSize.width * 0.08,
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -93,20 +98,31 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: mqSize.height * 0.02),
 
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.07),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: mqSize.width * 0.07,
+                          ),
                           child: TextField(
                             controller: emailCtrl,
                             decoration: InputDecoration(
                               hint: Text(
                                 "Email Address",
-                                style: TextStyle(fontFamily: 'Benne', fontSize: 15),
+                                style: TextStyle(
+                                  fontFamily: 'Benne',
+                                  fontSize: 15,
+                                ),
                               ),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(mqSize.width * 0.5),
+                                borderRadius: BorderRadius.circular(
+                                  mqSize.width * 0.5,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(mqSize.width * 0.5),
-                                borderSide: const BorderSide(color: Color(0xFFDB2519)),
+                                borderRadius: BorderRadius.circular(
+                                  mqSize.width * 0.5,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFDB2519),
+                                ),
                               ),
                             ),
                           ),
@@ -114,25 +130,38 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: mqSize.height * 0.01),
 
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.07),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: mqSize.width * 0.07,
+                          ),
                           child: TextField(
                             controller: passCtrl,
                             obscureText: !isPasswordVisible,
                             decoration: InputDecoration(
                               hint: Text(
                                 "Password",
-                                style: TextStyle(fontFamily: 'Benne', fontSize: 15),
+                                style: TextStyle(
+                                  fontFamily: 'Benne',
+                                  fontSize: 15,
+                                ),
                               ),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(mqSize.width * 0.5),
+                                borderRadius: BorderRadius.circular(
+                                  mqSize.width * 0.5,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(mqSize.width * 0.5),
-                                borderSide: const BorderSide(color: Color(0xFFDB2519)),
+                                borderRadius: BorderRadius.circular(
+                                  mqSize.width * 0.5,
+                                ),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFDB2519),
+                                ),
                               ),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                                  isPasswordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                   color: Colors.white,
                                 ),
                                 onPressed: () {
@@ -147,7 +176,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: mqSize.height * 0.03),
 
                         Padding(
-                          padding: EdgeInsets.only(left: mqSize.width * 0.07, right: mqSize.width * 0.08),
+                          padding: EdgeInsets.only(
+                            left: mqSize.width * 0.07,
+                            right: mqSize.width * 0.08,
+                          ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -166,9 +198,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                         shape: BoxShape.circle,
                                         gradient: rememberMe
                                             ? const LinearGradient(
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
                                                 colors: [
-                                                  Color(0xFFFFE600),
-                                                  Color(0xFFDB2519),
+                                                  Color(0xFFA21117),
+                                                  // Color(0xFF3A1319),
+                                                  Color(0xFF251216),
                                                 ],
                                               )
                                             : null,
@@ -188,7 +223,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   SizedBox(width: mqSize.width * 0.02),
                                   Padding(
-                                    padding: EdgeInsets.only(top: mqSize.height * 0.006),
+                                    padding: EdgeInsets.only(
+                                      top: mqSize.height * 0.006,
+                                    ),
                                     child: Text(
                                       'Remember me',
                                       style: TextStyle(
@@ -204,13 +241,21 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (_) => VerifyIdentityScreen()),
+                                    MaterialPageRoute(
+                                      builder: (_) => VerifyIdentityScreen(),
+                                    ),
                                   );
                                 },
                                 child: ShaderMask(
                                   shaderCallback: (bounds) {
                                     return const LinearGradient(
-                                      colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Color.fromARGB(255, 255, 219, 14),
+                                        // Color(0xFF3A1319),
+                                        Color.fromARGB(255, 255, 125, 19),
+                                      ],
                                     ).createShader(bounds);
                                   },
                                   child: Text(
@@ -230,7 +275,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: mqSize.height * 0.04),
 
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.05),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: mqSize.width * 0.05,
+                          ),
                           child: InkWell(
                             onTap: isLoading ? null : _onLogin,
                             child: Container(
@@ -238,9 +285,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color(0xFFA21117),
+                                    // Color(0xFF3A1319),
+                                    Color(0xFF251216),
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(50),
                               ),
@@ -285,13 +336,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               onTap: () {
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => RegisterScreen()),
+                                  MaterialPageRoute(
+                                    builder: (_) => RegisterScreen(),
+                                  ),
                                 );
                               },
                               child: ShaderMask(
                                 shaderCallback: (bounds) {
                                   return const LinearGradient(
-                                    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                                    colors: [
+                                      Color(0xFFFFE600),
+                                      Color(0xFFDB2519),
+                                    ],
                                   ).createShader(bounds);
                                 },
                                 child: Text(
@@ -307,7 +363,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -374,17 +430,11 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              width: 1.2,
-              color: const Color(0xFFDB2519),
-            ),
+            border: Border.all(width: 1.2, color: const Color(0xFFDB2519)),
           ),
           child: Text(
             msg,
-            style: const TextStyle(
-              fontFamily: 'Benne',
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontFamily: 'Benne', color: Colors.white),
           ),
         ),
       ),

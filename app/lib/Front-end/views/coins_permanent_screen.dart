@@ -12,7 +12,6 @@ class CoinsPermanentScreen extends StatefulWidget {
 }
 
 class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
-
   /// ✅ default unchecked
   bool termAndConditions = false;
 
@@ -34,10 +33,7 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
           padding: const EdgeInsets.only(top: 30),
           child: Row(
             children: [
-              _topBackCircleButton(
-                mq: mq,
-                onTap: () => Navigator.pop(context),
-              ),
+              _topBackCircleButton(mq: mq, onTap: () => Navigator.pop(context)),
               const Spacer(),
               Image.asset(
                 'assets/images/moon_launch_logo.png',
@@ -60,7 +56,6 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
             ),
             child: Column(
               children: [
-
                 Text(
                   'MEMES ARE PERMANENT',
                   textAlign: TextAlign.center,
@@ -118,8 +113,8 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
                             gradient: termAndConditions
                                 ? const LinearGradient(
                                     colors: [
-                                      Color(0xFFFFE600),
-                                      Color(0xFFDB2519),
+                                      Color(0xFFA21117),
+                                      Color(0xFF251216),
                                     ],
                                   )
                                 : null,
@@ -129,8 +124,11 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
                             ),
                           ),
                           child: termAndConditions
-                              ? const Icon(Icons.check,
-                                  size: 14, color: Colors.white)
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 14,
+                                  color: Colors.white,
+                                )
                               : null,
                         ),
                       ),
@@ -220,16 +218,12 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
         decoration: BoxDecoration(
           gradient: isChecked
               ? const LinearGradient(
-                  colors: [
-                    Color(0xFFFFE600),
-                    Color(0xFFDB2519),
-                  ],
+                  colors: [Color(0xFFA21117), Color(0xFF251216)],
                 )
               : null,
           borderRadius: BorderRadius.circular(999),
         ),
         child: isChecked
-
             /// ✅ b2 – FILLED
             ? Center(
                 child: Text(
@@ -241,7 +235,6 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
                   ),
                 ),
               )
-
             /// ✅ b1 – GRADIENT BORDER ONLY
             : CustomPaint(
                 painter: _GradientBorderPainter(),
@@ -249,10 +242,7 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
                   child: ShaderMask(
                     shaderCallback: (bounds) {
                       return const LinearGradient(
-                        colors: [
-                          Color(0xFFFFE600),
-                          Color(0xFFDB2519),
-                        ],
+                        colors: [Color(0xFFA21117), Color(0xFF251216)],
                       ).createShader(bounds);
                     },
                     child: Text(
@@ -281,10 +271,7 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
       child: ShaderMask(
         shaderCallback: (bounds) {
           return const LinearGradient(
-            colors: [
-              Color(0xFFFFE600),
-              Color(0xFFDB2519),
-            ],
+            colors: [Color(0xFFA21117), Color(0xFF251216)],
           ).createShader(bounds);
         },
         child: Text(
@@ -300,10 +287,7 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
     );
   }
 
-  Widget _topBackCircleButton({
-    required Size mq,
-    required VoidCallback onTap,
-  }) {
+  Widget _topBackCircleButton({required Size mq, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
@@ -314,8 +298,11 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
           color: const Color(0xFFDB2519).withOpacity(0.20),
           borderRadius: BorderRadius.circular(999),
         ),
-        child: const Icon(Icons.arrow_back_ios_new,
-            color: Colors.white, size: 22),
+        child: const Icon(
+          Icons.arrow_back_ios_new,
+          color: Colors.white,
+          size: 22,
+        ),
       ),
     );
   }
@@ -328,16 +315,12 @@ class _GradientBorderPainter extends CustomPainter {
     final rect = Offset.zero & size;
     final paint = Paint()
       ..shader = const LinearGradient(
-        colors: [
-          Color(0xFFFFE600),
-          Color(0xFFDB2519),
-        ],
+        colors: [Color(0xFFA21117), Color(0xFF251216)],
       ).createShader(rect)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
-    final rRect =
-        RRect.fromRectAndRadius(rect, const Radius.circular(999));
+    final rRect = RRect.fromRectAndRadius(rect, const Radius.circular(999));
     canvas.drawRRect(rRect, paint);
   }
 

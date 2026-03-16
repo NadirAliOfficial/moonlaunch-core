@@ -81,7 +81,9 @@ class PushNotificationScreen extends StatelessWidget {
 
                       // Subtitle
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: mq.width * 0.12),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: mq.width * 0.12,
+                        ),
                         child: Text(
                           'Customize your alerts to stay on top of\nthe meme market.',
                           textAlign: TextAlign.center,
@@ -111,7 +113,9 @@ class PushNotificationScreen extends StatelessWidget {
 
                       // Enable button
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: mq.width * 0.06),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: mq.width * 0.06,
+                        ),
                         child: InkWell(
                           onTap: () {
                             // TODO: enable push notification action
@@ -122,7 +126,7 @@ class PushNotificationScreen extends StatelessWidget {
                             width: double.infinity,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                                colors: [Color(0xFFA21117), Color(0xFF251216)],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),

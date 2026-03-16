@@ -23,10 +23,7 @@ class EarningIntroScreen extends StatelessWidget {
           padding: const EdgeInsets.only(top: 30),
           child: Row(
             children: [
-              _topBackCircleButton(
-                mq: mq,
-                onTap: () => Navigator.pop(context),
-              ),
+              _topBackCircleButton(mq: mq, onTap: () => Navigator.pop(context)),
               const Spacer(),
               Image.asset(
                 'assets/images/moon_launch_logo.png',
@@ -67,7 +64,7 @@ class EarningIntroScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Benne',
-                    
+
                     fontSize: mq.width * 0.045,
                     color: Colors.white.withOpacity(0.75),
                     height: 1.35,
@@ -79,7 +76,8 @@ class EarningIntroScreen extends StatelessWidget {
                   flex: 8, // ✅ give more space to image
                   child: Center(
                     child: Transform.scale(
-                      scale: 1.00, // ✅ FORCE BIGGER (increase more if needed: 1.5 / 1.7)
+                      scale:
+                          1.00, // ✅ FORCE BIGGER (increase more if needed: 1.5 / 1.7)
                       child: Image.asset(
                         'assets/images/referral_image.png',
                         fit: BoxFit.contain,
@@ -115,10 +113,7 @@ class EarningIntroScreen extends StatelessWidget {
     );
   }
 
-  Widget _topBackCircleButton({
-    required Size mq,
-    required VoidCallback onTap,
-  }) {
+  Widget _topBackCircleButton({required Size mq, required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
@@ -131,11 +126,7 @@ class EarningIntroScreen extends StatelessWidget {
         ),
         child: const Padding(
           padding: EdgeInsets.only(right: 3),
-          child: Icon(
-            Icons.arrow_back_ios_new,
-            color: Colors.white,
-            size: 24,
-          ),
+          child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
         ),
       ),
     );
@@ -154,10 +145,7 @@ class EarningIntroScreen extends StatelessWidget {
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [
-              Color(0xFFFFE600),
-              Color(0xFFDB2519),
-            ],
+            colors: [Color(0xFFA21117), Color(0xFF251216)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),

@@ -20,9 +20,9 @@ class BuyScreen extends StatefulWidget {
   });
 
   static const LinearGradient _btnGradient = LinearGradient(
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFA21117), Color(0xFF3A1319), Color(0xFF251216)],
   );
 
   @override
@@ -46,10 +46,12 @@ class _BuyScreenState extends State<BuyScreen> {
 
   String _friendlyError(String raw) {
     final lower = raw.toLowerCase();
-    if (lower.contains('transfer_from_failed') || lower.contains('transferfrom')) {
+    if (lower.contains('transfer_from_failed') ||
+        lower.contains('transferfrom')) {
       return 'This token cannot be purchased — its contract blocks buying. It may be a restricted or honeypot token.';
     }
-    if (lower.contains('insufficient funds') || lower.contains('insufficient balance')) {
+    if (lower.contains('insufficient funds') ||
+        lower.contains('insufficient balance')) {
       return 'Insufficient BNB balance. Please add more BNB to your wallet.';
     }
     if (lower.contains('gas')) {
@@ -67,7 +69,9 @@ class _BuyScreenState extends State<BuyScreen> {
   Future<void> _onBuy() async {
     final walletAddress = SessionController.instance.walletAddress;
     if (walletAddress == null || walletAddress.isEmpty) {
-      setState(() => _error = 'No wallet found. Please log out and log in again.');
+      setState(
+        () => _error = 'No wallet found. Please log out and log in again.',
+      );
       return;
     }
 
@@ -156,7 +160,7 @@ class _BuyScreenState extends State<BuyScreen> {
                         width: mq.width * 0.28,
                         height: mq.width * 0.28,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Image.asset(
+                        errorBuilder: (_, _, _) => Image.asset(
                           'assets/images/bit_coin.png',
                           width: mq.width * 0.28,
                           height: mq.width * 0.28,
@@ -207,7 +211,9 @@ class _BuyScreenState extends State<BuyScreen> {
               Expanded(
                 child: TextField(
                   controller: _amountController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                   ],
@@ -250,10 +256,13 @@ class _BuyScreenState extends State<BuyScreen> {
             return GestureDetector(
               onTap: () => _amountController.text = amt,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white.withOpacity(.25)),
+                  border: Border.all(color: Color(0xFFca4e5b), width: 1.5),
                 ),
                 child: Text(
                   '$amt BNB',
@@ -312,7 +321,11 @@ class _BuyScreenState extends State<BuyScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Icon(Icons.check_circle_outline, color: Color(0xFFFFE600), size: 72),
+        const Icon(
+          Icons.check_circle_outline,
+          color: Color(0xFFFFE600),
+          size: 72,
+        ),
         const SizedBox(height: 20),
         const Text(
           'Purchase Submitted!',
@@ -377,7 +390,11 @@ class _BuyScreenState extends State<BuyScreen> {
           onPressed: () => Navigator.pop(context),
           child: const Text(
             'Done',
-            style: TextStyle(fontFamily: 'Benne', color: Colors.white70, fontSize: 15),
+            style: TextStyle(
+              fontFamily: 'Benne',
+              color: Colors.white70,
+              fontSize: 15,
+            ),
           ),
         ),
       ],
@@ -405,10 +422,15 @@ class _BuyScreenState extends State<BuyScreen> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(999),
                   color: const Color(0xFFDB2519).withOpacity(0.20),
+                  border: Border.all(color: Color(0xFFca4e5b), width: 1.5),
                 ),
                 child: const Padding(
                   padding: EdgeInsets.only(right: 3),
-                  child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
+                  child: Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors.white,
+                    size: 24,
+                  ),
                 ),
               ),
             ),
@@ -433,6 +455,7 @@ class _BuyScreenState extends State<BuyScreen> {
         height: 56,
         width: double.infinity,
         decoration: BoxDecoration(
+          border: Border.all(color: Color(0xFFca4e5b), width: 1.5),
           gradient: BuyScreen._btnGradient,
           borderRadius: BorderRadius.circular(40),
         ),

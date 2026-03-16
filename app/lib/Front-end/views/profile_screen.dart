@@ -124,7 +124,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ),
                               const SizedBox(width: 5),
-                              Image.asset("assets/images/tick.png", height: 34, width: 34),
+                              Image.asset(
+                                "assets/images/tick.png",
+                                height: 34,
+                                width: 34,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 6),
@@ -150,7 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             decoration: BoxDecoration(
                               color: Colors.transparent,
                               border: Border.all(
-                                color: const Color(0xffDB2519),
+                                color: const Color(0xFFca4e5b),
                                 width: 1,
                               ),
                               borderRadius: BorderRadius.circular(10),
@@ -179,7 +183,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      SessionController.instance.walletAddress ?? 'No wallet',
+                                      SessionController
+                                              .instance
+                                              .walletAddress ??
+                                          'No wallet',
                                       style: const TextStyle(
                                         fontFamily: "Benne",
                                         fontSize: 12.5,
@@ -193,10 +200,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     alignment: Alignment.centerLeft,
                                     child: GestureDetector(
                                       onTap: () {
-                                        final addr = SessionController.instance.walletAddress;
+                                        final addr = SessionController
+                                            .instance
+                                            .walletAddress;
                                         if (addr != null) {
-                                          Clipboard.setData(ClipboardData(text: addr));
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          Clipboard.setData(
+                                            ClipboardData(text: addr),
+                                          );
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             const SnackBar(
                                               content: Text('Address copied'),
                                               duration: Duration(seconds: 2),
@@ -210,13 +223,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         decoration: BoxDecoration(
                                           gradient: const LinearGradient(
                                             colors: [
-                                              Color(0xffFFE600),
-                                              Color(0xffDB2519),
+                                              Color(0xFFA21117),
+                                              Color(0xFF251216),
                                             ],
                                             begin: Alignment.centerLeft,
                                             end: Alignment.centerRight,
                                           ),
-                                          borderRadius: BorderRadius.circular(9),
+                                          borderRadius: BorderRadius.circular(
+                                            9,
+                                          ),
                                         ),
                                         child: const Align(
                                           alignment: Alignment.center,
@@ -358,7 +373,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             decoration: BoxDecoration(
                               border: Border.all(
                                 width: 2,
-                                color: const Color(0xFFDB2519),
+                                color: const Color(0xFFca4e5b),
                               ),
                               borderRadius: BorderRadius.circular(40),
                             ),
@@ -407,10 +422,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             height: mqSize.height * 0.07,
                             width: double.infinity,
                             decoration: BoxDecoration(
+                              border: Border.all(
+                                color: const Color(0xFFca4e5b),
+                                width: 1.5,
+                              ),
                               gradient: const LinearGradient(
-                                colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Color(0xFFA21117),
+                                  // Color(0xFF3A1319),
+                                  Color(0xFF251216),
+                                ],
                               ),
                               borderRadius: BorderRadius.circular(40),
                             ),
@@ -600,8 +623,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFFFFE600),
-                                    Color(0xFFDB2519),
+                                    Color(0xFFA21117),
+                                    Color(0xFF251216),
                                   ],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
