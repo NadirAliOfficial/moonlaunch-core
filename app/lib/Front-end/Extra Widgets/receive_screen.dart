@@ -9,7 +9,7 @@ class ReceiveScreen extends StatelessWidget {
   const ReceiveScreen({super.key});
 
   static const LinearGradient _btnGradient = LinearGradient(
-    colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
+    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );
@@ -188,7 +188,7 @@ class ReceiveScreen extends StatelessWidget {
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(
-            colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
+            colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),

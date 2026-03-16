@@ -98,7 +98,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             decoration: BoxDecoration(
                               // gradient: const LinearGradient(
                               //   colors: [
-                              //     Color(0xFF8B1010),
+                              //     Color(0xFFFFE600),
                               //     Color(0xFFDB2519),
                               //   ],
                               // ),
@@ -415,7 +415,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             width: double.infinity,
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
+                                colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
                               ),
@@ -544,7 +544,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               isSelected ? Icons.star : Icons.star_border,
                               size: 34,
                               color: isSelected
-                                  ? const Color(0xFF8B1010)
+                                  ? const Color(0xFFFFE600)
                                   : const Color(0xFFC9C9C9),
                             ),
                           ),
@@ -607,7 +607,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFF8B1010),
+                                    Color(0xFFFFE600),
                                     Color(0xFFDB2519),
                                   ],
                                   begin: Alignment.centerLeft,

@@ -17,7 +17,7 @@ class SellScreen extends StatefulWidget {
   const SellScreen({super.key, this.token});
 
   static const LinearGradient btnGradient = LinearGradient(
-    colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
+    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );
@@ -256,7 +256,7 @@ class _SellScreenState extends State<SellScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(40),
             border: Border.all(color: Colors.white.withOpacity(.35)),
-            color: const Color(0xFF8B1010).withOpacity(0.08),
+            color: const Color(0xFFFFE600).withOpacity(0.08),
           ),
           child: Row(
             children: [
@@ -339,7 +339,7 @@ class _SellScreenState extends State<SellScreen> {
         const Spacer(),
 
         _loading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFF8B1010)))
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFFFFE600)))
             : _bottomGradientButton(text: 'Send', onTap: _onSend),
 
         SizedBox(height: mq.height * 0.05),
@@ -352,7 +352,7 @@ class _SellScreenState extends State<SellScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Icon(Icons.check_circle_outline, color: Color(0xFF8B1010), size: 72),
+        const Icon(Icons.check_circle_outline, color: Color(0xFFFFE600), size: 72),
         const SizedBox(height: 20),
         const Text(
           'Sent!',

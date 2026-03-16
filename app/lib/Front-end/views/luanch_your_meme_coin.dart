@@ -156,7 +156,7 @@ class LaunchYourMemeScreen extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [
-              Color(0xFF8B1010),
+              Color(0xFFFFE600),
               Color(0xFFDB2519),
             ],
             begin: Alignment.centerLeft,

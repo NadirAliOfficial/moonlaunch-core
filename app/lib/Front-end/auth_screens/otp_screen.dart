@@ -127,14 +127,14 @@ class _OtpScreenState extends State<OtpScreen> {
                             decoration: InputDecoration(
                               counterText: '',
                               filled: true,
-                              fillColor: Color(0xFF8B1010).withOpacity(0.1),
+                              fillColor: Color(0xFFFFE600).withOpacity(0.1),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
-                                borderSide: BorderSide(color: Color(0xFF8B1010).withOpacity(0.3)),
+                                borderSide: BorderSide(color: Color(0xFFFFE600).withOpacity(0.3)),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(15),
-                                borderSide: BorderSide(color: Color(0xFF8B1010).withOpacity(0.7)),
+                                borderSide: BorderSide(color: Color(0xFFFFE600).withOpacity(0.7)),
                               ),
                             ),
                             onChanged: (value) {
@@ -166,7 +166,7 @@ class _OtpScreenState extends State<OtpScreen> {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              Color(0xFF8B1010),
+                              Color(0xFFFFE600),
                               Color(0xFFDB2519),
                             ],
                             begin: Alignment.centerLeft,

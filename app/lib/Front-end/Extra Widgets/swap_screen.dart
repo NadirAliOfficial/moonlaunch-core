@@ -13,7 +13,7 @@ class SwapScreen extends StatefulWidget {
   const SwapScreen({super.key, required this.token});
 
   static const LinearGradient _btnGradient = LinearGradient(
-    colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
+    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );
@@ -21,7 +21,7 @@ class SwapScreen extends StatefulWidget {
   static const LinearGradient _circleGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
+    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
   );
 
   @override
@@ -261,7 +261,7 @@ class _SwapScreenState extends State<SwapScreen> {
         const Spacer(),
 
         _loading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFF8B1010)))
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFFFFE600)))
             : _gradientButton(text: 'Swap Now', onTap: _onSwap),
 
         SizedBox(height: mq.height * 0.05),
@@ -359,7 +359,7 @@ class _SwapScreenState extends State<SwapScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Icon(Icons.check_circle_outline, color: Color(0xFF8B1010), size: 72),
+        const Icon(Icons.check_circle_outline, color: Color(0xFFFFE600), size: 72),
         const SizedBox(height: 20),
         const Text(
           'Swap Submitted!',

@@ -12,7 +12,7 @@ class ConfirmLiquidityDetailsScreen extends StatefulWidget {
 class _ConfirmLiquidityDetailsScreenState
     extends State<ConfirmLiquidityDetailsScreen> {
   final LinearGradient _mainGradient = const LinearGradient(
-    colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
+    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );

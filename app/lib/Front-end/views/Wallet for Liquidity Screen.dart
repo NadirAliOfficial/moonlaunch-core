@@ -15,7 +15,7 @@ class _SelectWalletLiquidityScreenState
   int selectedIndex = 0;
 
   final LinearGradient _mainGradient = const LinearGradient(
-    colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
+    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );
@@ -294,7 +294,7 @@ class _SelectWalletLiquidityScreenState
                   height: mq.width * 0.048,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color(0xFF8B1010),
+                    color: Color(0xFFFFE600),
                   ),
                   child: Icon(
                     Icons.check,

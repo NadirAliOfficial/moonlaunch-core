@@ -7,11 +7,15 @@ class ProfileBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF0D0D1A),
-      ),
-      child: child,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image.asset(
+          'assets/images/bg_create_coin.png',
+          fit: BoxFit.cover,
+        ),
+        child,
+      ],
     );
   }
 }
