@@ -18,10 +18,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 // ── Feature flags — set to true to re-enable ──────────────────────────────
-const bool _showEditProfile    = false;
-const bool _showNotifications  = false;
-const bool _showHelpCenter     = false;
-const bool _showExportKeys     = false;
+const bool _showEditProfile = false;
+const bool _showNotifications = false;
+const bool _showHelpCenter = false;
+const bool _showExportKeys = false;
 // ──────────────────────────────────────────────────────────────────────────
 
 class _ProfileScreenState extends State<ProfileScreen> {
@@ -195,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               .walletAddress ??
                                           'No wallet',
                                       style: const TextStyle(
-                                        fontFamily: "Benne",
+                                        // fontFamily: "Benne",
                                         fontSize: 12.5,
                                         fontWeight: FontWeight.w800,
                                         color: Colors.white,
@@ -262,52 +262,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           SizedBox(height: mqSize.height * 0.04),
 
-                          if (_showNotifications) _menuItem(
-                            mqSize: mqSize,
-                            title: 'Notifications',
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => PushNotificationScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                          if (_showNotifications) SizedBox(height: mqSize.height * 0.04),
+                          if (_showNotifications)
+                            _menuItem(
+                              mqSize: mqSize,
+                              title: 'Notifications',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PushNotificationScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          if (_showNotifications)
+                            SizedBox(height: mqSize.height * 0.04),
 
-                          if (_showEditProfile) _menuItem(
-                            mqSize: mqSize,
-                            title: 'Edit Profile',
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => EditProfileScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                          if (_showEditProfile) SizedBox(height: mqSize.height * 0.04),
+                          if (_showEditProfile)
+                            _menuItem(
+                              mqSize: mqSize,
+                              title: 'Edit Profile',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => EditProfileScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          if (_showEditProfile)
+                            SizedBox(height: mqSize.height * 0.04),
 
-                          if (_showHelpCenter) _menuItem(
-                            mqSize: mqSize,
-                            title: 'Help Center',
-                            onTap: () {},
-                          ),
-                          if (_showHelpCenter) SizedBox(height: mqSize.height * 0.04),
+                          if (_showHelpCenter)
+                            _menuItem(
+                              mqSize: mqSize,
+                              title: 'Help Center',
+                              onTap: () {},
+                            ),
+                          if (_showHelpCenter)
+                            SizedBox(height: mqSize.height * 0.04),
 
-                          if (_showExportKeys) _menuItem(
-                            mqSize: mqSize,
-                            title: 'Export Keys',
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => ExportKey()),
-                              );
-                            },
-                          ),
-                          if (_showExportKeys) SizedBox(height: mqSize.height * 0.04),
+                          if (_showExportKeys)
+                            _menuItem(
+                              mqSize: mqSize,
+                              title: 'Export Keys',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ExportKey(),
+                                  ),
+                                );
+                              },
+                            ),
+                          if (_showExportKeys)
+                            SizedBox(height: mqSize.height * 0.04),
 
                           _menuItem(
                             mqSize: mqSize,
