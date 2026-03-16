@@ -14,6 +14,10 @@ class WalletScreen extends StatefulWidget {
   State<WalletScreen> createState() => _WalletScreenState();
 }
 
+// ── Feature flags — set to true to re-enable ──────────────────────────────
+const bool _showWalletChart = false;
+// ──────────────────────────────────────────────────────────────────────────
+
 class _WalletScreenState extends State<WalletScreen> {
   final LinearGradient _circleGradient = const LinearGradient(
     begin: Alignment.topCenter,
@@ -204,19 +208,19 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 10),
+                if (_showWalletChart) const SizedBox(height: 10),
 
                 // Chart
-                SizedBox(
+                if (_showWalletChart) SizedBox(
                   height: mq.height * 0.23,
                   width: mq.width * 0.92,
                   child: const WalletChart(),
                 ),
 
-                const SizedBox(height: 8),
+                if (_showWalletChart) const SizedBox(height: 8),
 
                 // Range selector
-                Padding(
+                if (_showWalletChart) Padding(
                   padding: EdgeInsets.symmetric(horizontal: mq.width * 0.05),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -258,7 +262,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 16),
+                if (_showWalletChart) const SizedBox(height: 16),
 
                 // Action buttons
                 Row(
