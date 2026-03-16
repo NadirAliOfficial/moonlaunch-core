@@ -73,18 +73,29 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _coinImage({required double size}) {
-    return SizedBox(
+  Widget _letterAvatar({required double size, required String name}) {
+    final letter = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    return Container(
       width: size,
       height: size,
-      child: FittedBox(
-        fit: BoxFit.contain,
-        child: Image.asset('assets/images/bit_coin.png'),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        letter,
+        style: TextStyle(
+          fontSize: size * 0.45,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
       ),
     );
   }
 
   Widget _tokenLogo(TokenModel token, {required double size}) {
+    final fallback = _letterAvatar(size: size, name: token.displayName);
     if (token.logo != null && token.logo!.isNotEmpty) {
       return SizedBox(
         width: size,
@@ -94,12 +105,12 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Image.network(
             token.logo!,
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => _coinImage(size: size),
+            errorBuilder: (_, _, _) => fallback,
           ),
         ),
       );
     }
-    return _coinImage(size: size);
+    return fallback;
   }
 
   @override
@@ -348,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       gradient: _mainGradient,
                                       leading: _tokens.isNotEmpty
                                           ? _tokenLogo(_tokens.first, size: 58)
-                                          : _coinImage(size: 58),
+                                          : _letterAvatar(size: 58, name: '?'),
                                       title: _tokens.isNotEmpty
                                           ? _tokens.first.displayName
                                           : '--',

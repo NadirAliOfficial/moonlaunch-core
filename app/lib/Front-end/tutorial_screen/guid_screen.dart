@@ -34,7 +34,7 @@ class _GuidScreenState extends State<GuidScreen> {
       "image": "assets/images/coins_image.png",
       "title": "Turn Hype Into Earnings",
       "description":
-          "Earn MOONLX coins everytime someone buys or sells your meme.",
+          "Earn BNB coins everytime someone buys or sells your meme.",
     },
   ];
 

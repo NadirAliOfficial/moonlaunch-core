@@ -60,7 +60,7 @@ class EarningIntroScreen extends StatelessWidget {
                 ),
                 SizedBox(height: mq.height * 0.015),
                 Text(
-                  'Everytime someone trades your coin\nyou receive MOONLX coins.',
+                  'Everytime someone trades your coin\nyou receive BNB coins.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontFamily: 'Benne',

@@ -127,6 +127,8 @@ class RewardScreen extends StatelessWidget {
                     height: 328,
                     width: 328,
                     fit: BoxFit.contain,
+                    cacheWidth: 656,
+                    cacheHeight: 656,
                   ),
                 ),
 
@@ -134,7 +136,7 @@ class RewardScreen extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: mq.width * 0.08),
                   child: Text(
-                    'Earn MOONLX coins whenever your family, friends and their friends buy a meme.',
+                    'Earn BNB coins whenever your family, friends and their friends buy a meme.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontFamily: 'Benne',
