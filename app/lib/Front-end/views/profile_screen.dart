@@ -17,6 +17,10 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
+// ── Feature flags — set to true to re-enable ──────────────────────────────
+const bool _showEditProfile = false;
+// ──────────────────────────────────────────────────────────────────────────
+
 class _ProfileScreenState extends State<ProfileScreen> {
   bool startNotification = true;
   double _selectedRating = 0;
@@ -254,7 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           SizedBox(height: mqSize.height * 0.04),
 
-                          _menuItem(
+                          if (_showEditProfile) _menuItem(
                             mqSize: mqSize,
                             title: 'Edit Profile',
                             onTap: () {
@@ -266,7 +270,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             },
                           ),
-                          SizedBox(height: mqSize.height * 0.04),
+                          if (_showEditProfile) SizedBox(height: mqSize.height * 0.04),
 
                           _menuItem(
                             mqSize: mqSize,

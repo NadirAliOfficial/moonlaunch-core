@@ -25,8 +25,8 @@ class CustomBottomNavBar extends StatelessWidget {
                 painter: BNBCustomPainter(),
               ),
 
-              // ✅ Center Button (Launch)
-              Positioned(
+              // ✅ Center Button (Launch) — hidden until Phase 2 (_showLaunchButton = false)
+              if (false) Positioned(
                 top: -20,
                 left: mqSize.width / 2 - 35,
                 child: Container(
