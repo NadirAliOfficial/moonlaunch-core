@@ -3,7 +3,8 @@ import 'package:moon_launch/Front-end/auth_screens/change_password_screen.dart';
 import 'package:moon_launch/Front-end/widgets/app_background.dart';
 
 class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key});
+  final int userId;
+  const OtpScreen({super.key, required this.userId});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -155,9 +156,14 @@ class _OtpScreenState extends State<OtpScreen> {
                     padding: EdgeInsets.symmetric(horizontal: mqSize.width*0.05),
                     child: InkWell(
                       onTap: () {
+                        final otp = otpControllers.map((c) => c.text).join();
+                        if (otp.length < 6) return;
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => ChangePasswordScreen()),
+                          MaterialPageRoute(builder: (_) => ChangePasswordScreen(
+                            userId: widget.userId,
+                            otp: otp,
+                          )),
                         );
                       },
                       child: Container(

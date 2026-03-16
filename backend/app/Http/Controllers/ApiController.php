@@ -677,7 +677,6 @@ class ApiController extends Controller
     }
     public function sendOtp(Request $request)
     {
-        // Validate incoming request
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email|max:255',
         ]);
@@ -691,7 +690,6 @@ class ApiController extends Controller
         }
 
         try {
-            // Check if user exists with this email using DB facade
             $user = DB::table('users')->where('email', $request->email)->first();
 
             if (!$user) {
@@ -701,10 +699,8 @@ class ApiController extends Controller
                 ], 404);
             }
 
-            // Generate 6 digit OTP
             $otp = rand(100000, 999999);
 
-            // ── Send OTP via Postmark (SAME as signup) ───────────────────────────
             $secret = $this->getSecret('moonlaunch/postmark/stockholm/prod/server-token');
             $postmarkToken = $secret['POSTMARK_SERVER_TOKEN']
                 ?? $secret['server_token']
@@ -738,14 +734,21 @@ class ApiController extends Controller
                 ],
             ]);
 
-            $result = json_decode($response->getBody()->getContents(), true);                        
+            $result = json_decode($response->getBody()->getContents(), true);
             if (($result['ErrorCode'] ?? 0) !== 0) {
                 throw new \Exception('Postmark error: ' . ($result['Message'] ?? 'Unknown'));
             }
 
+            // Store OTP for verification
+            DB::table('users')->where('id', $user->id)->update([
+                'otp'            => $otp,
+                'otp_expires_at' => now()->addMinutes(10),
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'OTP sent successfully',
+                'user_id' => $user->id,
             ], 200);
 
         } catch (\Exception $e) {
@@ -764,7 +767,8 @@ class ApiController extends Controller
     {
         // Validate incoming request                 
         $validator = Validator::make($request->all(), [
-            'user_id' => 'required|integer|exists:users,id',
+            'user_id'      => 'required|integer|exists:users,id',
+            'otp'          => 'required|string',
             'new_password' => 'required|string|min:8',
         ]);
 
@@ -785,6 +789,14 @@ class ApiController extends Controller
                     'success' => false,
                     'message' => 'User not found'
                 ], 404);
+            }
+
+            // Verify OTP
+            if ($user->otp != $request->otp) {
+                return response()->json(['success' => false, 'message' => 'Invalid OTP'], 422);
+            }
+            if ($user->otp_expires_at && now()->isAfter($user->otp_expires_at)) {
+                return response()->json(['success' => false, 'message' => 'OTP has expired'], 422);
             }
 
             // Update password using DB facade                                                                              

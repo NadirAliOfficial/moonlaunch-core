@@ -1,9 +1,13 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:moon_launch/Front-end/auth_screens/login_screen.dart';
 import '../widgets/app_background.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
-  const ChangePasswordScreen({super.key});
+  final int userId;
+  final String otp;
+  const ChangePasswordScreen({super.key, required this.userId, required this.otp});
 
   @override
   State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
@@ -12,6 +16,57 @@ class ChangePasswordScreen extends StatefulWidget {
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
+  bool _loading = false;
+  String? _error;
+
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  Future<void> _resetPassword() async {
+    final password = _passwordController.text.trim();
+    final confirm = _confirmPasswordController.text.trim();
+
+    if (password.isEmpty || confirm.isEmpty) {
+      setState(() => _error = 'Please fill in all fields');
+      return;
+    }
+    if (password != confirm) {
+      setState(() => _error = 'Passwords do not match');
+      return;
+    }
+    if (password.length < 6) {
+      setState(() => _error = 'Password must be at least 6 characters');
+      return;
+    }
+
+    setState(() { _loading = true; _error = null; });
+    try {
+      final res = await http.post(
+        Uri.parse('https://backend.moonlaunchapp.com/api/reset_password'),
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        body: jsonEncode({
+          'user_id': widget.userId,
+          'otp': widget.otp,
+          'new_password': password,
+        }),
+      );
+      final body = jsonDecode(res.body);
+      if (res.statusCode == 200 && body['success'] == true) {
+        if (!mounted) return;
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (_) => false,
+        );
+      } else {
+        setState(() => _error = body['message'] ?? 'Failed to reset password');
+      }
+    } catch (_) {
+      setState(() => _error = 'Network error. Please try again.');
+    } finally {
+      setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +171,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     horizontal: mqSize.width * 0.05,
                   ),
                   child: TextField(
+                    controller: _passwordController,
                     obscureText: !isPasswordVisible,
+                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.symmetric(
                         vertical: 8.0,
@@ -124,7 +181,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                       hint: Text(
                         "New Password",
-                        style: TextStyle(fontFamily: 'Benne', fontSize: 15),
+                        style: TextStyle(fontFamily: 'Benne', fontSize: 15, color: Colors.white54),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(mqSize.width * 0.5),
@@ -156,7 +213,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     horizontal: mqSize.width * 0.05,
                   ),
                   child: TextField(
+                    controller: _confirmPasswordController,
                     obscureText: !isConfirmPasswordVisible,
+                    style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.symmetric(
                         vertical: 8.0,
@@ -164,7 +223,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       ),
                       hint: Text(
                         "Confirm New Password",
-                        style: TextStyle(fontFamily: 'Benne', fontSize: 15),
+                        style: TextStyle(fontFamily: 'Benne', fontSize: 15, color: Colors.white54),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(mqSize.width * 0.5),
@@ -190,6 +249,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     ),
                   ),
                 ),
+
+                if (_error != null) ...[
+                  SizedBox(height: mqSize.height * 0.015),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.05),
+                    child: Text(_error!, style: const TextStyle(color: Colors.redAccent, fontFamily: 'Benne', fontSize: 13)),
+                  ),
+                ],
+
                 SizedBox(height: mqSize.height * 0.03),
 
                 Padding(
@@ -197,12 +265,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     horizontal: mqSize.width * 0.05,
                   ),
                   child: InkWell(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => LoginScreen()),
-                      );
-                    },
+                    onTap: _loading ? null : _resetPassword,
                     child: Container(
                       height: mqSize.height * 0.06,
                       width: double.infinity,
@@ -215,15 +278,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         borderRadius: BorderRadius.circular(50),
                       ),
                       child: Center(
-                        child: Text(
-                          'Update',
-                          style: TextStyle(
-                            fontFamily: 'BernardMTCondensed',
-                            fontWeight: FontWeight.w400,
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
-                        ),
+                        child: _loading
+                            ? const SizedBox(height: 22, width: 22, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                            : const Text(
+                                'Update',
+                                style: TextStyle(
+                                  fontFamily: 'BernardMTCondensed',
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
                       ),
                     ),
                   ),
