@@ -22,7 +22,7 @@ class _WalletScreenState extends State<WalletScreen> {
   final LinearGradient _circleGradient = const LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+    colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
   );
 
   int _selectedRangeIndex = 0;
@@ -118,7 +118,7 @@ class _WalletScreenState extends State<WalletScreen> {
         child: SafeArea(
           child: RefreshIndicator(
             onRefresh: _loadBalance,
-            color: const Color(0xFFFFE600),
+            color: const Color(0xFF8B1010),
             child: Column(
               children: [
                 // BNB balance
@@ -135,7 +135,7 @@ class _WalletScreenState extends State<WalletScreen> {
                             height: 28,
                             width: 28,
                             child: CircularProgressIndicator(
-                              color: Color(0xFFFFE600),
+                              color: Color(0xFF8B1010),
                               strokeWidth: 2.5,
                             ),
                           ),
@@ -359,7 +359,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   child: _loading
                       ? const Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFFFFE600),
+                            color: Color(0xFF8B1010),
                           ),
                         )
                       : _error != null

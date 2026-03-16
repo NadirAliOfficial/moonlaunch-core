@@ -78,7 +78,7 @@ class TokenScreen extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Color(0xFFFFE600),
+                        Color(0xFF8B1010),
                         Color(0xFFDB2519),
                       ],
                     ),
@@ -145,7 +145,7 @@ class TokenScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [
-                            Color(0xFFFFE600),
+                            Color(0xFF8B1010),
                             Color(0xFFDB2519),
                           ],
                         ),

@@ -25,7 +25,7 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     colors: [
-      Color(0xFFFFE600),
+      Color(0xFF8B1010),
       Color(0xFFDB2519),
     ],
   );
@@ -34,7 +34,7 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
     colors: [
-      Color(0xFFFFE600),
+      Color(0xFF8B1010),
       Color(0xFFDB2519),
     ],
   );

@@ -20,7 +20,7 @@ const bool _showRewards      = false;
 
 class _HomeScreenState extends State<HomeScreen> {
   final LinearGradient _mainGradient = const LinearGradient(
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+    colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );
@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
             builder: (context, constraints) {
               return RefreshIndicator(
                 onRefresh: _loadTokens,
-                color: const Color(0xFFFFE600),
+                color: const Color(0xFF8B1010),
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: EdgeInsets.only(
@@ -390,17 +390,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   InkWell(
                                     onTap: _loadTokens,
-                                    child: ShaderMask(
-                                      shaderCallback: (bounds) =>
-                                          _mainGradient.createShader(bounds),
-                                      child: Text(
-                                        'Refresh',
-                                        style: TextStyle(
-                                          fontFamily: 'Benne',
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: mq.width * 0.04,
-                                          color: Colors.white,
-                                        ),
+                                    child: Text(
+                                      'Refresh',
+                                      style: TextStyle(
+                                        fontFamily: 'Benne',
+                                        fontWeight: FontWeight.w400,
+                                        fontSize: mq.width * 0.04,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
@@ -416,7 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: EdgeInsets.symmetric(
                                     vertical: mq.height * 0.05),
                                 child: const CircularProgressIndicator(
-                                  color: Color(0xFFFFE600),
+                                  color: Color(0xFF8B1010),
                                 ),
                               )
                             else if (_error != null)
@@ -441,7 +437,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         'Tap to retry',
                                         style: TextStyle(
                                           fontFamily: 'Benne',
-                                          color: const Color(0xFFFFE600),
+                                          color: const Color(0xFF8B1010),
                                           fontSize: mq.width * 0.038,
                                         ),
                                       ),

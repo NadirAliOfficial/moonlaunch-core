@@ -186,17 +186,17 @@ class _TwoFactorState extends State<TwoFactor> {
                           decoration: InputDecoration(
                             counterText: '',
                             filled: true,
-                            fillColor: const Color(0xFFFFE600).withOpacity(0.1),
+                            fillColor: const Color(0xFF8B1010).withOpacity(0.1),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                               borderSide: BorderSide(
-                                color: const Color(0xFFFFE600).withOpacity(0.3),
+                                color: const Color(0xFF8B1010).withOpacity(0.3),
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
                               borderSide: BorderSide(
-                                color: const Color(0xFFFFE600).withOpacity(0.7),
+                                color: const Color(0xFF8B1010).withOpacity(0.7),
                               ),
                             ),
                           ),
@@ -223,7 +223,7 @@ class _TwoFactorState extends State<TwoFactor> {
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [
-                            Color(0xFFFFE600),
+                            Color(0xFF8B1010),
                             Color(0xFFDB2519),
                           ],
                           begin: Alignment.centerLeft,

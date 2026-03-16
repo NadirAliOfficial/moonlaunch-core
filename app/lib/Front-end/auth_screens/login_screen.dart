@@ -167,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         gradient: rememberMe
                                             ? const LinearGradient(
                                                 colors: [
-                                                  Color(0xFFFFE600),
+                                                  Color(0xFF8B1010),
                                                   Color(0xFFDB2519),
                                                 ],
                                               )
@@ -210,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: ShaderMask(
                                   shaderCallback: (bounds) {
                                     return const LinearGradient(
-                                      colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                                      colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
                                     ).createShader(bounds);
                                   },
                                   child: Text(
@@ -238,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                                  colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                 ),
@@ -291,7 +291,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: ShaderMask(
                                 shaderCallback: (bounds) {
                                   return const LinearGradient(
-                                    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                                    colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
                                   ).createShader(bounds);
                                 },
                                 child: Text(

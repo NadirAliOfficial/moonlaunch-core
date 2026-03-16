@@ -118,7 +118,7 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
                             gradient: termAndConditions
                                 ? const LinearGradient(
                                     colors: [
-                                      Color(0xFFFFE600),
+                                      Color(0xFF8B1010),
                                       Color(0xFFDB2519),
                                     ],
                                   )
@@ -221,7 +221,7 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
           gradient: isChecked
               ? const LinearGradient(
                   colors: [
-                    Color(0xFFFFE600),
+                    Color(0xFF8B1010),
                     Color(0xFFDB2519),
                   ],
                 )
@@ -250,7 +250,7 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
                     shaderCallback: (bounds) {
                       return const LinearGradient(
                         colors: [
-                          Color(0xFFFFE600),
+                          Color(0xFF8B1010),
                           Color(0xFFDB2519),
                         ],
                       ).createShader(bounds);
@@ -282,7 +282,7 @@ class _CoinsPermanentScreenState extends State<CoinsPermanentScreen> {
         shaderCallback: (bounds) {
           return const LinearGradient(
             colors: [
-              Color(0xFFFFE600),
+              Color(0xFF8B1010),
               Color(0xFFDB2519),
             ],
           ).createShader(bounds);
@@ -329,7 +329,7 @@ class _GradientBorderPainter extends CustomPainter {
     final paint = Paint()
       ..shader = const LinearGradient(
         colors: [
-          Color(0xFFFFE600),
+          Color(0xFF8B1010),
           Color(0xFFDB2519),
         ],
       ).createShader(rect)

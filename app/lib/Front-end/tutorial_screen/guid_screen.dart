@@ -197,7 +197,7 @@ class _GuidScreenState extends State<GuidScreen> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                        colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -237,7 +237,7 @@ class _GuidScreenState extends State<GuidScreen> {
       decoration: BoxDecoration(
         gradient: isActive
             ? const LinearGradient(
-                colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
               )
             : null,
         color: isActive ? null : Colors.grey.shade600,

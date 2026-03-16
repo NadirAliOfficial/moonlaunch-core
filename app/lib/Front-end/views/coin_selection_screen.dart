@@ -160,7 +160,7 @@ class _CoinSelectionScreenState extends State<CoinSelectionScreen> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                        colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -199,7 +199,7 @@ class _CoinSelectionScreenState extends State<CoinSelectionScreen> {
     const LinearGradient ringGradient = LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+      colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
     );
 
     return LayoutBuilder(

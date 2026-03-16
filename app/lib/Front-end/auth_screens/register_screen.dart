@@ -160,7 +160,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     gradient: termAndConditions
                                         ? const LinearGradient(
                                             colors: [
-                                              Color(0xFFFFE600),
+                                              Color(0xFF8B1010),
                                               Color(0xFFDB2519),
                                             ],
                                           )
@@ -202,7 +202,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   shaderCallback: (bounds) {
                                     return const LinearGradient(
                                       colors: [
-                                        Color(0xFFFFE600),
+                                        Color(0xFF8B1010),
                                         Color(0xFFDB2519),
                                       ],
                                     ).createShader(bounds);
@@ -240,7 +240,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   shaderCallback: (bounds) {
                                     return const LinearGradient(
                                       colors: [
-                                        Color(0xFFFFE600),
+                                        Color(0xFF8B1010),
                                         Color(0xFFDB2519),
                                       ],
                                     ).createShader(bounds);
@@ -275,7 +275,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [
-                                    Color(0xFFFFE600),
+                                    Color(0xFF8B1010),
                                     Color(0xFFDB2519),
                                   ],
                                   begin: Alignment.centerLeft,
@@ -329,7 +329,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 shaderCallback: (bounds) {
                                   return const LinearGradient(
                                     colors: [
-                                      Color(0xFFFFE600),
+                                      Color(0xFF8B1010),
                                       Color(0xFFDB2519),
                                     ],
                                   ).createShader(bounds);

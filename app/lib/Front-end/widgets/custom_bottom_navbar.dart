@@ -34,7 +34,7 @@ class CustomBottomNavBar extends StatelessWidget {
                   width: 70,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                      colors: [Color(0xFF8B1010), Color(0xFFDB2519)],
                     ),
                     borderRadius: BorderRadius.circular(50),
                   ),
@@ -180,7 +180,7 @@ class BNBCustomPainter extends CustomPainter {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Color(0xFFFFE600),
+          Color(0xFF8B1010),
           Color(0xFFDB2519),
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))

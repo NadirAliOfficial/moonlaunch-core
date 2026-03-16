@@ -7,19 +7,11 @@ class AppBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Image as background - fit completely to screen with no rounded corners
-        ClipRRect(
-          borderRadius: BorderRadius.zero, // Ensures no rounded corners
-          child: Image.asset(
-            'assets/images/bg_home_screen.png',
-            fit: BoxFit.cover, // Make the image cover the entire screen
-          ),
-        ),
-        child, // Place the child widget (content) on top of the background
-      ],
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF0D0D1A),
+      ),
+      child: child,
     );
   }
 }
