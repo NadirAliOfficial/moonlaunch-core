@@ -195,10 +195,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               .walletAddress ??
                                           'No wallet',
                                       style: const TextStyle(
-                                        fontFamily: "Benne",
-                                        fontSize: 12.5,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.white,
+                                        fontFamily: "monospace",
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.white70,
+                                        letterSpacing: 0.8,
                                       ),
                                     ),
                                   ),
