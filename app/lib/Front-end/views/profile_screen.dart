@@ -18,7 +18,10 @@ class ProfileScreen extends StatefulWidget {
 }
 
 // ── Feature flags — set to true to re-enable ──────────────────────────────
-const bool _showEditProfile = false;
+const bool _showEditProfile    = false;
+const bool _showNotifications  = false;
+const bool _showHelpCenter     = false;
+const bool _showExportKeys     = false;
 // ──────────────────────────────────────────────────────────────────────────
 
 class _ProfileScreenState extends State<ProfileScreen> {
@@ -244,7 +247,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           SizedBox(height: mqSize.height * 0.04),
 
-                          _menuItem(
+                          if (_showNotifications) _menuItem(
                             mqSize: mqSize,
                             title: 'Notifications',
                             onTap: () {
@@ -256,7 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             },
                           ),
-                          SizedBox(height: mqSize.height * 0.04),
+                          if (_showNotifications) SizedBox(height: mqSize.height * 0.04),
 
                           if (_showEditProfile) _menuItem(
                             mqSize: mqSize,
@@ -272,14 +275,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           if (_showEditProfile) SizedBox(height: mqSize.height * 0.04),
 
-                          _menuItem(
+                          if (_showHelpCenter) _menuItem(
                             mqSize: mqSize,
                             title: 'Help Center',
                             onTap: () {},
                           ),
-                          SizedBox(height: mqSize.height * 0.04),
+                          if (_showHelpCenter) SizedBox(height: mqSize.height * 0.04),
 
-                          _menuItem(
+                          if (_showExportKeys) _menuItem(
                             mqSize: mqSize,
                             title: 'Export Keys',
                             onTap: () {
@@ -289,7 +292,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             },
                           ),
-                          SizedBox(height: mqSize.height * 0.04),
+                          if (_showExportKeys) SizedBox(height: mqSize.height * 0.04),
 
                           _menuItem(
                             mqSize: mqSize,
