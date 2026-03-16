@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
 import 'package:moon_launch/Back-end/Services/token_service.dart';
 import 'package:moon_launch/Back-end/Services/wallet_service.dart';
+import 'package:moon_launch/Front-end/Extra%20Widgets/receive_screen.dart';
 import 'package:moon_launch/Front-end/views/coin_detail_screen.dart';
 import 'package:moon_launch/Front-end/widgets/app_background.dart';
 
@@ -294,7 +295,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             _gradientPillButton(
                               mq: mq,
                               title: "ADD BNB",
-                              onTap: () {},
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const ReceiveScreen()),
+                              ),
                             ),
 
                             SizedBox(height: mq.height * 0.035),
