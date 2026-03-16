@@ -4,7 +4,6 @@ import 'package:moon_launch/Back-end/Services/wallet_service.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/buy_screen.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/sell_screen.dart';
 import 'package:moon_launch/Front-end/Extra%20Widgets/swap_screen.dart';
-import 'package:moon_launch/Front-end/widgets/app_background.dart';
 import 'package:moon_launch/Front-end/widgets/wallet_chart.dart';
 
 class CoinDetailScreen extends StatefulWidget {
@@ -24,12 +23,6 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
   final LinearGradient _circleGradient = const LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFFA21117), Color(0xFF251216)],
-  );
-
-  final LinearGradient _topIconCircleGradient = const LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
     colors: [Color(0xFFA21117), Color(0xFF251216)],
   );
 
@@ -93,8 +86,11 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
           ),
         ),
       ),
-      body: AppBackground(
-        child: SafeArea(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset('assets/images/bg_splash_screen.png', fit: BoxFit.cover),
+          SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.only(
               left: mq.width * 0.05,
@@ -109,17 +105,16 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(
-                      width: mq.width * 0.15,
-                      height: mq.width * 0.15,
-                      child: Image.asset('assets/images/bit_coin.png'),
+                    _letterAvatar(
+                      size: mq.width * 0.15,
+                      name: _token?.displayName ?? '',
                     ),
                     SizedBox(width: mq.width * 0.03),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'MemeCoin1',
+                          _token?.displayName ?? '--',
                           style: TextStyle(
                             fontFamily: 'BernardMTCondensed',
                             fontSize: mq.width * 0.047,
@@ -128,88 +123,52 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                           ),
                         ),
                         SizedBox(height: mq.height * 0.003),
-                        Row(
-                          children: [
-                            Text(
-                              '12.234',
-                              style: TextStyle(
-                                fontFamily: 'Benne',
-                                fontWeight: FontWeight.bold,
-                                fontSize: mq.width * 0.045,
-                                color: const Color(0xFFC9C9C9),
-                              ),
-                            ),
-                            Text(
-                              '     Averge (\$7,765)',
-                              style: TextStyle(
-                                fontFamily: 'Benne',
-                                fontSize: mq.width * 0.035,
-                                color: const Color(0xFFC9C9C9),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          _token?.symbol ?? '',
+                          style: TextStyle(
+                            fontFamily: 'Benne',
+                            fontSize: mq.width * 0.035,
+                            color: const Color(0xFFC9C9C9),
+                          ),
                         ),
                       ],
                     ),
                     const Spacer(),
-                    Image.asset('assets/images/heart.png', height: 45),
-                    SizedBox(width: mq.width * 0.03),
-                    Image.asset('assets/images/share.png', height: 45),
                   ],
                 ),
 
                 SizedBox(height: mq.height * 0.02),
 
                 /// 🔹 PRICE
-                RichText(
-                  text: TextSpan(
-                    style: const TextStyle(
-                      fontFamily: 'BernardMTCondensed',
-                      color: Colors.white,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: '\$7,765,431 ',
-                        style: TextStyle(
-                          fontSize: mq.width * 0.10,
-                          fontWeight: FontWeight.w900,
-                        ),
+                if (_token != null)
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontFamily: 'BernardMTCondensed',
+                        color: Colors.white,
                       ),
-                      WidgetSpan(
-                        alignment: PlaceholderAlignment.baseline,
-                        baseline: TextBaseline.alphabetic,
-                        child: Text(
-                          'usd',
+                      children: [
+                        TextSpan(
+                          text: '${_truncatePrice(_token!.displayPrice)} ',
                           style: TextStyle(
-                            fontSize: mq.width * 0.05,
-                            color: Colors.white.withOpacity(0.85),
+                            fontSize: mq.width * 0.065,
+                            fontWeight: FontWeight.w900,
                           ),
                         ),
-                      ),
-                    ],
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: Text(
+                            'usd',
+                            style: TextStyle(
+                              fontSize: mq.width * 0.05,
+                              color: Colors.white.withOpacity(0.85),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-
-                SizedBox(height: mq.height * 0.008),
-
-                Row(
-                  children: [
-                    Icon(
-                      Icons.arrow_drop_up,
-                      color: Colors.green,
-                      size: mq.width * 0.07,
-                    ),
-                    Text(
-                      '0.72%',
-                      style: TextStyle(
-                        fontFamily: 'BernardMTCondensed',
-                        fontSize: mq.width * 0.04,
-                        color: Colors.green,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
 
                 SizedBox(height: mq.height * 0.015),
 
@@ -398,11 +357,34 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
             ),
           ),
         ),
+        ],
       ),
     );
   }
 
   /// ================= HELPERS =================
+
+  String _truncatePrice(String price) {
+    // Keep $ prefix, show max 8 significant characters of the number
+    if (!price.startsWith('\$')) return price;
+    final num = price.substring(1);
+    if (num.length <= 10) return price;
+    return '\$${num.substring(0, 10)}…';
+  }
+
+  Widget _letterAvatar({required double size, required String name}) {
+    final letter = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+      alignment: Alignment.center,
+      child: Text(
+        letter,
+        style: TextStyle(fontSize: size * 0.45, fontWeight: FontWeight.bold, color: Colors.black),
+      ),
+    );
+  }
 
   Widget _topBackCircleButton({required Size mq, required VoidCallback onTap}) {
     return InkWell(

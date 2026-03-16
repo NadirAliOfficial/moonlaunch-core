@@ -280,6 +280,20 @@ class _SwapScreenState extends State<SwapScreen> {
     );
   }
 
+  Widget _letterAvatar({required double size, required String name}) {
+    final letter = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+      alignment: Alignment.center,
+      child: Text(
+        letter,
+        style: TextStyle(fontSize: size * 0.45, fontWeight: FontWeight.bold, color: Colors.black),
+      ),
+    );
+  }
+
   Widget _card({
     required Size mq,
     required String tag,
@@ -328,17 +342,9 @@ class _SwapScreenState extends State<SwapScreen> {
                                   width: 36,
                                   height: 36,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, _, _) => Image.asset(
-                                    'assets/images/bit_coin.png',
-                                    width: 36,
-                                    height: 36,
-                                  ),
+                                  errorBuilder: (_, _, _) => _letterAvatar(size: 36, name: title),
                                 )
-                              : Image.asset(
-                                  'assets/images/bit_coin.png',
-                                  width: 36,
-                                  height: 36,
-                                )),
+                              : _letterAvatar(size: 36, name: title)),
                   ),
                   const SizedBox(width: 12),
                   Column(

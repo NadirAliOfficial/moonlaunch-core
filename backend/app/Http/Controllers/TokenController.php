@@ -5,17 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\MoralisService;
+use App\Services\DexScreenerService;
 
 class TokenController extends Controller
 {
     // -------------------------------------------------------
-    // GET /api/new-launches                        
-    // Returns latest token launches for mobile app                                          
+    // GET /api/new-launches
+    // Returns latest token launches for mobile app
     // -------------------------------------------------------
-    public function newLaunches(Request $request)           
+    public function newLaunches(Request $request)
     {
         try {
-            $limit  = $request->get('limit', 20);
+            $limit  = $request->get('limit', 1000);
             $offset = $request->get('offset', 0);
 
             $tokens = DB::table('tokens')
@@ -39,16 +40,31 @@ class TokenController extends Controller
                     'is_tradeable',
                 ]);
 
-            // Fetch live USD prices from Moralis for all tokens
-            $addresses  = $tokens->pluck('token_address')->toArray();
-            $livePrices = (new MoralisService())->getTokenPrices($addresses);
+            $addresses = $tokens->pluck('token_address')->toArray();
+
+            // 1. Try Moralis batch prices
+            $moralisPrices = (new MoralisService())->getTokenPrices($addresses);
+
+            // 2. Find tokens that Moralis couldn't price
+            $unpricedAddresses = array_values(array_filter($addresses, function ($addr) use ($moralisPrices) {
+                return !isset($moralisPrices[strtolower($addr)]);
+            }));
+
+            // 3. Fallback: DexScreener for unpriced tokens
+            $dexPrices = [];
+            if (!empty($unpricedAddresses)) {
+                $dexPrices = (new DexScreenerService())->getTokenPrices($unpricedAddresses);
+            }
+
+            // 4. Merge: Moralis takes priority, DexScreener fills the gaps
+            $livePrices = array_merge($dexPrices, $moralisPrices);
 
             $enriched = $tokens->map(function ($token) use ($livePrices) {
                 $row  = (array) $token;
                 $addr = strtolower($token->token_address);
                 if (isset($livePrices[$addr])) {
-                    $row['initial_price']   = $livePrices[$addr];
-                    $row['price_currency']  = 'USD';
+                    $row['initial_price']  = $livePrices[$addr];
+                    $row['price_currency'] = 'USD';
                 }
                 return $row;
             });
@@ -69,9 +85,9 @@ class TokenController extends Controller
 
     // -------------------------------------------------------
     // GET /api/token/{address}
-    // Returns single token detail                                   
+    // Returns single token detail with live price enrichment
     // -------------------------------------------------------
-    public function getTokenDetail(string $address)         
+    public function getTokenDetail(string $address)
     {
         try {
             $token = DB::table('tokens')
@@ -85,9 +101,25 @@ class TokenController extends Controller
                 ], 404);
             }
 
+            $row  = (array) $token;
+            $addr = strtolower($address);
+
+            // Try Moralis first, then DexScreener
+            $prices = (new MoralisService())->getTokenPrices([$addr]);
+            if (isset($prices[$addr])) {
+                $row['initial_price']  = $prices[$addr];
+                $row['price_currency'] = 'USD';
+            } else {
+                $dexPrices = (new DexScreenerService())->getTokenPrices([$addr]);
+                if (isset($dexPrices[$addr])) {
+                    $row['initial_price']  = $dexPrices[$addr];
+                    $row['price_currency'] = 'USD';
+                }
+            }
+
             return response()->json([
                 'status' => 'success',
-                'data'   => $token,
+                'data'   => $row,
             ], 200);
 
         } catch (\Exception $e) {
