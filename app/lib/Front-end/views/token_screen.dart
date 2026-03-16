@@ -29,7 +29,7 @@ class TokenScreen extends StatelessWidget {
                   width: 38,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color(0xffF7931A33).withOpacity(0.3),
+                    color: Color(0xfff7931a33).withOpacity(0.3),
                   ),
                   child: const Icon(
                     Icons.arrow_back_ios_new,
@@ -77,10 +77,7 @@ class TokenScreen extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFFFFE600),
-                        Color(0xFFDB2519),
-                      ],
+                      colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
                     ),
                   ),
                   child: Padding(
@@ -90,12 +87,14 @@ class TokenScreen extends StatelessWidget {
                         shape: BoxShape.circle,
                         color: Colors.black.withOpacity(0.7),
                       ),
-                      child: Image(image: AssetImage(
-                        'assets/images/picture_icon.png',
-                      ),height: 42,width: 42,))
+                      child: Image(
+                        image: AssetImage('assets/images/picture_icon.png'),
+                        height: 42,
+                        width: 42,
+                      ),
                     ),
                   ),
-
+                ),
 
                 const SizedBox(height: 10),
 
@@ -120,10 +119,7 @@ class TokenScreen extends StatelessWidget {
                   radius: mq.width * 0.08,
                 ),
                 _inputField(mq, 'Total Supply'),
-                _inputField(
-                  mq,
-                  'Starting Liquidity (BNB) - min 0.025',
-                ),
+                _inputField(mq, 'Starting Liquidity (BNB) - min 0.025'),
 
                 const SizedBox(height: 24),
 
@@ -144,10 +140,7 @@ class TokenScreen extends StatelessWidget {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFFFE600),
-                            Color(0xFFDB2519),
-                          ],
+                          colors: [Color(0xFFA21117), Color(0xFF251216)],
                         ),
                         borderRadius: BorderRadius.circular(40),
                       ),
@@ -173,17 +166,9 @@ class TokenScreen extends StatelessWidget {
   }
 
   /// ===== INPUT FIELD WIDGET =====
-  Widget _inputField(
-      Size mq,
-      String hint, {
-        int maxLines = 1,
-        double? radius,
-      }) {
+  Widget _inputField(Size mq, String hint, {int maxLines = 1, double? radius}) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: mq.width * 0.07,
-        vertical: 6,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: mq.width * 0.07, vertical: 6),
       child: TextField(
         maxLines: maxLines,
         style: const TextStyle(color: Colors.white),
@@ -194,13 +179,11 @@ class TokenScreen extends StatelessWidget {
             color: Color(0xFFC9C9C9),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius:
-            BorderRadius.circular(radius ?? mq.width * 0.5),
+            borderRadius: BorderRadius.circular(radius ?? mq.width * 0.5),
             borderSide: const BorderSide(color: Colors.white30),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius:
-            BorderRadius.circular(radius ?? mq.width * 0.5),
+            borderRadius: BorderRadius.circular(radius ?? mq.width * 0.5),
             borderSide: const BorderSide(color: Color(0xFFDB2519)),
           ),
         ),

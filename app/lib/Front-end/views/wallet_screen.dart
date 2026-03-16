@@ -22,7 +22,7 @@ class _WalletScreenState extends State<WalletScreen> {
   final LinearGradient _circleGradient = const LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+    colors: [Color(0xFFA21117), Color(0xFF251216)],
   );
 
   int _selectedRangeIndex = 0;
@@ -123,8 +123,7 @@ class _WalletScreenState extends State<WalletScreen> {
               children: [
                 // BNB balance
                 Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: mq.width * 0.05),
+                  padding: EdgeInsets.symmetric(horizontal: mq.width * 0.05),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -276,7 +275,10 @@ class _WalletScreenState extends State<WalletScreen> {
                         const SnackBar(
                           content: Text(
                             'Tap a token from the feed to buy',
-                            style: TextStyle(fontFamily: 'Benne'),
+                            style: TextStyle(
+                              fontFamily: 'Benne',
+                              color: Colors.white,
+                            ),
                           ),
                           backgroundColor: Color(0xFF1A1A1A),
                           duration: Duration(seconds: 2),
@@ -289,9 +291,9 @@ class _WalletScreenState extends State<WalletScreen> {
                       icon: Icons.arrow_upward,
                       label: 'Send',
                       onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const SellScreen())),
+                        context,
+                        MaterialPageRoute(builder: (_) => const SellScreen()),
+                      ),
                     ),
                     SizedBox(width: mq.width * 0.05),
                     _actionButton(
@@ -299,9 +301,11 @@ class _WalletScreenState extends State<WalletScreen> {
                       icon: Icons.arrow_downward,
                       label: 'Receive',
                       onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const ReceiveScreen())),
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ReceiveScreen(),
+                        ),
+                      ),
                     ),
                     SizedBox(width: mq.width * 0.05),
                     _actionButton(
@@ -326,8 +330,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
                 // Your Coins header
                 Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: mq.width * 0.05),
+                  padding: EdgeInsets.symmetric(horizontal: mq.width * 0.05),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -363,103 +366,103 @@ class _WalletScreenState extends State<WalletScreen> {
                           ),
                         )
                       : _error != null
-                          ? Center(
-                              child: Text(
-                                'Could not load tokens',
+                      ? Center(
+                          child: Text(
+                            'Could not load tokens',
+                            style: TextStyle(
+                              fontFamily: 'Benne',
+                              color: Colors.white54,
+                              fontSize: mq.width * 0.038,
+                            ),
+                          ),
+                        )
+                      : _wallet == null || _wallet!.tokens.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'No tokens yet',
                                 style: TextStyle(
                                   fontFamily: 'Benne',
                                   color: Colors.white54,
-                                  fontSize: mq.width * 0.038,
+                                  fontSize: mq.width * 0.04,
                                 ),
                               ),
-                            )
-                          : _wallet == null || _wallet!.tokens.isEmpty
-                              ? Center(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'No tokens yet',
-                                        style: TextStyle(
-                                          fontFamily: 'Benne',
-                                          color: Colors.white54,
-                                          fontSize: mq.width * 0.04,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Pull down to refresh after buying',
-                                        style: TextStyle(
-                                          fontFamily: 'Benne',
-                                          color: Colors.white30,
-                                          fontSize: mq.width * 0.033,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : ListView.separated(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: mq.width * 0.05),
-                                  itemCount: _wallet!.tokens.length,
-                                  separatorBuilder: (_, __) => Divider(
-                                    color: Colors.white.withOpacity(0.18),
-                                    height: 18,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    final token =
-                                        _wallet!.tokens[index];
-                                    return InkWell(
-                                      onTap: () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => SwapScreen(token: token),
-                                        ),
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Row(
+                              const SizedBox(height: 8),
+                              Text(
+                                'Pull down to refresh after buying',
+                                style: TextStyle(
+                                  fontFamily: 'Benne',
+                                  color: Colors.white30,
+                                  fontSize: mq.width * 0.033,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.separated(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: mq.width * 0.05,
+                          ),
+                          itemCount: _wallet!.tokens.length,
+                          separatorBuilder: (_, _) => Divider(
+                            color: Colors.white.withOpacity(0.18),
+                            height: 18,
+                          ),
+                          itemBuilder: (context, index) {
+                            final token = _wallet!.tokens[index];
+                            return InkWell(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => SwapScreen(token: token),
+                                ),
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+
+                              child: Row(
+                                children: [
+                                  _tokenLogo(token, size: 40),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        _tokenLogo(token, size: 40),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                token.displayName,
-                                                style: const TextStyle(
-                                                  fontFamily:
-                                                      'BernardMTCondensed',
-                                                  fontSize: 16,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 2),
-                                              Text(
-                                                token.symbol ?? '',
-                                                style: const TextStyle(
-                                                  fontFamily: 'Benne',
-                                                  fontSize: 12,
-                                                  color: Color(0xFFC9C9C9),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                         Text(
-                                          token.balance,
+                                          token.displayName,
                                           style: const TextStyle(
                                             fontFamily: 'BernardMTCondensed',
                                             fontSize: 16,
                                             color: Colors.white,
                                           ),
                                         ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          token.symbol ?? '',
+                                          style: const TextStyle(
+                                            fontFamily: 'Benne',
+                                            fontSize: 12,
+                                            color: Color(0xFFC9C9C9),
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                    );
-                                  },
-                                ),
+                                  ),
+                                  Text(
+                                    token.balance,
+                                    style: const TextStyle(
+                                      fontFamily: 'BernardMTCondensed',
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                 ),
               ],
             ),
@@ -479,7 +482,7 @@ class _WalletScreenState extends State<WalletScreen> {
           child: Image.network(
             token.logo!,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _defaultIcon(size),
+            errorBuilder: (_, _, _) => _defaultIcon(size),
           ),
         ),
       );
@@ -488,11 +491,7 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Widget _defaultIcon(double size) {
-    return Image.asset(
-      'assets/images/bit_coin.png',
-      width: size,
-      height: size,
-    );
+    return Image.asset('assets/images/bit_coin.png', width: size, height: size);
   }
 
   Widget _actionButton({
@@ -513,10 +512,9 @@ class _WalletScreenState extends State<WalletScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: _circleGradient,
+              border: Border.all(color: Color(0xFFca4e5b), width: 1.5),
             ),
-            child: Center(
-              child: Icon(icon, color: Colors.white, size: 34),
-            ),
+            child: Center(child: Icon(icon, color: Colors.white, size: 34)),
           ),
           const SizedBox(height: 8),
           Text(

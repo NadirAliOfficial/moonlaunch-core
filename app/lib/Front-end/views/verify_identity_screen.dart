@@ -59,10 +59,16 @@ class VerifyIdentityScreen extends StatelessWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Image.asset('assets/images/verification_image.png', height: 311,width: 311,),
+                Image.asset(
+                  'assets/images/verification_image.png',
+                  height: 311,
+                  width: 311,
+                ),
 
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width*0.07),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.07,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -70,7 +76,7 @@ class VerifyIdentityScreen extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'BernardMTCondensed',
                           fontWeight: FontWeight.w600,
-                          fontSize: mqSize.width*0.07,
+                          fontSize: mqSize.width * 0.07,
                           color: Colors.white,
                         ),
                       ),
@@ -79,7 +85,9 @@ class VerifyIdentityScreen extends StatelessWidget {
                 ),
 
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width*0.07),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.07,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -87,17 +95,19 @@ class VerifyIdentityScreen extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Benne',
                           fontWeight: FontWeight.w400,
-                          fontSize: mqSize.width*0.040,
+                          fontSize: mqSize.width * 0.040,
                           color: Colors.white,
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: mqSize.height*0.025,),
+                SizedBox(height: mqSize.height * 0.025),
 
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width*0.07),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.07,
+                  ),
                   child: TextField(
                     decoration: InputDecoration(
                       hint: Text(
@@ -105,19 +115,21 @@ class VerifyIdentityScreen extends StatelessWidget {
                         style: TextStyle(fontFamily: 'Benne', fontSize: 15),
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(mqSize.width*0.5),
+                        borderRadius: BorderRadius.circular(mqSize.width * 0.5),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(mqSize.width*0.5),
+                        borderRadius: BorderRadius.circular(mqSize.width * 0.5),
                         borderSide: const BorderSide(color: Color(0xFFDB2519)),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(height: mqSize.height*0.03,),
+                SizedBox(height: mqSize.height * 0.03),
 
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width*0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: InkWell(
                     onTap: () {
                       Navigator.push(
@@ -126,16 +138,13 @@ class VerifyIdentityScreen extends StatelessWidget {
                       );
                     },
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0,right: 8),
+                      padding: const EdgeInsets.only(left: 8.0, right: 8),
                       child: Container(
-                        height: mqSize.height*0.06,
+                        height: mqSize.height * 0.06,
                         width: double.infinity,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            colors: [
-                              Color(0xFFFFE600),
-                              Color(0xFFDB2519),
-                            ],
+                            colors: [Color(0xFFA21117), Color(0xFF251216)],
                             begin: Alignment.centerLeft,
                             end: Alignment.centerRight,
                           ),
@@ -156,10 +165,9 @@ class VerifyIdentityScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-
               ],
             ),
-          )
+          ),
         ),
       ),
     );

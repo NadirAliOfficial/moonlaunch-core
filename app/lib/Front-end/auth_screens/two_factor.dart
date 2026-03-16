@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
 import 'package:moon_launch/Back-end/Services/auth_service.dart';
-import 'package:moon_launch/Front-end/auth_screens/login_screen.dart';
 import 'package:moon_launch/Front-end/widgets/app_background.dart';
 import 'package:moon_launch/Front-end/widgets/widget_tree.dart';
 
@@ -20,7 +19,6 @@ class TwoFactor extends StatefulWidget {
   final Widget? onSuccessNavigateTo;
 
   const TwoFactor._internal({
-    super.key,
     required this.email,
     required this.password,
     required this.isLoginFlow,
@@ -63,8 +61,10 @@ class TwoFactor extends StatefulWidget {
 }
 
 class _TwoFactorState extends State<TwoFactor> {
-  final List<TextEditingController> otpControllers =
-      List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> otpControllers = List.generate(
+    6,
+    (index) => TextEditingController(),
+  );
 
   bool isLoading = false;
 
@@ -133,7 +133,9 @@ class _TwoFactorState extends State<TwoFactor> {
                   width: 311,
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -149,7 +151,9 @@ class _TwoFactorState extends State<TwoFactor> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -166,7 +170,9 @@ class _TwoFactorState extends State<TwoFactor> {
                 ),
                 SizedBox(height: mqSize.height * 0.03),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: List.generate(6, (index) {
@@ -214,7 +220,9 @@ class _TwoFactorState extends State<TwoFactor> {
                 ),
                 SizedBox(height: mqSize.height * 0.04),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: InkWell(
                     onTap: isLoading ? null : _verifyOtp,
                     child: Container(
@@ -222,12 +230,13 @@ class _TwoFactorState extends State<TwoFactor> {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
                           colors: [
-                            Color(0xFFFFE600),
-                            Color(0xFFDB2519),
+                            Color(0xFFA21117),
+                            // Color(0xFF3A1319),
+                            Color(0xFF251216),
                           ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
                         ),
                         borderRadius: BorderRadius.circular(40),
                       ),
@@ -285,8 +294,9 @@ class _TwoFactorState extends State<TwoFactor> {
 
         // Save user session
         if (res['user'] != null) {
-          await SessionController.instance
-              .saveSession(Map<String, dynamic>.from(res['user'] as Map));
+          await SessionController.instance.saveSession(
+            Map<String, dynamic>.from(res['user'] as Map),
+          );
         }
 
         setState(() => isLoading = false);
@@ -319,8 +329,9 @@ class _TwoFactorState extends State<TwoFactor> {
 
         // Save user session (signup returns limited user object)
         if (res['user'] != null) {
-          await SessionController.instance
-              .saveSession(Map<String, dynamic>.from(res['user'] as Map));
+          await SessionController.instance.saveSession(
+            Map<String, dynamic>.from(res['user'] as Map),
+          );
         }
 
         setState(() => isLoading = false);
@@ -356,17 +367,11 @@ class _TwoFactorState extends State<TwoFactor> {
           decoration: BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              width: 1.2,
-              color: const Color(0xFFDB2519),
-            ),
+            border: Border.all(width: 1.2, color: const Color(0xFFDB2519)),
           ),
           child: Text(
             msg,
-            style: const TextStyle(
-              fontFamily: 'Benne',
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontFamily: 'Benne', color: Colors.white),
           ),
         ),
       ),

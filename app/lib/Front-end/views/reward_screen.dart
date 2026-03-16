@@ -159,7 +159,7 @@ class RewardScreen extends StatelessWidget {
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                          colors: [Color(0xFFA21117), Color(0xFF251216)],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),

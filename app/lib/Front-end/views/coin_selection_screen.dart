@@ -13,8 +13,10 @@ class CoinSelectionScreen extends StatefulWidget {
 class _CoinSelectionScreenState extends State<CoinSelectionScreen> {
   int selectedIndex = -1;
 
-  final List<String> coinImages =
-      List.generate(20, (i) => 'assets/images/C${i + 1}.png');
+  final List<String> coinImages = List.generate(
+    20,
+    (i) => 'assets/images/C${i + 1}.png',
+  );
 
   Future<void> _shareFromIcon() async {
     const String shareText =
@@ -101,8 +103,12 @@ class _CoinSelectionScreenState extends State<CoinSelectionScreen> {
                     InkWell(
                       onTap: _shareFromIcon,
                       borderRadius: BorderRadius.circular(999),
-                      child:  Center(
-                        child: Image.asset('assets/images/share_2.png',height: 45,width: 45,)
+                      child: Center(
+                        child: Image.asset(
+                          'assets/images/share_2.png',
+                          height: 45,
+                          width: 45,
+                        ),
                       ),
                     ),
                   ],
@@ -112,16 +118,18 @@ class _CoinSelectionScreenState extends State<CoinSelectionScreen> {
               // ✅ GRID
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width * 0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: GridView.builder(
                     itemCount: coinImages.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                      childAspectRatio: 1,
-                    ),
+                          crossAxisCount: 4,
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 1,
+                        ),
                     itemBuilder: (context, index) {
                       return Material(
                         color: Colors.transparent,
@@ -160,7 +168,7 @@ class _CoinSelectionScreenState extends State<CoinSelectionScreen> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                        colors: [Color(0xFFA21117), Color(0xFF251216)],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -190,16 +198,13 @@ class _CoinSelectionScreenState extends State<CoinSelectionScreen> {
   }
 
   // ✅ BIG COIN: fills full grid cell (screenshot like) + thin selected ring
-  Widget _coinItem({
-    required bool isSelected,
-    required String imagePath,
-  }) {
+  Widget _coinItem({required bool isSelected, required String imagePath}) {
     const double borderWidth = 0.5; // thin ring
 
     const LinearGradient ringGradient = LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
-      colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+      colors: [Color(0xFFA21117), Color(0xFF251216)],
     );
 
     return LayoutBuilder(
@@ -216,12 +221,7 @@ class _CoinSelectionScreenState extends State<CoinSelectionScreen> {
               shape: BoxShape.circle,
               gradient: isSelected ? ringGradient : null,
             ),
-            child: ClipOval(
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
-              ),
-            ),
+            child: ClipOval(child: Image.asset(imagePath, fit: BoxFit.cover)),
           ),
         );
       },

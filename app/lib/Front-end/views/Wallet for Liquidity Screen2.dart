@@ -12,7 +12,7 @@ class ConfirmLiquidityDetailsScreen extends StatefulWidget {
 class _ConfirmLiquidityDetailsScreenState
     extends State<ConfirmLiquidityDetailsScreen> {
   final LinearGradient _mainGradient = const LinearGradient(
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+    colors: [Color(0xFFA21117), Color(0xFF251216)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );
@@ -38,7 +38,8 @@ class _ConfirmLiquidityDetailsScreenState
         child: SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom + mq.height * 0.03,
+              bottom:
+                  MediaQuery.of(context).viewInsets.bottom + mq.height * 0.03,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,7 +210,7 @@ class _ConfirmLiquidityDetailsScreenState
                     ),
                   ),
                 ),
-                 Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: mq.width * 0.08),
                   child: RichText(
                     text: TextSpan(

@@ -19,7 +19,7 @@ class CustomBottomNavBar extends StatelessWidget {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              // ✅ Custom Painted Background
+              /// Background with border
               CustomPaint(
                 size: Size(mqSize.width, 80),
                 painter: BNBCustomPainter(),
@@ -34,9 +34,10 @@ class CustomBottomNavBar extends StatelessWidget {
                   width: 70,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+                      colors: [Color(0xFFA21117), Color(0xFF251216)],
                     ),
                     borderRadius: BorderRadius.circular(50),
+                    border: Border.all(color: Color(0xFFca4e5b), width: 1.5),
                   ),
                   // _showLaunchCoin = false — hidden until Phase 2
                   child: InkWell(
@@ -68,7 +69,7 @@ class CustomBottomNavBar extends StatelessWidget {
                 ),
               ),
 
-              // ✅ Bottom Icons
+              /// Bottom Icons
               ValueListenableBuilder<int>(
                 valueListenable: selectedPageNotifier,
                 builder: (context, selectedIndex, _) {
@@ -82,26 +83,26 @@ class CustomBottomNavBar extends StatelessWidget {
                         _navIcon(
                           index: 0,
                           selectedIndex: selectedIndex,
-                          iconPath: 'assets/images/home.png', // ✅ PNG
+                          iconPath: 'assets/images/home.png',
                           label: "Home",
                         ),
                         _navIcon(
                           index: 1,
                           selectedIndex: selectedIndex,
-                          iconPath: 'assets/images/Walleticon.svg', // ✅ SVG
+                          iconPath: 'assets/images/Walleticon.svg',
                           label: "Wallet",
                         ),
                         SizedBox(width: mqSize.width * 0.20),
                         _navIcon(
                           index: 2,
                           selectedIndex: selectedIndex,
-                          iconPath: 'assets/images/Rewardicon.svg', // ✅ SVG
+                          iconPath: 'assets/images/Rewardicon.svg',
                           label: "Reward",
                         ),
                         _navIcon(
                           index: 3,
                           selectedIndex: selectedIndex,
-                          iconPath: 'assets/images/profileicon.svg', // ✅ SVG
+                          iconPath: 'assets/images/profileicon.svg',
                           label: "Profile",
                         ),
                       ],
@@ -146,8 +147,8 @@ class CustomBottomNavBar extends StatelessWidget {
     );
   }
 
-  /// ✅ SVG -> SvgPicture.asset
-  /// ✅ PNG/JPG -> Image.asset (tint supported)
+  /// SVG -> SvgPicture
+  /// PNG/JPG -> Image.asset
   Widget _buildIcon(String iconPath, Color color) {
     final String lower = iconPath.toLowerCase();
 
@@ -160,7 +161,6 @@ class CustomBottomNavBar extends StatelessWidget {
       );
     }
 
-    // ✅ For PNG/JPG etc.
     return Image.asset(
       iconPath,
       width: 28,
@@ -175,25 +175,29 @@ class CustomBottomNavBar extends StatelessWidget {
 class BNBCustomPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
+    /// Background Gradient
     Paint paint = Paint()
       ..shader = const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [
-          Color(0xFFFFE600),
-          Color(0xFFDB2519),
-        ],
+        colors: [Color(0xFFA21117), Color(0xFF251216)],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height))
       ..style = PaintingStyle.fill;
+
+    /// Border Paint
+    Paint borderPaint = Paint()
+      ..color = const Color(0xFFCA4E5B)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
 
     Path path = Path();
     path.moveTo(0, 20);
 
-    // Left curve
+    /// Left curve
     path.quadraticBezierTo(size.width * 0.18, 0, size.width * 0.30, 0);
     path.quadraticBezierTo(size.width * 0.35, 0, size.width * 0.38, 35);
 
-    // Center dip
+    /// Center dip
     path.cubicTo(
       size.width * 0.38,
       35,
@@ -212,7 +216,7 @@ class BNBCustomPainter extends CustomPainter {
       20,
     );
 
-    // Right curve
+    /// Right curve
     path.quadraticBezierTo(size.width * 0.67, 0, size.width * 0.72, 0);
     path.quadraticBezierTo(size.width * 0.82, 0, size.width, 20);
 
@@ -220,7 +224,11 @@ class BNBCustomPainter extends CustomPainter {
     path.lineTo(0, size.height);
     path.close();
 
+    /// Draw background
     canvas.drawPath(path, paint);
+
+    /// Draw border
+    canvas.drawPath(path, borderPaint);
   }
 
   @override

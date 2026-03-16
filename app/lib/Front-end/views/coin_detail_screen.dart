@@ -24,19 +24,13 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
   final LinearGradient _circleGradient = const LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [
-      Color(0xFFFFE600),
-      Color(0xFFDB2519),
-    ],
+    colors: [Color(0xFFA21117), Color(0xFF251216)],
   );
 
   final LinearGradient _topIconCircleGradient = const LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
-    colors: [
-      Color(0xFFFFE600),
-      Color(0xFFDB2519),
-    ],
+    colors: [Color(0xFFA21117), Color(0xFF251216)],
   );
 
   int _selectedRangeIndex = 0;
@@ -88,10 +82,7 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
           padding: EdgeInsets.only(top: mq.height * 0.018),
           child: Row(
             children: [
-              _topBackCircleButton(
-                mq: mq,
-                onTap: () => Navigator.pop(context),
-              ),
+              _topBackCircleButton(mq: mq, onTap: () => Navigator.pop(context)),
               const Spacer(),
               Image.asset(
                 'assets/images/moon_launch_logo.png',
@@ -203,8 +194,11 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
 
                 Row(
                   children: [
-                    Icon(Icons.arrow_drop_up,
-                        color: Colors.green, size: mq.width * 0.07),
+                    Icon(
+                      Icons.arrow_drop_up,
+                      color: Colors.green,
+                      size: mq.width * 0.07,
+                    ),
                     Text(
                       '0.72%',
                       style: TextStyle(
@@ -285,16 +279,16 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                       onTap: _token == null
                           ? null
                           : () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => BuyScreen(
-                                    tokenAddress: _token!.tokenAddress,
-                                    tokenName: _token!.displayName,
-                                    tokenSymbol: _token!.symbol,
-                                    tokenLogo: _token!.logo,
-                                  ),
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BuyScreen(
+                                  tokenAddress: _token!.tokenAddress,
+                                  tokenName: _token!.displayName,
+                                  tokenSymbol: _token!.symbol,
+                                  tokenLogo: _token!.logo,
                                 ),
                               ),
+                            ),
                     ),
                     SizedBox(width: mq.width * 0.05),
                     _filledGradientActionButton(
@@ -322,7 +316,9 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                                 name: _token!.name,
                                 symbol: _token!.symbol,
                                 logo: _token!.logo,
-                                decimals: int.tryParse(_token!.decimals ?? '18') ?? 18,
+                                decimals:
+                                    int.tryParse(_token!.decimals ?? '18') ??
+                                    18,
                                 balance: '0',
                               ),
                             ),
@@ -378,19 +374,22 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                 if (_showAboutCoin) Row(
                   children: [
                     _gradientIconContainer(
-                        mq: mq,
-                        imagePath: 'assets/images/www.png',
-                        onTap: () {}),
+                      mq: mq,
+                      imagePath: 'assets/images/www.png',
+                      onTap: () {},
+                    ),
                     SizedBox(width: mq.width * 0.03),
                     _gradientIconContainer(
-                        mq: mq,
-                        imagePath: 'assets/images/twitter.png',
-                        onTap: () {}),
+                      mq: mq,
+                      imagePath: 'assets/images/twitter.png',
+                      onTap: () {},
+                    ),
                     SizedBox(width: mq.width * 0.03),
                     _gradientIconContainer(
-                        mq: mq,
-                        imagePath: 'assets/images/telegram.png',
-                        onTap: () {}),
+                      mq: mq,
+                      imagePath: 'assets/images/telegram.png',
+                      onTap: () {},
+                    ),
                   ],
                 ),
 
@@ -447,9 +446,7 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
               shape: BoxShape.circle,
               gradient: _circleGradient,
             ),
-            child: Center(
-              child: Icon(icon, color: Colors.white, size: 34),
-            ),
+            child: Center(child: Icon(icon, color: Colors.white, size: 34)),
           ),
           const SizedBox(height: 8),
           Text(
@@ -481,9 +478,7 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
         height: size,
         child: Padding(
           padding: EdgeInsets.all(ring),
-          child: ClipOval(
-            child: Image.asset(imagePath, fit: BoxFit.contain),
-          ),
+          child: ClipOval(child: Image.asset(imagePath, fit: BoxFit.contain)),
         ),
       ),
     );

@@ -9,9 +9,9 @@ class ReceiveScreen extends StatelessWidget {
   const ReceiveScreen({super.key});
 
   static const LinearGradient _btnGradient = LinearGradient(
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFA21117), Color(0xFF251216)],
   );
 
   @override
@@ -46,7 +46,10 @@ class ReceiveScreen extends StatelessWidget {
 
                 // warning banner
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF7A0F0F).withOpacity(0.65),
                     borderRadius: BorderRadius.circular(12),
@@ -54,7 +57,11 @@ class ReceiveScreen extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Icon(Icons.info, color: Color(0xFFFF4B4B), size: 20),
+                      const Icon(
+                        Icons.info,
+                        color: Color(0xFFFF4B4B),
+                        size: 20,
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -103,7 +110,9 @@ class ReceiveScreen extends StatelessWidget {
                     _gradCircleIcon(
                       icon: Icons.copy,
                       onTap: () async {
-                        await Clipboard.setData(ClipboardData(text: walletAddress));
+                        await Clipboard.setData(
+                          ClipboardData(text: walletAddress),
+                        );
                       },
                     ),
                     const SizedBox(width: 14),
@@ -117,7 +126,10 @@ class ReceiveScreen extends StatelessWidget {
                     _gradCircleIcon(
                       icon: Icons.share,
                       onTap: () async {
-                        await Share.share(walletAddress, subject: "MoonLaunch Wallet Address");
+                        await Share.share(
+                          walletAddress,
+                          subject: "MoonLaunch Wallet Address",
+                        );
                       },
                     ),
                   ],
@@ -160,8 +172,11 @@ class ReceiveScreen extends StatelessWidget {
                 ),
                 child: const Padding(
                   padding: EdgeInsets.only(right: 3),
-                  child: Icon(Icons.arrow_back_ios_new,
-                      color: Colors.white, size: 24),
+                  child: Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors.white,
+                    size: 24,
+                  ),
                 ),
               ),
             ),
@@ -178,7 +193,10 @@ class ReceiveScreen extends StatelessWidget {
     );
   }
 
-  Widget _gradCircleIcon({required IconData icon, required VoidCallback onTap}) {
+  Widget _gradCircleIcon({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
@@ -188,9 +206,9 @@ class ReceiveScreen extends StatelessWidget {
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(
-            colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
+            colors: [Color(0xFFA21117), Color(0xFF251216)],
           ),
         ),
         child: Icon(icon, color: Colors.white, size: 22),

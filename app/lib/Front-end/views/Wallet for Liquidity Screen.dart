@@ -15,7 +15,7 @@ class _SelectWalletLiquidityScreenState
   int selectedIndex = 0;
 
   final LinearGradient _mainGradient = const LinearGradient(
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+    colors: [Color(0xFFA21117), Color(0xFF251216)],
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
   );
@@ -184,7 +184,12 @@ class _SelectWalletLiquidityScreenState
                 padding: EdgeInsets.symmetric(horizontal: mq.width * 0.06),
                 child: InkWell(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ConfirmLiquidityDetailsScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ConfirmLiquidityDetailsScreen(),
+                      ),
+                    );
                   },
                   borderRadius: BorderRadius.circular(60),
                   child: Padding(
@@ -246,9 +251,9 @@ class _SelectWalletLiquidityScreenState
                 border: isSelected
                     ? null
                     : Border.all(
-                  color: Colors.white.withOpacity(0.55),
-                  width: 1.2,
-                ),
+                        color: Colors.white.withOpacity(0.55),
+                        width: 1.2,
+                      ),
               ),
               child: Padding(
                 // ring thickness (selected)

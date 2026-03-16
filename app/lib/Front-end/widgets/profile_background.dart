@@ -10,9 +10,9 @@ class ProfileBackground extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.asset(
-          'assets/images/bg_create_coin.png',
-          fit: BoxFit.cover,
+        ClipRRect(
+          borderRadius: BorderRadius.zero,
+          child: Container(color: const Color(0xFF14121f)),
         ),
         child,
       ],

@@ -17,9 +17,9 @@ class SellScreen extends StatefulWidget {
   const SellScreen({super.key, this.token});
 
   static const LinearGradient btnGradient = LinearGradient(
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFA21117), Color(0xFF251216)],
   );
 
   @override
@@ -28,7 +28,7 @@ class SellScreen extends StatefulWidget {
 
 class _SellScreenState extends State<SellScreen> {
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _amountController  = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
 
   bool _loading = false;
   String? _error;
@@ -84,8 +84,8 @@ class _SellScreenState extends State<SellScreen> {
 
     setState(() {
       _loading = true;
-      _error   = null;
-      _result  = null;
+      _error = null;
+      _result = null;
     });
 
     try {
@@ -97,12 +97,12 @@ class _SellScreenState extends State<SellScreen> {
         decimals: _isBnb ? 18 : widget.token!.decimals,
       );
       setState(() {
-        _result  = result;
+        _result = result;
         _loading = false;
       });
     } catch (e) {
       setState(() {
-        _error   = e.toString();
+        _error = e.toString();
         _loading = false;
       });
     }
@@ -158,13 +158,15 @@ class _SellScreenState extends State<SellScreen> {
                     )
                   : ClipRRect(
                       borderRadius: BorderRadius.circular(mq.width * 0.11),
-                      child: widget.token!.logo != null && widget.token!.logo!.isNotEmpty
+                      child:
+                          widget.token!.logo != null &&
+                              widget.token!.logo!.isNotEmpty
                           ? Image.network(
                               widget.token!.logo!,
                               width: mq.width * 0.22,
                               height: mq.width * 0.22,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Image.asset(
+                              errorBuilder: (_, _, _) => Image.asset(
                                 'assets/images/bit_coin.png',
                                 width: mq.width * 0.22,
                                 height: mq.width * 0.22,
@@ -219,15 +221,12 @@ class _SellScreenState extends State<SellScreen> {
               ),
               GestureDetector(
                 onTap: _onPaste,
-                child: ShaderMask(
-                  shaderCallback: (b) => SellScreen.btnGradient.createShader(b),
-                  child: const Text(
-                    'Paste',
-                    style: TextStyle(
-                      fontFamily: 'BernardMTCondensed',
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
+                child: const Text(
+                  'Paste',
+                  style: TextStyle(
+                    fontFamily: 'BernardMTCondensed',
+                    color: Colors.white,
+                    fontSize: 18,
                   ),
                 ),
               ),
@@ -238,8 +237,13 @@ class _SellScreenState extends State<SellScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(6),
                   child: ShaderMask(
-                    shaderCallback: (b) => SellScreen.btnGradient.createShader(b),
-                    child: const Icon(Icons.qr_code_scanner, color: Colors.white, size: 22),
+                    shaderCallback: (b) =>
+                        SellScreen.btnGradient.createShader(b),
+                    child: const Icon(
+                      Icons.qr_code_scanner,
+                      color: Colors.white,
+                      size: 22,
+                    ),
                   ),
                 ),
               ),
@@ -284,7 +288,9 @@ class _SellScreenState extends State<SellScreen> {
               Expanded(
                 child: TextField(
                   controller: _amountController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                   ],
@@ -305,15 +311,12 @@ class _SellScreenState extends State<SellScreen> {
                   ),
                 ),
               ),
-              ShaderMask(
-                shaderCallback: (b) => SellScreen.btnGradient.createShader(b),
-                child: const Text(
-                  'MAX',
-                  style: TextStyle(
-                    fontFamily: 'BernardMTCondensed',
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+              const Text(
+                'MAX',
+                style: TextStyle(
+                  fontFamily: 'BernardMTCondensed',
+                  color: Colors.white,
+                  fontSize: 16,
                 ),
               ),
               const SizedBox(width: 18),
@@ -339,7 +342,9 @@ class _SellScreenState extends State<SellScreen> {
         const Spacer(),
 
         _loading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFFFFE600)))
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFFFFE600)),
+              )
             : _bottomGradientButton(text: 'Send', onTap: _onSend),
 
         SizedBox(height: mq.height * 0.05),
@@ -352,7 +357,11 @@ class _SellScreenState extends State<SellScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Icon(Icons.check_circle_outline, color: Color(0xFFFFE600), size: 72),
+        const Icon(
+          Icons.check_circle_outline,
+          color: Color(0xFFFFE600),
+          size: 72,
+        ),
         const SizedBox(height: 20),
         const Text(
           'Sent!',
@@ -386,7 +395,11 @@ class _SellScreenState extends State<SellScreen> {
                 Expanded(
                   child: Text(
                     '${_result!.txHash.substring(0, 10)}...${_result!.txHash.substring(_result!.txHash.length - 8)}',
-                    style: const TextStyle(fontFamily: 'Benne', color: Colors.white, fontSize: 13),
+                    style: const TextStyle(
+                      fontFamily: 'Benne',
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
                 const Icon(Icons.copy, color: Colors.white54, size: 18),
@@ -407,7 +420,11 @@ class _SellScreenState extends State<SellScreen> {
           onPressed: () => Navigator.pop(context),
           child: const Text(
             'Done',
-            style: TextStyle(fontFamily: 'Benne', color: Colors.white70, fontSize: 15),
+            style: TextStyle(
+              fontFamily: 'Benne',
+              color: Colors.white70,
+              fontSize: 15,
+            ),
           ),
         ),
       ],
@@ -438,7 +455,11 @@ class _SellScreenState extends State<SellScreen> {
                 ),
                 child: const Padding(
                   padding: EdgeInsets.only(right: 3),
-                  child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
+                  child: Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors.white,
+                    size: 24,
+                  ),
                 ),
               ),
             ),
@@ -460,14 +481,17 @@ class _SellScreenState extends State<SellScreen> {
       height: mq.height * 0.065,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: Colors.white.withOpacity(.35), width: 1),
+        border: Border.all(color: Color(0xFFca4e5b), width: 1.5),
         color: Colors.black.withOpacity(.10),
       ),
       child: child,
     );
   }
 
-  Widget _bottomGradientButton({required String text, required VoidCallback onTap}) {
+  Widget _bottomGradientButton({
+    required String text,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(40),
@@ -475,6 +499,7 @@ class _SellScreenState extends State<SellScreen> {
         height: 56,
         width: double.infinity,
         decoration: BoxDecoration(
+          border: Border.all(color: Color(0xFFca4e5b), width: 1.5),
           gradient: SellScreen.btnGradient,
           borderRadius: BorderRadius.circular(40),
         ),

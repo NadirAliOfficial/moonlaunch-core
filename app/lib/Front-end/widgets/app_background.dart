@@ -12,11 +12,8 @@ class AppBackground extends StatelessWidget {
       children: [
         // Image as background - fit completely to screen with no rounded corners
         ClipRRect(
-          borderRadius: BorderRadius.zero, // Ensures no rounded corners
-          child: Image.asset(
-            'assets/images/bg_home_screen.png',
-            fit: BoxFit.cover, // Make the image cover the entire screen
-          ),
+          borderRadius: BorderRadius.zero,
+          child: Container(color: const Color(0xFF14121f)),
         ),
         child, // Place the child widget (content) on top of the background
       ],

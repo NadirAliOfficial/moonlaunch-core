@@ -67,10 +67,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                Image.asset('assets/images/crypto_security_icon.png', height: 295,width: 301,),
+                Image.asset(
+                  'assets/images/crypto_security_icon.png',
+                  height: 295,
+                  width: 301,
+                ),
 
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width*0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -78,7 +84,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         style: TextStyle(
                           fontFamily: 'BernardMTCondensed',
                           fontWeight: FontWeight.w400,
-                          fontSize: mqSize.width*0.07,
+                          fontSize: mqSize.width * 0.07,
                           color: Colors.white,
                         ),
                       ),
@@ -86,7 +92,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width*0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: Row(
                     children: [
                       Text(
@@ -94,35 +102,42 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         style: TextStyle(
                           fontFamily: 'Benne',
                           fontWeight: FontWeight.w400,
-                          fontSize: mqSize.width*0.04,
+                          fontSize: mqSize.width * 0.04,
                           color: Colors.white,
                         ),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: mqSize.height*0.015,),
+                SizedBox(height: mqSize.height * 0.015),
 
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width*0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: TextField(
                     obscureText: !isPasswordVisible,
                     decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8.0,
+                        horizontal: 12.0,
+                      ),
                       hint: Text(
                         "New Password",
                         style: TextStyle(fontFamily: 'Benne', fontSize: 15),
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(mqSize.width*0.5),
+                        borderRadius: BorderRadius.circular(mqSize.width * 0.5),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(mqSize.width*0.5),
+                        borderRadius: BorderRadius.circular(mqSize.width * 0.5),
                         borderSide: const BorderSide(color: Color(0xFFDB2519)),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: Colors.white,
                         ),
                         onPressed: () {
@@ -134,55 +149,66 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: mqSize.height*0.01,),
+                SizedBox(height: mqSize.height * 0.01),
 
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width*0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: TextField(
                     obscureText: !isConfirmPasswordVisible,
                     decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 8.0,
+                        horizontal: 12.0,
+                      ),
                       hint: Text(
                         "Confirm New Password",
                         style: TextStyle(fontFamily: 'Benne', fontSize: 15),
                       ),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(mqSize.width*0.5),
+                        borderRadius: BorderRadius.circular(mqSize.width * 0.5),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(mqSize.width*0.5),
+                        borderRadius: BorderRadius.circular(mqSize.width * 0.5),
                         borderSide: const BorderSide(color: Color(0xFFDB2519)),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          isConfirmPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: Colors.white,
                         ),
                         onPressed: () {
                           setState(() {
-                            isConfirmPasswordVisible = !isConfirmPasswordVisible;
+                            isConfirmPasswordVisible =
+                                !isConfirmPasswordVisible;
                           });
                         },
                       ),
                     ),
                   ),
                 ),
-                SizedBox(height: mqSize.height*0.03,),
+                SizedBox(height: mqSize.height * 0.03),
 
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: mqSize.width*0.05),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: mqSize.width * 0.05,
+                  ),
                   child: InkWell(
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => LoginScreen()),
-                      );                    },
+                      );
+                    },
                     child: Container(
-                      height: mqSize.height*0.06,
+                      height: mqSize.height * 0.06,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [Color(0xFFFFE600), Color(0xFFDB2519),],
+                          colors: [Color(0xFFA21117), Color(0xFF251216)],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
@@ -210,4 +236,3 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 }
-

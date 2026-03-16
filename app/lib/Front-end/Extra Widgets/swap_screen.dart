@@ -13,15 +13,15 @@ class SwapScreen extends StatefulWidget {
   const SwapScreen({super.key, required this.token});
 
   static const LinearGradient _btnGradient = LinearGradient(
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFA21117), Color(0xFF251216)],
   );
 
   static const LinearGradient _circleGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [Color(0xFFFFE600), Color(0xFFDB2519)],
+    colors: [Color(0xFFA21117), Color(0xFF251216)],
   );
 
   @override
@@ -42,13 +42,16 @@ class _SwapScreenState extends State<SwapScreen> {
 
   String _friendlyError(String raw) {
     final lower = raw.toLowerCase();
-    if (lower.contains('transfer_from_failed') || lower.contains('transferfrom')) {
+    if (lower.contains('transfer_from_failed') ||
+        lower.contains('transferfrom')) {
       return 'This token cannot be sold — it may be a honeypot or have transfer restrictions built into its contract.';
     }
-    if (lower.contains('insufficient funds') || lower.contains('insufficient balance')) {
+    if (lower.contains('insufficient funds') ||
+        lower.contains('insufficient balance')) {
       return 'Not enough BNB for gas fees. Please add more BNB to your wallet.';
     }
-    if (lower.contains('pancake: insufficient') || lower.contains('pancake: k')) {
+    if (lower.contains('pancake: insufficient') ||
+        lower.contains('pancake: k')) {
       return 'Swap failed — not enough liquidity. Try a smaller amount.';
     }
     if (lower.contains('execution reverted')) {
@@ -66,7 +69,9 @@ class _SwapScreenState extends State<SwapScreen> {
   Future<void> _onSwap() async {
     final walletAddress = SessionController.instance.walletAddress;
     if (walletAddress == null || walletAddress.isEmpty) {
-      setState(() => _error = 'No wallet found. Please log out and log in again.');
+      setState(
+        () => _error = 'No wallet found. Please log out and log in again.',
+      );
       return;
     }
 
@@ -84,24 +89,24 @@ class _SwapScreenState extends State<SwapScreen> {
 
     setState(() {
       _loading = true;
-      _error   = null;
-      _result  = null;
+      _error = null;
+      _result = null;
     });
 
     try {
       final result = await TradeService.sell(
         walletAddress: walletAddress,
-        tokenAddress:  widget.token.tokenAddress,
-        tokenAmount:   amountStr,
-        decimals:      widget.token.decimals,
+        tokenAddress: widget.token.tokenAddress,
+        tokenAmount: amountStr,
+        decimals: widget.token.decimals,
       );
       setState(() {
-        _result  = result;
+        _result = result;
         _loading = false;
       });
     } catch (e) {
       setState(() {
-        _error   = _friendlyError(e.toString());
+        _error = _friendlyError(e.toString());
         _loading = false;
       });
     }
@@ -163,9 +168,13 @@ class _SwapScreenState extends State<SwapScreen> {
                     width: mq.width * 0.30,
                     child: TextField(
                       controller: _amountController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*'),
+                        ),
                       ],
                       textAlign: TextAlign.right,
                       style: const TextStyle(
@@ -261,7 +270,9 @@ class _SwapScreenState extends State<SwapScreen> {
         const Spacer(),
 
         _loading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFFFFE600)))
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFFFFE600)),
+              )
             : _gradientButton(text: 'Swap Now', onTap: _onSwap),
 
         SizedBox(height: mq.height * 0.05),
@@ -305,20 +316,29 @@ class _SwapScreenState extends State<SwapScreen> {
                   ClipRRect(
                     borderRadius: BorderRadius.circular(18),
                     child: isBnb
-                        ? Image.asset('assets/images/bnb.png', width: 36, height: 36, fit: BoxFit.contain)
+                        ? Image.asset(
+                            'assets/images/bnb.png',
+                            width: 36,
+                            height: 36,
+                            fit: BoxFit.contain,
+                          )
                         : (logo != null && logo.isNotEmpty
-                            ? Image.network(
-                                logo,
-                                width: 36,
-                                height: 36,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, __, ___) => Image.asset(
+                              ? Image.network(
+                                  logo,
+                                  width: 36,
+                                  height: 36,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, _, _) => Image.asset(
+                                    'assets/images/bit_coin.png',
+                                    width: 36,
+                                    height: 36,
+                                  ),
+                                )
+                              : Image.asset(
                                   'assets/images/bit_coin.png',
                                   width: 36,
                                   height: 36,
-                                ),
-                              )
-                            : Image.asset('assets/images/bit_coin.png', width: 36, height: 36)),
+                                )),
                   ),
                   const SizedBox(width: 12),
                   Column(
@@ -359,7 +379,11 @@ class _SwapScreenState extends State<SwapScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const Icon(Icons.check_circle_outline, color: Color(0xFFFFE600), size: 72),
+        const Icon(
+          Icons.check_circle_outline,
+          color: Color(0xFFFFE600),
+          size: 72,
+        ),
         const SizedBox(height: 20),
         const Text(
           'Swap Submitted!',
@@ -393,7 +417,11 @@ class _SwapScreenState extends State<SwapScreen> {
                 Expanded(
                   child: Text(
                     '${_result!.txHash.substring(0, 10)}...${_result!.txHash.substring(_result!.txHash.length - 8)}',
-                    style: const TextStyle(fontFamily: 'Benne', color: Colors.white, fontSize: 13),
+                    style: const TextStyle(
+                      fontFamily: 'Benne',
+                      color: Colors.white,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
                 const Icon(Icons.copy, color: Colors.white54, size: 18),
@@ -414,7 +442,11 @@ class _SwapScreenState extends State<SwapScreen> {
           onPressed: () => Navigator.pop(context),
           child: const Text(
             'Done',
-            style: TextStyle(fontFamily: 'Benne', color: Colors.white70, fontSize: 15),
+            style: TextStyle(
+              fontFamily: 'Benne',
+              color: Colors.white70,
+              fontSize: 15,
+            ),
           ),
         ),
       ],
@@ -445,7 +477,11 @@ class _SwapScreenState extends State<SwapScreen> {
                 ),
                 child: const Padding(
                   padding: EdgeInsets.only(right: 3),
-                  child: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
+                  child: Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors.white,
+                    size: 24,
+                  ),
                 ),
               ),
             ),
@@ -470,6 +506,7 @@ class _SwapScreenState extends State<SwapScreen> {
         height: 56,
         width: double.infinity,
         decoration: BoxDecoration(
+          border: Border.all(color: Color(0xFFca4e5b), width: 1.5),
           gradient: SwapScreen._btnGradient,
           borderRadius: BorderRadius.circular(40),
         ),
