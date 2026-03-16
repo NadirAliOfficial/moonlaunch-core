@@ -32,11 +32,6 @@ class AdminAuthMiddleware
                 ->with('error', 'Your session has expired. Please login again.');
         }
 
-        $request->merge([
-            'admin'      => $admin,
-            'admin_role' => $admin->role_type ?? null,
-        ]);
-
         return $next($request);
     }
 }
