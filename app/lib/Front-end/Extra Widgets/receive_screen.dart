@@ -154,6 +154,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                             child: Image.asset(
                               'assets/images/bnb.png',
                               fit: BoxFit.contain,
+                              color: Colors.white,
+                              colorBlendMode: BlendMode.srcIn,
                             ),
                           ),
                         ],
