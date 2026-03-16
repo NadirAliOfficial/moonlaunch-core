@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:moon_launch/Back-end/Controllers/session_controller.dart';
 import 'package:moon_launch/Front-end/auth_screens/login_screen.dart';
 import 'package:moon_launch/Front-end/views/edit_profile_screen.dart';
@@ -27,6 +29,16 @@ const bool _showExportKeys     = false;
 class _ProfileScreenState extends State<ProfileScreen> {
   bool startNotification = true;
   double _selectedRating = 0;
+  File? _profileImage;
+
+  Future<void> _pickImage() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 80);
+    if (picked != null) setState(() => _profileImage = File(picked.path));
+  }
+
+  void _deleteImage() {
+    setState(() => _profileImage = null);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,14 +104,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Column(
                         children: [
-                          Text(
-                            SessionController.instance.userName ?? 'User',
-                            style: TextStyle(
-                              fontFamily: 'BernardMTCondensed',
-                              fontWeight: FontWeight.w400,
-                              fontSize: mqSize.width * 0.055,
-                              color: Colors.white,
-                            ),
+                          // Profile image with upload/delete
+                          Stack(
+                            children: [
+                              GestureDetector(
+                                onTap: _pickImage,
+                                child: Container(
+                                  width: mqSize.height * 0.13,
+                                  height: mqSize.height * 0.13,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: const Color(0xFFca4e5b), width: 2),
+                                    color: const Color(0xFF2A1A1E),
+                                  ),
+                                  child: ClipOval(
+                                    child: _profileImage != null
+                                        ? Image.file(_profileImage!, fit: BoxFit.cover)
+                                        : Icon(Icons.person, size: mqSize.height * 0.07, color: Colors.white54),
+                                  ),
+                                ),
+                              ),
+                              // Camera icon to upload
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: GestureDetector(
+                                  onTap: _pickImage,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFA21117),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
+                                  ),
+                                ),
+                              ),
+                              // Delete icon (only shown when image exists)
+                              if (_profileImage != null)
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: _deleteImage,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black87,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.close, color: Colors.white, size: 14),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          // Name with verified tick
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                SessionController.instance.userName ?? 'User',
+                                style: TextStyle(
+                                  fontFamily: 'BernardMTCondensed',
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: mqSize.width * 0.055,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: 5),
+                              Image.asset('assets/images/tick.png', height: 22, width: 22),
+                            ],
                           ),
                           const SizedBox(height: 4),
                           Text(
