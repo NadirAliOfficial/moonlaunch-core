@@ -147,6 +147,7 @@ class _BuyScreenState extends State<BuyScreen> {
   Widget _buyForm(Size mq) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(height: mq.height * 0.02),
 
@@ -308,7 +309,7 @@ class _BuyScreenState extends State<BuyScreen> {
           ),
         ),
 
-        const Spacer(),
+        SizedBox(height: 24),
 
         _loading
             ? const Center(
@@ -439,7 +440,7 @@ class _BuyScreenState extends State<BuyScreen> {
                 ),
               ),
             ),
-            const Spacer(),
+            SizedBox(height: 24),
             Image.asset(
               'assets/images/moon_launch_logo.png',
               width: 104,

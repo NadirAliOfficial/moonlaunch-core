@@ -163,6 +163,7 @@ class _SellScreenState extends State<SellScreen> {
   Widget _sendForm(Size mq) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(height: mq.height * 0.02),
 
@@ -353,7 +354,7 @@ class _SellScreenState extends State<SellScreen> {
             ),
           ),
 
-        const Spacer(),
+        SizedBox(height: 24),
 
         _loading
             ? const Center(
@@ -477,7 +478,7 @@ class _SellScreenState extends State<SellScreen> {
                 ),
               ),
             ),
-            const Spacer(),
+            SizedBox(height: 24),
             Image.asset(
               'assets/images/moon_launch_logo.png',
               width: 104,

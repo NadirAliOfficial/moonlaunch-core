@@ -150,6 +150,7 @@ class _SwapScreenState extends State<SwapScreen> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(height: mq.height * 0.02),
 
@@ -281,7 +282,7 @@ class _SwapScreenState extends State<SwapScreen> {
             ),
           ),
 
-        const Spacer(),
+        SizedBox(height: 24),
 
         _loading
             ? const Center(
@@ -496,7 +497,7 @@ class _SwapScreenState extends State<SwapScreen> {
                 ),
               ),
             ),
-            const Spacer(),
+            SizedBox(height: 24),
             Image.asset(
               'assets/images/moon_launch_logo.png',
               width: 104,
