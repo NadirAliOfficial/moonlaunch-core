@@ -108,6 +108,16 @@ class _SellScreenState extends State<SellScreen> {
     }
   }
 
+  Widget _letterAvatar(double size, String name) {
+    final letter = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    return Container(
+      width: size, height: size,
+      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+      alignment: Alignment.center,
+      child: Text(letter, style: TextStyle(fontSize: size * 0.45, fontWeight: FontWeight.bold, color: Colors.black)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
@@ -150,34 +160,19 @@ class _SellScreenState extends State<SellScreen> {
           child: Column(
             children: [
               _isBnb
-                  ? Image.asset(
-                      'assets/images/bit_coin.png',
-                      width: mq.width * 0.22,
-                      height: mq.width * 0.22,
-                      fit: BoxFit.contain,
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(mq.width * 0.11),
-                      child:
-                          widget.token!.logo != null &&
-                              widget.token!.logo!.isNotEmpty
-                          ? Image.network(
-                              widget.token!.logo!,
-                              width: mq.width * 0.22,
-                              height: mq.width * 0.22,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, _, _) => Image.asset(
-                                'assets/images/bit_coin.png',
-                                width: mq.width * 0.22,
-                                height: mq.width * 0.22,
-                              ),
-                            )
-                          : Image.asset(
-                              'assets/images/bit_coin.png',
-                              width: mq.width * 0.22,
-                              height: mq.width * 0.22,
-                            ),
-                    ),
+                  ? _letterAvatar(mq.width * 0.22, 'BNB')
+                  : (widget.token!.logo != null && widget.token!.logo!.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(mq.width * 0.11),
+                          child: Image.network(
+                            widget.token!.logo!,
+                            width: mq.width * 0.22,
+                            height: mq.width * 0.22,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => _letterAvatar(mq.width * 0.22, widget.token!.symbol ?? ''),
+                          ),
+                        )
+                      : _letterAvatar(mq.width * 0.22, widget.token!.symbol ?? '')),
               const SizedBox(height: 8),
               Text(
                 _assetLabel,
