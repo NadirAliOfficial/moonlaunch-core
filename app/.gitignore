@@ -47,3 +47,6 @@ app.*.map.json
 
 /ios/Flutter/Flutter.framework
 /ios/Flutter/Flutter.podspec
+android/moonlaunch.jks
+*.jks
+*.keystore

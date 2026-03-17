@@ -84,12 +84,13 @@ class _HomeScreenState extends State<HomeScreen> {
       final tokens = await TokenService.getNewLaunches(limit: 1000);
       setState(() {
         _tokens = tokens;
-        _filteredTokens = tokens;
         _loading = false;
       });
+      _onSearch(_searchController.text);
     } catch (e) {
       setState(() {
         _error = e.toString();
+        _filteredTokens = _tokens;
         _loading = false;
       });
     }
