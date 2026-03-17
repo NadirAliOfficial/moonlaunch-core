@@ -64,10 +64,17 @@ class _SplashScreenState extends State<SplashScreen>
     final mqSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF14121f),
+      backgroundColor: Colors.black,
       body: Stack(
         fit: StackFit.expand,
         children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/bg_splash_screen.png',
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+            ),
+          ),
 
           /// Center Logo with scale animation
           Center(
