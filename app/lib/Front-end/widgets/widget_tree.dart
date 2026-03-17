@@ -13,8 +13,19 @@ List<Widget> pages = [
   ProfileScreen(),
 ];
 
-class WidgetTree extends StatelessWidget {
+class WidgetTree extends StatefulWidget {
   const WidgetTree({super.key});
+
+  @override
+  State<WidgetTree> createState() => _WidgetTreeState();
+}
+
+class _WidgetTreeState extends State<WidgetTree> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    precacheImage(const AssetImage('assets/images/reward_coin.png'), context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +33,6 @@ class WidgetTree extends StatelessWidget {
       extendBody: true,
       resizeToAvoidBottomInset: false,
 
-      // ✅ FIX: SafeArea added so content stays ABOVE system navigation buttons
       body: SafeArea(
         bottom: true,
         child: ValueListenableBuilder(

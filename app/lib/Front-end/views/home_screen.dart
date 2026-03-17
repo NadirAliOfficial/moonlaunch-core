@@ -59,9 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadTokens();
     _loadBnb();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      precacheImage(const AssetImage('assets/images/reward_coin.png'), context);
-    });
   }
 
   Future<void> _loadBnb() async {
