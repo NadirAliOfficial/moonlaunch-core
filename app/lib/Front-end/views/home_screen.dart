@@ -407,7 +407,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTokenList(BuildContext context, Size mq) {
-    if (_loading) {
+    if (_loading && _tokens.isEmpty) {
       return const Center(
         child: CircularProgressIndicator(color: Color(0xFFFFE600)),
       );
