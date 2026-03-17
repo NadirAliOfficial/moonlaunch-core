@@ -102,10 +102,29 @@ class _SellScreenState extends State<SellScreen> {
       });
     } catch (e) {
       setState(() {
-        _error = e.toString();
+        _error = _friendlyError(e.toString());
         _loading = false;
       });
     }
+  }
+
+  String _friendlyError(String raw) {
+    final r = raw.toLowerCase();
+    if (r.contains('insufficient') || r.contains('balance') || r.contains('funds'))
+      return 'Insufficient balance. Please add more BNB to your wallet.';
+    if (r.contains('gas') || r.contains('fee'))
+      return 'Not enough BNB to cover gas fees. Please add more BNB.';
+    if (r.contains('invalid address') || r.contains('address'))
+      return 'Invalid recipient address. Please check and try again.';
+    if (r.contains('network') || r.contains('timeout') || r.contains('socket'))
+      return 'Network error. Please check your connection and try again.';
+    if (r.contains('nonce') || r.contains('replacement'))
+      return 'Transaction conflict. Please try again in a moment.';
+    if (r.contains('wallet') || r.contains('private key'))
+      return 'Wallet error. Please log out and log in again.';
+    if (r.contains('rejected') || r.contains('denied'))
+      return 'Transaction rejected. Please try again.';
+    return 'Send failed. Please try again.';
   }
 
   Widget _letterAvatar(double size, String name) {

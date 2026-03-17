@@ -67,7 +67,7 @@ class TradeService {
       );
     }
 
-    throw body['message'] as String? ?? 'Buy failed (${res.statusCode})';
+    throw body['message'] as String? ?? 'Transaction failed. Please try again.';
   }
 
   /// Sell a token for BNB via PancakeSwap V2 swapExactTokensForETH.
@@ -107,7 +107,7 @@ class TradeService {
       );
     }
 
-    throw body['message'] as String? ?? 'Sell failed (${res.statusCode})';
+    throw body['message'] as String? ?? 'Transaction failed. Please try again.';
   }
 
   /// Send native BNB or an ERC-20 token to [toAddress].
@@ -149,6 +149,6 @@ class TradeService {
       );
     }
 
-    throw body['message'] as String? ?? 'Send failed (${res.statusCode})';
+    throw body['message'] as String? ?? 'Send failed. Please try again.';
   }
 }
