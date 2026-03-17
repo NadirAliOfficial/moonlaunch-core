@@ -38,7 +38,10 @@ class _WidgetTreeState extends State<WidgetTree> {
         child: ValueListenableBuilder(
           valueListenable: selectedPageNotifier,
           builder: (context, selectedPage, child) {
-            return pages[selectedPage];
+            return IndexedStack(
+              index: selectedPage,
+              children: pages,
+            );
           },
         ),
       ),
