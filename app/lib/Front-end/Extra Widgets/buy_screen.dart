@@ -111,6 +111,16 @@ class _BuyScreenState extends State<BuyScreen> {
     }
   }
 
+  Widget _letterAvatar(double size, String name) {
+    final letter = name.isNotEmpty ? name[0].toUpperCase() : '?';
+    return Container(
+      width: size, height: size,
+      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+      alignment: Alignment.center,
+      child: Text(letter, style: TextStyle(fontSize: size * 0.45, fontWeight: FontWeight.bold, color: Colors.black)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
@@ -152,27 +162,18 @@ class _BuyScreenState extends State<BuyScreen> {
         Center(
           child: Column(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(mq.width * 0.14),
-                child: widget.tokenLogo != null && widget.tokenLogo!.isNotEmpty
-                    ? Image.network(
+              widget.tokenLogo != null && widget.tokenLogo!.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(mq.width * 0.14),
+                      child: Image.network(
                         widget.tokenLogo!,
                         width: mq.width * 0.28,
                         height: mq.width * 0.28,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Image.asset(
-                          'assets/images/bit_coin.png',
-                          width: mq.width * 0.28,
-                          height: mq.width * 0.28,
-                        ),
-                      )
-                    : Image.asset(
-                        'assets/images/bit_coin.png',
-                        width: mq.width * 0.28,
-                        height: mq.width * 0.28,
-                        fit: BoxFit.contain,
+                        errorBuilder: (_, _, _) => _letterAvatar(mq.width * 0.28, widget.tokenName),
                       ),
-              ),
+                    )
+                  : _letterAvatar(mq.width * 0.28, widget.tokenName),
               const SizedBox(height: 10),
               Text(
                 widget.tokenName,
