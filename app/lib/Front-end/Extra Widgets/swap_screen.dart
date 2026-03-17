@@ -309,7 +309,8 @@ class _SwapScreenState extends State<SwapScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Column(
+          Expanded(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -343,11 +344,13 @@ class _SwapScreenState extends State<SwapScreen> {
                               : _letterAvatar(36, title)),
                   ),
                   const SizedBox(width: 12),
-                  Column(
+                  Expanded(
+                    child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontFamily: 'BernardMTCondensed',
                           color: Colors.white,
@@ -365,11 +368,13 @@ class _SwapScreenState extends State<SwapScreen> {
                       ),
                     ],
                   ),
+                  ),
                 ],
               ),
             ],
           ),
-          const Spacer(),
+          ),
+          const SizedBox(width: 8),
           trailing,
         ],
       ),
