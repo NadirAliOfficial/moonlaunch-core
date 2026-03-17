@@ -143,13 +143,17 @@ class _SellScreenState extends State<SellScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.black,
       appBar: _topBar(context, mq),
       body: AppBackground(
         child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: mq.width * 0.07),
-            child: _result != null ? _successView(mq) : _sendForm(mq),
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: mq.width * 0.07),
+              child: _result != null ? _successView(mq) : _sendForm(mq),
+            ),
           ),
         ),
       ),
