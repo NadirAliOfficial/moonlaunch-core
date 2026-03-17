@@ -14,7 +14,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 // ── Feature flags — set to true to re-enable ──────────────────────────────
-const bool _showSearch = false;
+const bool _showSearch = true;
 const bool _showHighlights = false;
 const bool _showRewards = false;
 // ──────────────────────────────────────────────────────────────────────────
@@ -27,11 +27,32 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 
   List<TokenModel> _tokens = [];
+  List<TokenModel> _filteredTokens = [];
+  final TextEditingController _searchController = TextEditingController();
   bool _loading = true;
   String? _error;
 
   String _bnbBalance = '--';
   String _usdValue = '--';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearch(String query) {
+    final q = query.trim().toLowerCase();
+    setState(() {
+      _filteredTokens = q.isEmpty
+          ? _tokens
+          : _tokens.where((t) {
+              return (t.displayName.toLowerCase().contains(q)) ||
+                  (t.symbol?.toLowerCase().contains(q) ?? false) ||
+                  t.tokenAddress.toLowerCase().contains(q);
+            }).toList();
+    });
+  }
 
   @override
   void initState() {
@@ -63,9 +84,10 @@ class _HomeScreenState extends State<HomeScreen> {
       _error = null;
     });
     try {
-      final tokens = await TokenService.getNewLaunches(limit: 20);
+      final tokens = await TokenService.getNewLaunches(limit: 1000);
       setState(() {
         _tokens = tokens;
+        _filteredTokens = tokens;
         _loading = false;
       });
     } catch (e) {
@@ -146,10 +168,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     SizedBox(width: mq.width * 0.03),
                     Expanded(
                       child: TextField(
+                        controller: _searchController,
+                        onChanged: _onSearch,
                         style: const TextStyle(color: Colors.white),
                         textAlignVertical: TextAlignVertical.center,
                         decoration: InputDecoration(
-                          hintText: "Search...",
+                          hintText: "Search by name, symbol...",
                           hintStyle: TextStyle(
                             color: Colors.white.withOpacity(0.70),
                             fontFamily: 'Benne',
@@ -418,10 +442,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       );
-    } else if (_tokens.isEmpty) {
+    } else if (_filteredTokens.isEmpty) {
       return Center(
         child: Text(
-          'No launches yet',
+          _searchController.text.isEmpty ? 'No launches yet' : 'No results found',
           style: TextStyle(
             fontFamily: 'Benne',
             color: Colors.white54,
@@ -437,9 +461,9 @@ class _HomeScreenState extends State<HomeScreen> {
           bottom: mq.height * 0.02,
         ),
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: _tokens.length,
+        itemCount: _filteredTokens.length,
         itemBuilder: (context, index) {
-          final token = _tokens[index];
+          final token = _filteredTokens[index];
           return InkWell(
             onTap: () {
               Navigator.push(
