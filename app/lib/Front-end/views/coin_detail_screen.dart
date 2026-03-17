@@ -252,10 +252,23 @@ class _CoinDetailScreenState extends State<CoinDetailScreen> {
                       mq: mq,
                       icon: Icons.arrow_upward,
                       label: 'Send',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SellScreen()),
-                      ),
+                      onTap: _token == null
+                          ? null
+                          : () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => SellScreen(
+                                  token: WalletTokenModel(
+                                    tokenAddress: _token!.tokenAddress,
+                                    name: _token!.name,
+                                    symbol: _token!.symbol,
+                                    logo: _token!.logo,
+                                    decimals: int.tryParse(_token!.decimals ?? '18') ?? 18,
+                                    balance: '0',
+                                  ),
+                                ),
+                              ),
+                            ),
                     ),
                     SizedBox(width: mq.width * 0.05),
                     _filledGradientActionButton(

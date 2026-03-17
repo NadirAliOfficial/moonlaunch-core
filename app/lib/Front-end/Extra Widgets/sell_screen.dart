@@ -160,7 +160,7 @@ class _SellScreenState extends State<SellScreen> {
           child: Column(
             children: [
               _isBnb
-                  ? _letterAvatar(mq.width * 0.22, 'BNB')
+                  ? Image.asset('assets/images/bnb.png', width: mq.width * 0.22, height: mq.width * 0.22, fit: BoxFit.contain)
                   : (widget.token!.logo != null && widget.token!.logo!.isNotEmpty
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(mq.width * 0.11),

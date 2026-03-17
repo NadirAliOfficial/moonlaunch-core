@@ -127,7 +127,7 @@ class _WalletScreenState extends State<WalletScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_loading)
+                      if (_loading && _wallet == null)
                         Padding(
                           padding: EdgeInsets.only(top: mq.height * 0.01),
                           child: const SizedBox(
@@ -359,7 +359,7 @@ class _WalletScreenState extends State<WalletScreen> {
 
                 // Token list
                 Expanded(
-                  child: _loading
+                  child: _loading && _wallet == null
                       ? const Center(
                           child: CircularProgressIndicator(
                             color: Color(0xFFFFE600),
