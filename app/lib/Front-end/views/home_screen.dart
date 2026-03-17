@@ -386,16 +386,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 InkWell(
-                  onTap: _loadTokens,
-                  child: Text(
-                    'Refresh',
-                    style: TextStyle(
-                      fontFamily: 'Benne',
-                      fontWeight: FontWeight.w400,
-                      fontSize: mq.width * 0.04,
-                      color: const Color(0xFFFFE600),
-                    ),
-                  ),
+                  onTap: _loading ? null : _loadTokens,
+                  child: _loading
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            color: const Color(0xFFFFE600),
+                            strokeWidth: 2,
+                          ),
+                        )
+                      : Text(
+                          'Refresh',
+                          style: TextStyle(
+                            fontFamily: 'Benne',
+                            fontWeight: FontWeight.w400,
+                            fontSize: mq.width * 0.04,
+                            color: const Color(0xFFFFE600),
+                          ),
+                        ),
                 ),
               ],
             ),
