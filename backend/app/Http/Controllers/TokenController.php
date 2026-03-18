@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use App\Services\MoralisService;
 
@@ -26,50 +25,24 @@ class TokenController extends Controller
                 ->limit($limit)
                 ->offset($offset)
                 ->get([
-                    'token_address',
-                    'pair_address',
-                    'name',
-                    'symbol',
-                    'decimals',
-                    'logo',
-                    'initial_price',
-                    'current_price',
-                    'price_currency',
-                    'detected_at',
-                    'tx_hash',
-                    'source_type',
-                    'trade_mode',
-                    'status',
-                    'is_tradeable',
+                    'token_address', 'pair_address', 'name', 'symbol',
+                    'decimals', 'logo', 'initial_price', 'price_currency',
+                    'detected_at', 'tx_hash', 'source_type', 'trade_mode',
+                    'status', 'is_tradeable',
                 ]);
 
-            // Use current_price from DB (updated every minute by background job)
-            // For tokens with no DB price yet, fall back to live API calls
-            $noPriceAddresses = $tokens
-                ->filter(fn($t) => empty($t->current_price))
-                ->pluck('token_address')
-                ->toArray();
+            $addresses  = $tokens->pluck('token_address')->toArray();
 
-            $livePrices = [];
-            if (!empty($noPriceAddresses)) {
-                $moralisPrices = (new MoralisService())->getTokenPrices($noPriceAddresses);
-                $missing = array_values(array_filter($noPriceAddresses, fn($a) => !isset($moralisPrices[strtolower($a)])));
-                $dexPrices = !empty($missing) ? $this->getDexScreenerPrices($missing) : [];
-                $livePrices = array_merge($moralisPrices, $dexPrices);
-            }
+            // Fire Moralis + DexScreener in parallel
+            $livePrices = $this->fetchPricesParallel($addresses);
 
             $enriched = $tokens->map(function ($token) use ($livePrices) {
                 $row  = (array) $token;
                 $addr = strtolower($token->token_address);
-                // Prefer DB price (fresh from background job)
-                if (!empty($token->current_price)) {
-                    $row['initial_price']  = $token->current_price;
-                    $row['price_currency'] = 'USD';
-                } elseif (isset($livePrices[$addr])) {
+                if (isset($livePrices[$addr])) {
                     $row['initial_price']  = $livePrices[$addr];
                     $row['price_currency'] = 'USD';
                 }
-                unset($row['current_price']);
                 return $row;
             });
 
@@ -105,20 +78,13 @@ class TokenController extends Controller
                 ], 404);
             }
 
-            $row = (array) $token;
-
-            // Try Moralis first, then DexScreener
-            $prices = (new MoralisService())->getTokenPrices([$address]);
+            $row    = (array) $token;
+            $prices = $this->fetchPricesParallel([$address]);
             $addr   = strtolower($address);
+
             if (isset($prices[$addr])) {
                 $row['initial_price']  = $prices[$addr];
                 $row['price_currency'] = 'USD';
-            } else {
-                $dex = $this->getDexScreenerPrices([$address]);
-                if (isset($dex[$addr])) {
-                    $row['initial_price']  = $dex[$addr];
-                    $row['price_currency'] = 'USD';
-                }
             }
 
             return response()->json([
@@ -135,42 +101,79 @@ class TokenController extends Controller
     }
 
     // -------------------------------------------------------
-    // DexScreener fallback — free, no API key needed
-    // Accepts up to 30 addresses at once
+    // Fire Moralis + DexScreener simultaneously, merge results
+    // Moralis takes priority; DexScreener fills the gaps
     // -------------------------------------------------------
-    private function getDexScreenerPrices(array $addresses): array
+    private function fetchPricesParallel(array $addresses): array
     {
+        if (empty($addresses)) return [];
+
+        $dexChunks = array_chunk($addresses, 30);
+
+        // Build all requests: 1 Moralis + N DexScreener chunks
+        $responses = Http::pool(function ($pool) use ($addresses, $dexChunks) {
+            $requests = [];
+
+            // Moralis batch price endpoint
+            $tokens = array_map(fn($a) => ['token_address' => strtolower($a)], $addresses);
+            $requests[] = $pool->as('moralis')
+                ->withHeaders(['X-API-Key' => $this->moralisKey()])
+                ->timeout(6)
+                ->post('https://deep-index.moralis.io/api/v2.2/erc20/prices?chain=0x38', [
+                    'tokens' => $tokens,
+                ]);
+
+            // DexScreener (one request per chunk of 30)
+            foreach ($dexChunks as $i => $chunk) {
+                $requests[] = $pool->as("dex_{$i}")
+                    ->timeout(6)
+                    ->get('https://api.dexscreener.com/latest/dex/tokens/' . implode(',', $chunk));
+            }
+
+            return $requests;
+        });
+
         $prices = [];
-        // DexScreener allows up to 30 addresses per call
-        foreach (array_chunk($addresses, 30) as $chunk) {
-            $joined   = implode(',', $chunk);
-            $cacheKey = 'dex_prices_' . md5($joined);
 
-            $chunkPrices = Cache::remember($cacheKey, 120, function () use ($joined) {
-                try {
-                    $response = Http::timeout(5)
-                        ->get("https://api.dexscreener.com/latest/dex/tokens/{$joined}");
-
-                    if (!$response->successful()) return [];
-
-                    $result = [];
-                    foreach ($response->json()['pairs'] ?? [] as $pair) {
-                        $addr = strtolower($pair['baseToken']['address'] ?? '');
-                        $price = (float)($pair['priceUsd'] ?? 0);
-                        if ($addr && $price > 0 && !isset($result[$addr])) {
-                            $result[$addr] = $this->formatPrice($price);
-                        }
+        // Parse Moralis response
+        try {
+            $moralisResp = $responses['moralis'];
+            if ($moralisResp->successful()) {
+                foreach ($moralisResp->json() as $item) {
+                    $addr     = strtolower($item['tokenAddress'] ?? '');
+                    $usdPrice = (float)($item['usdPrice'] ?? 0);
+                    if ($addr && $usdPrice > 0) {
+                        $prices[$addr] = $this->formatPrice($usdPrice);
                     }
-                    return $result;
-                } catch (\Exception $e) {
-                    Log::warning('DexScreener fallback failed: ' . $e->getMessage());
-                    return [];
                 }
-            });
-
-            $prices = array_merge($prices, $chunkPrices);
+            }
+        } catch (\Exception $e) {
+            Log::warning('Moralis parallel response error: ' . $e->getMessage());
         }
+
+        // Parse DexScreener responses — only fill gaps Moralis missed
+        foreach (array_keys($dexChunks) as $i) {
+            try {
+                $dexResp = $responses["dex_{$i}"];
+                if (!$dexResp->successful()) continue;
+                foreach ($dexResp->json()['pairs'] ?? [] as $pair) {
+                    $addr  = strtolower($pair['baseToken']['address'] ?? '');
+                    $price = (float)($pair['priceUsd'] ?? 0);
+                    if ($addr && $price > 0 && !isset($prices[$addr])) {
+                        $prices[$addr] = $this->formatPrice($price);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning("DexScreener chunk {$i} error: " . $e->getMessage());
+            }
+        }
+
         return $prices;
+    }
+
+    private function moralisKey(): string
+    {
+        return (new MoralisService())->getPublicApiKey();
     }
 
     private function formatPrice(float $price): string

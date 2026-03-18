@@ -17,6 +17,8 @@ class MoralisService
         $this->apiKey = $this->getApiKey();
     }
 
+    public function getPublicApiKey(): string { return $this->apiKey; }
+
     private function getApiKey(): string
     {
         return Cache::remember('moralis_api_key', 3600, function () {
