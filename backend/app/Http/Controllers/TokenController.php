@@ -33,6 +33,7 @@ class TokenController extends Controller
                     'decimals',
                     'logo',
                     'initial_price',
+                    'current_price',
                     'price_currency',
                     'detected_at',
                     'tx_hash',
@@ -42,24 +43,33 @@ class TokenController extends Controller
                     'is_tradeable',
                 ]);
 
-            // Fetch live USD prices from Moralis for all tokens
-            $addresses  = $tokens->pluck('token_address')->toArray();
-            $livePrices = (new MoralisService())->getTokenPrices($addresses);
+            // Use current_price from DB (updated every minute by background job)
+            // For tokens with no DB price yet, fall back to live API calls
+            $noPriceAddresses = $tokens
+                ->filter(fn($t) => empty($t->current_price))
+                ->pluck('token_address')
+                ->toArray();
 
-            // Find tokens Moralis couldn't price — fall back to DexScreener
-            $missing = array_values(array_filter($addresses, fn($a) => !isset($livePrices[strtolower($a)])));
-            if (!empty($missing)) {
-                $dexPrices  = $this->getDexScreenerPrices($missing);
-                $livePrices = array_merge($livePrices, $dexPrices);
+            $livePrices = [];
+            if (!empty($noPriceAddresses)) {
+                $moralisPrices = (new MoralisService())->getTokenPrices($noPriceAddresses);
+                $missing = array_values(array_filter($noPriceAddresses, fn($a) => !isset($moralisPrices[strtolower($a)])));
+                $dexPrices = !empty($missing) ? $this->getDexScreenerPrices($missing) : [];
+                $livePrices = array_merge($moralisPrices, $dexPrices);
             }
 
             $enriched = $tokens->map(function ($token) use ($livePrices) {
                 $row  = (array) $token;
                 $addr = strtolower($token->token_address);
-                if (isset($livePrices[$addr])) {
+                // Prefer DB price (fresh from background job)
+                if (!empty($token->current_price)) {
+                    $row['initial_price']  = $token->current_price;
+                    $row['price_currency'] = 'USD';
+                } elseif (isset($livePrices[$addr])) {
                     $row['initial_price']  = $livePrices[$addr];
                     $row['price_currency'] = 'USD';
                 }
+                unset($row['current_price']);
                 return $row;
             });
 
