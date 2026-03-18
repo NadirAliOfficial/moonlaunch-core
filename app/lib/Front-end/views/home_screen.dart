@@ -80,8 +80,15 @@ class _HomeScreenState extends State<HomeScreen> {
       _loading = true;
       _error = null;
     });
+    _loadBnb();
     try {
       final tokens = await TokenService.getNewLaunches(limit: 1000);
+      // Tokens with a price float to the top
+      tokens.sort((a, b) {
+        final aHas = (a.initialPrice != null && a.initialPrice!.isNotEmpty && a.initialPrice != '0') ? 0 : 1;
+        final bHas = (b.initialPrice != null && b.initialPrice!.isNotEmpty && b.initialPrice != '0') ? 0 : 1;
+        return aHas.compareTo(bHas);
+      });
       setState(() {
         _tokens = tokens;
         _loading = false;
