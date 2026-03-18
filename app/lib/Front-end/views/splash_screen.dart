@@ -18,6 +18,20 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _scaleAnimation;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    for (final img in [
+      'assets/images/moon_launch_roc.png',
+      'assets/images/hand_coin.png',
+      'assets/images/coin_image.png',
+      'assets/images/coins_image.png',
+      'assets/images/moon_launch_logo.png',
+    ]) {
+      precacheImage(AssetImage(img), context);
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
 

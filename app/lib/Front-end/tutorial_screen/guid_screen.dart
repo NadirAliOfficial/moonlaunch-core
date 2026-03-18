@@ -39,6 +39,14 @@ class _GuidScreenState extends State<GuidScreen> {
   ];
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    for (final page in _pages) {
+      precacheImage(AssetImage(page['image']!), context);
+    }
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
