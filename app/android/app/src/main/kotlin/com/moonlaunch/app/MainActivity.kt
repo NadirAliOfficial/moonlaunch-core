@@ -1,4 +1,4 @@
-package com.example.moon_launch
+package com.moonlaunch.app
 
 import io.flutter.embedding.android.FlutterActivity
 
