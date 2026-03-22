@@ -376,15 +376,24 @@ class ApiController extends Controller
             ], 404);                                         
         }                       
 
-        // Generate a random OTP                                                                             
-        $otp = rand(100000, 999999);                                      
-                   
-        // Update OTP in database with 10 minute expiry                                                                                                                     
+        // Test reviewer account — fixed OTP, skip email
+        if ($request->email === 'test@moonlaunchapp.com') {
+            \DB::table('users')->where('email', $request->email)->update([
+                'otp' => '123456',
+                'otp_expires_at' => now()->addYears(10),
+            ]);
+            return response()->json(['message' => 'OTP sent to your email', 'email' => $request->email], 200);
+        }
+
+        // Generate a random OTP
+        $otp = rand(100000, 999999);
+
+        // Update OTP in database with 10 minute expiry
         \DB::table('users')
             ->where('email', $request->email)
             ->update([
                 'otp' => $otp,
-                'otp_expires_at' => now()->addMinutes(10),                           
+                'otp_expires_at' => now()->addMinutes(10),
             ]);                                     
 
         // ── Send OTP via Postmark (SAME as signup)                                                  
