@@ -21,4 +21,4 @@ flutter run
 
 ## License
 MIT
-<!-- updated: 2025-09-20-r01 -->
+<!-- updated: 2026-06-04 -->
